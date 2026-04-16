@@ -29,7 +29,7 @@
 
         <!-- حاوية عمودية إضافية للنصوص -->
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingHorizontal="28dp"
             android:paddingVertical="12dp"	
@@ -37,7 +37,7 @@
 
             <!-- اسم الخط داخل LinearLayout مستقل -->
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="30sp"
                 android:layout_marginHorizontal="8dp">
 
@@ -71,22 +71,22 @@
                     android:textColor="?android:attr/textColorSecondary"
                     tools:text="Bold, Condensed" />
                     
+            </LinearLayout>  
+           
+            <LinearLayout  
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="20dp"
+                android:orientation="vertical">
+            	
+                <View
+                    android:id="@+id/item_divider"
+                    android:layout_height="1dp"
+                    android:layout_width="match_parent"
+                    android:background="@color/oui_list_divider_color" />
+             
             </LinearLayout>
             
-        </LinearLayout>   
-           
-        <LinearLayout  
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="20dp"
-            android:orientation="vertical">
-            	
-            <View
-                android:id="@+id/item_divider"
-                android:layout_height="1dp"
-                android:layout_width="match_parent"
-                android:background="@color/oui_list_divider_color" />
-             
         </LinearLayout>
             
     </LinearLayout>
