@@ -39,6 +39,8 @@
 
     <color name="secondary_text_default_material">@color/secondary_text_default_material_dark</color>
 
+    <color name="sesl_secondary_text_color">@color/sesl_secondary_text_color_dark</color>
+
 
    <!-- <color name="sesl_primary_dark_color">@color/sesl_primary_dark_color_dark</color>
     <color name="sesl_primary_dark_color_dark">#2d2d30</color> -->
