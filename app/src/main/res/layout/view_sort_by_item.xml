@@ -44,7 +44,7 @@
          android:layout_height="34dp"
          android:padding="8dp"
          android:layout_marginEnd="9dp"
-         android:drawableTintTint="@color/secondary_text_default_material"
+         android:drawableTint="@color/secondary_text_default_material"
          android:background="@drawable/sort_btn_ripple_oval" />
 
 </LinearLayout>
