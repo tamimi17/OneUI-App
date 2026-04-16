@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme" parent="OneUITheme">
+    </style>
+
+    <style name="OneUI.ContainedButtonTheme" parent="@style/Widget.AppCompat.Button.Custom">
+        <item name="android:textSize">17sp</item>
+        <item name="buttonCornerRadius">26dp</item>
+    </style>
+
+    <style name="AppTheme.Starting" parent="Theme.SplashScreen">
+        <item name="postSplashScreenTheme">@style/AppTheme</item>
+        <item name="windowSplashScreenBackground">@color/oui_round_and_bgcolor</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
+        <item name="windowSplashScreenAnimationDuration">800</item>
+    </style>
+        
+</resources>

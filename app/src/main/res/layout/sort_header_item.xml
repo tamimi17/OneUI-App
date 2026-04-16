@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dev.oneuiproject.oneui.widget.RoundLinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:background="@color/oui_background_color"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- شريط الفرز -->
+    <com.example.oneuiapp.ui.widget.SortByItemLayout
+        android:id="@+id/sort_layout"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"/>
+
+    <!-- خط الفاصل أسفل الشريط -->
+    <View
+        android:layout_width="match_parent"
+        android:id="@+id/divider"
+        android:layout_height="1dp"
+        android:layout_marginHorizontal="20dp"
+        android:background="@color/oui_list_divider_color"/>
+    
+</dev.oneuiproject.oneui.widget.RoundLinearLayout>

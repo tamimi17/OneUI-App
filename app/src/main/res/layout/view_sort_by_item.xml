@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+     android:gravity="center_vertical"
+     android:orientation="horizontal"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content">
+    
+     <LinearLayout
+        android:id="@+id/sort_text_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="4dp"
+        android:background="@drawable/sort_btn_ripple"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="19dp"
+            android:layout_height="19dp"
+            android:tint="?android:attr/textColorSecondary"
+            android:src="@drawable/ic_oui_list_sort" />
+
+        <TextView
+            android:id="@+id/sort_current_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="7dp"
+            android:textColor="@color/secondary_text_default_material"
+            android:textSize="16dp" />
+            
+     </LinearLayout>
+
+     <View
+         android:layout_height="16dp"
+         android:layout_width="1dp"
+         android:layout_marginStart="7dp"
+         android:layout_marginEnd="10dp"
+         android:background="?android:attr/textColorPrimary" />
+
+     <ImageView
+         android:id="@+id/sort_order_icon"
+         android:layout_width="34dp"
+         android:layout_height="34dp"
+         android:padding="8dp"
+         android:layout_marginEnd="9dp"
+         android:tint="?android:attr/textColorSecondary"
+         android:background="@drawable/sort_btn_ripple_oval" />
+
+</LinearLayout>

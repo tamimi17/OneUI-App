@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         قسم الثيم (Theme Section) - أول قسم في الإعدادات
+         يستخدم HorizontalRadioPreference لعرض الصور
+         ★ android:key="category_theme" مضاف لتمكين تحديث النصوص يدوياً
+           في onConfigurationChanged بدون تدمير الشاشة ★
+         ═══════════════════════════════════════════════════════════════ -->
+    <PreferenceCategory
+        android:key="category_theme">
+
+        <dev.oneuiproject.oneui.preference.HorizontalRadioPreference
+            android:key="theme_mode"
+            android:title="@string/settings_theme"
+            app:entries="@array/settings_theme_entries"
+            app:entriesImage="@array/settings_theme_entries_image"
+            app:entryValues="@array/settings_theme_values"
+            android:defaultValue="0"
+            android:persistent="false"            
+            app:viewType="image" />
+
+        <SwitchPreferenceCompat
+            android:key="theme_auto"
+            android:defaultValue="true"
+            android:persistent="false"
+            android:title="@string/settings_theme_system" />
+
+        <!-- ★ الثيم الشفاف: بطاقات متباعدة ذات زوايا دائرية كاملة وخلفية شفافة ★
+             - مستقل تماماً عن خيار الثيم الفاتح/الداكن
+             - لا يعدّل الثيم المحدد، يُعيد فقط بناء الواجهة باستخدام layouts مختلفة
+             - القيمة الافتراضية: معطّل -->
+        <SwitchPreferenceCompat
+            android:key="theme_transparent"
+            android:defaultValue="false"
+            android:persistent="false"
+            android:title="@string/settings_theme_transparent"
+            android:summary="@string/settings_theme_transparent_description" />
+
+    </PreferenceCategory>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         قسم المظهر (Appearance Section)
+         ★ android:key="category_appearance" مضاف لتحديث عنوان القسم يدوياً ★
+         ═══════════════════════════════════════════════════════════════ -->
+    <PreferenceCategory
+        android:key="category_appearance"
+        android:title="@string/settings_appearance">
+
+        <DropDownPreference
+            android:key="language_mode"
+            android:title="@string/settings_language"
+            android:entries="@array/settings_language_entries"
+            android:entryValues="@array/settings_language_values"
+            android:defaultValue="0"
+            android:persistent="false"
+            app:useSimpleSummaryProvider="true" />
+
+        <com.example.oneuiapp.custom.CustomDropDownPreference
+            android:key="font_mode"
+            android:title="@string/settings_font"
+            android:entries="@array/settings_font_entries"
+            android:entryValues="@array/settings_font_values"
+            android:defaultValue="0"
+            android:persistent="false"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         قسم عرض الخطوط (Font Display Section)
+         ★ android:key="category_font_display" مضاف لتحديث عنوان القسم يدوياً ★
+         ═══════════════════════════════════════════════════════════════ -->
+    <PreferenceCategory
+        android:key="category_font_display"
+        android:title="@string/settings_font_display_section">
+
+        <SwitchPreferenceCompat
+            android:key="font_preview_enabled"
+            android:title="@string/settings_font_preview"
+            android:summary="@string/settings_font_preview_description"
+            android:persistent="false"
+            android:defaultValue="true" />
+
+        <SwitchPreferenceCompat
+            android:key="enable_translation"
+            android:title="@string/settings_translation"
+            android:summary="@string/settings_translation_description"
+            android:persistent="false"
+            android:defaultValue="false" />
+
+    </PreferenceCategory>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         قسم الإشعارات (Notifications Section)
+         ★ android:key="category_notifications" مضاف لتحديث عنوان القسم يدوياً ★
+         ═══════════════════════════════════════════════════════════════ -->
+    <PreferenceCategory
+        android:key="category_notifications"
+        android:title="@string/settings_notifications_section">
+
+        <SwitchPreferenceCompat
+            android:key="notifications_enabled"
+            android:title="@string/settings_notifications"
+            android:summary="@string/settings_notifications_description"
+            android:persistent="false"
+            android:defaultValue="true" />
+
+    </PreferenceCategory>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         قسم عام (General Section)
+         ★ android:key="category_general" مضاف لتحديث عنوان القسم يدوياً ★
+         ═══════════════════════════════════════════════════════════════ -->
+    <PreferenceCategory
+        android:key="category_general"
+        android:title="@string/settings_general">
+
+        <EditTextPreference
+            android:key="preview_text"
+            android:title="@string/settings_preview_text"
+            android:summary="@string/settings_preview_text_summary"
+            android:dialogTitle="@string/settings_preview_text_dialog_title"
+            android:dialogMessage="@string/settings_preview_text_dialog_message"
+            android:persistent="false"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+    
+    <!-- ═══════════════════════════════════════════════════════════════
+         قسم حول التطبيق (About Section)
+         ★ android:key="category_about" مضاف لتحديث العناصر يدوياً ★
+         ═══════════════════════════════════════════════════════════════ -->
+    <PreferenceCategory
+        android:key="category_about">
+        
+        <Preference
+        android:key="about_app"
+        android:persistent="false"
+        android:title="@string/about_title" />
+
+    </PreferenceCategory>
+
+    <!-- إضافة فئة فارغة لخلق المساحة السفلية -->
+    <dev.oneuiproject.oneui.preference.InsetPreferenceCategory
+        android:key="footer_space"
+        android:selectable="false" />
+
+</PreferenceScreen>

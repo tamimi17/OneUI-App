@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    ★ التعديل: نفس إعادة الهيكلة المطبّقة على font_list_item.xml ★
+    - الارتفاع: من 70dp ثابت إلى wrap_content مع minHeight="70dp"
+    - اسم الخط ووصف الوزن/العرض داخل LinearLayout عمودي موزون
+    - الثيم الشفاف: MaterialCardView يتولى الزوايا الدائرية تلقائياً
+-->
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="5dp"
+    android:orientation="vertical"
+    app:cardBackgroundColor="@android:color/transparent"
+    app:cardCornerRadius="15dp"
+    app:cardElevation="0dp"
+    app:cardPreventCornerOverlap="false">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="86dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:animateLayoutChanges="true"
+        android:background="@drawable/font_list_ripple"
+        android:paddingVertical="12dp"
+        android:paddingHorizontal="28dp">
+
+        <!-- ★ CheckBox للتحديد المتعدد — يظهر فقط في وضع الاختيار ★ -->
+        <CheckBox
+            android:id="@+id/checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="?android:listPreferredItemPaddingStart"
+            android:background="@null"
+            android:clickable="false"
+            android:focusable="false"
+            android:visibility="gone" />
+
+        <!-- ★ LinearLayout عمودي يحتوي اسم الخط + وصف الوزن/العرض ★ -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- ★ اسم الخط — يدعم تظليل نص البحث ★ -->
+            <TextView
+                android:id="@+id/font_item_name"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:includeFontPadding="false"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textSize="16sp"
+                android:textColor="?android:attr/textColorPrimary"
+                android:fontFamily="sans-serif"
+                android:textStyle="bold"
+                tools:text="Font Name Example" />
+
+            <!-- ★ وصف الوزن والعرض — باللون الثانوي ★
+                 أمثلة: "Bold, Condensed" | "VF · Regular" | "غير معروف" -->
+            <TextView
+                android:id="@+id/font_item_weight_width"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"                android:layout_marginTop="0dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textSize="13sp"
+                android:textColor="?android:attr/textColorSecondary"
+                tools:text="Bold, Condensed" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <color name="primary_text_color">#FAFAFA</color>
+
+    <color name="primary_text_color_2">#E5E5E5</color>
+    
+    <color name="secondary_text_color">#999999</color>
+    
+    <color name="blue_text_color">#3E90FC</color>
+
+    <color name="about_page_secondary_text_color">#ff747474</color>
+
+    <color name="ripple_rectangle_effect_color">#33ffffff</color>
+    
+    <color name="sort_by_text_color">#ffd9d9d9</color>
+
+    <color name="button_ripple_color">#33ffffff</color>
+
+    <color name="basic_divider_line_color">#3a3a3a</color>
+
+  <!--  <color name="btn_bg_color">#373737</color> -->
+
+     <color name="background_floating_material">@color/background_floating_material_dark</color>
+
+  <!--  <color name="sesl_menu_popup_background">@color/sesl_menu_popup_background_color_dark</color>
+
+    <color name="sesl_dialog_window_background_color_material">@color/sesl_dialog_window_background_color_material_dark</color>-->
+   <!--  <color name="sesl_primary_color">@color/sesl_primary_color_dark</color>
+     <color name="sesl_primary_color_dark">#373737</color>
+     <color name="sesl_primary_color_light">#e2e2e2</color> -->
+
+   
+  <!--   <color name="primary_material_1">@color/material_grey_900</color>
+     <color name="material_grey_900">#373737</color> -->
+    
+
+    <color name="sesl_btn_background_color_dark">#2d2d30</color>
+
+    <color name="secondary_text_default_material">@color/secondary_text_default_material_dark</color>
+
+
+   <!-- <color name="sesl_primary_dark_color">@color/sesl_primary_dark_color_dark</color>
+    <color name="sesl_primary_dark_color_dark">#2d2d30</color> -->
+
+
+    <!-- <color name="primary_material_2">@color/primary_color_themed</color>
+    <color name="primary_color_themed">#2d2d30</color>
+
+
+    <color name="sesl_action_bar_text_color_title">@color/sesl_action_bar_text_color_title_dark</color>
+
+    <color name="sesl_action_bar_text_color_subtitle">@color/sesl_action_bar_text_color_subtitle_dark</color>
+
+    <color name="sesl_extended_appbar_subtitle">@color/sesl_extended_appbar_subtitle_dark</color>
+
+    <color name="filled_background_color">#373737</color> -->
+    
+
+
+    
+   <!-- <color name="primary_text_icon_color">#fffafafa</color>
+    <color name="secondary_text_icon_color">#ff999999</color>
+    <color name="secondary_text_icon_color_themed">@color/sesl_list_subheader_text_color_dark</color>
+    <color name="round_and_bg_color">@color/oui_round_and_bgcolor</color>
+    <color name="background_color">#ff171717</color>
+    <color name="filled_background_color">#373737</color>
+    <color name="ripple_color">#0d000000</color> -->
+
+    <!--
+    material you theming
+    color name="oui_primary_icon_color">@color/primary_text_icon_color</color>
+    <color name="oui_primary_text_color">@color/primary_text_icon_color</color>
+    <color name="oui_relative_link_title_text_color">@color/primary_text_icon_color</color>
+    <color name="oui_appinfolayout_info_text_color">@color/secondary_text_icon_color</color>
+    <color name="oui_btn_app_info">@color/filled_background_color</color>
+    <color name="oui_appinfolayout_button_default_text">@color/primary_text_icon_color</color>
+    <color name="oui_tipscardpref_bg_color">@color/background_color</color>
+    <color name="oui_grid_menu_dialog_item_bg">@color/background_color</color>
+    <color name="oui_grid_menu_dialog_item_icon_text_color">@color/primary_text_icon_color</color-->
+
+
+    
+</resources>

@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- النصوص الأساسية للتطبيق -->
+    <string name="app_name">One UI App</string>
+    <string name="app_subtitle">Modern One UI Experience</string>
+    <string name="settings_subtitle">Customize Your App</string>
+    
+    <!-- عناوين الأقسام -->
+    <string name="title_features">Main Features</string>
+    <string name="title_about">About</string>
+    <string name="title_settings">Settings</string>
+    <string name="swipe_up">Swipe up</string>
+    
+    <!-- الميزات -->
+    <string name="feature1">Content is displayed and controlled easily</string>
+    <string name="feature2">Simple and easy to use design</string>
+    <string name="feature3">Consistent UI elements for better experience</string>
+    <string name="feature4">Supports dark mode for viewing comfort</string>
+    
+    <!-- حول التطبيق -->
+    <string name="about_text">This is a demo app to showcase the OneUI design</string>
+    
+    <!-- عناصر الدرج -->
+    <string name="drawer_home">Home</string>
+    <string name="drawer_settings">Settings</string>
+    <string name="drawer_font_viewer">Font Viewer</string>
+    <string name="drawer_local_fonts">Local Fonts</string>
+    
+    <!-- الإعدادات -->
+    <string name="settings_info">You can control app settings from here</string>
+    
+    <!-- التنقل -->
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    
+    <!-- ═══════════════════════════════════════════════════════════════
+         إعدادات عامة (General Settings)
+         ═══════════════════════════════════════════════════════════════ -->
+    
+    <string name="settings_general">General</string>
+    
+    <!-- نص المعاينة (Preview Text) -->
+    <string name="settings_preview_text">Preview Text</string>
+    <string name="settings_preview_text_summary">Edit the text shown in preview</string>
+    <string name="settings_preview_text_default">The quick brown fox jumps over the lazy dog</string>
+    <string name="settings_preview_text_dialog_title">Edit Preview Text</string>
+    <string name="settings_preview_text_dialog_message">Enter the text you want to display in the preview</string>
+    
+    <!-- ═══════════════════════════════════════════════════════════════
+         إعدادات المظهر (Appearance Settings)
+         ═══════════════════════════════════════════════════════════════ -->
+    
+    <string name="settings_appearance">Appearance</string>
+    
+    <!-- إعدادات اللغة -->
+    <string name="settings_language">Language</string>
+    <string name="settings_language_system">System default</string>
+    <string name="settings_language_arabic">Arabic</string>
+    <string name="settings_language_english">English</string>
+    
+    <!-- إعدادات الثيم -->
+    <string name="settings_theme">Theme</string>
+    <string name="settings_theme_system">System default</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+
+    <!-- إعدادات الخط -->
+    <string name="settings_font">Font Style</string>
+    <string name="settings_font_system">System Default</string>
+    <string name="settings_font_wf_rglr">WF Regular</string>
+    <string name="settings_font_samsung_one">Samsung One</string>
+    <string name="settings_font_sst_roman">SST Roman</string>
+    <string name="settings_font_product_sans">Product Sans</string>
+    <string name="settings_font_new_sec_keypad">New SEC Keypad</string>
+    <string name="settings_font_din_next_lt">DIN Next LT</string>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         إعدادات الإشعارات (Notification Settings)
+         ═══════════════════════════════════════════════════════════════ -->
+    
+    <string name="settings_notifications_section">Notifications</string>
+    <string name="settings_notifications_placeholder">Notifications feature coming soon</string>
+    <string name="settings_notifications">Notifications</string>
+    <string name="settings_notifications_description">Receive app notifications</string>
+    <string name="notifications_enabled">Notifications enabled</string>
+    <string name="notifications_disabled">Notifications disabled</string>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         نصوص عارض الخطوط (Font Viewer)
+         ═══════════════════════════════════════════════════════════════ -->
+    
+    <string name="font_viewer_select_font">Choose Font File</string>
+    <string name="font_viewer_select_description">Select a font file from your device (.ttf or .otf)</string>
+    <string name="font_viewer_no_font_selected">No font selected</string>
+    <string name="font_info">Font information</string>
+    
+    <string name="font_viewer_english_sentence">The quick brown fox jumps over the lazy dog.</string>
+    <string name="font_viewer_english_numbers">0 1 2 3 4 5 6 7 8 9</string>
+    <string name="font_viewer_arabic_sentence">الحب سر الوجود والجمال أساس الحياة.</string>
+    <string name="font_viewer_arabic_numbers">٠ ١ ٢ ٣ ٤ ٥ ٦ ٧ ٨ ٩</string>
+    
+    <string name="font_viewer_error_opening_picker">Unable to open file picker</string>
+    <string name="font_viewer_error_loading_font">Error loading font file</string>
+
+    <!-- Font Viewer - نصوص النافذة -->
+    <string name="font_viewer_adjust_size">Adjust font size</string>
+    <string name="font_viewer_import_font">Import font</string>
+    <string name="font_viewer_toggle_bold">Toggle bold</string>
+    <string name="font_size_and_style">Font Size &amp; Style</string>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         نصوص FontFragment - إدارة مجلد الخطوط
+         ═══════════════════════════════════════════════════════════════ -->
+    
+    <!-- زر الاستيراد -->
+    <string name="font_fragment_import_button">Import Fonts from Device</string>
+    <string name="font_fragment_import_description">Copy all font files found on your device to FontViewer+ folder</string>
+    
+    <!-- رسائل حوار الاستيراد -->
+    <string name="font_fragment_import_title">Import Fonts</string>
+    <string name="font_fragment_import_message">This will search for all .ttf and .otf font files on your device and copy them to the FontViewer+ folder in Documents.\n\nDo you want to continue?</string>
+    <string name="font_fragment_import_confirm">Import</string>
+    <string name="font_fragment_importing">Importing Fonts…</string>
+    <string name="font_fragment_please_wait">Please wait while fonts are being copied to FontViewer+ folder</string>
+    
+    <!-- رسائل النتائج -->
+    <string name="font_fragment_import_success">Successfully imported %d fonts to FontViewer+ folder</string>
+    <string name="font_fragment_import_no_fonts">No font files found on your device</string>
+
+    <string name="font_fragment_select_folder_button">Select Folder</string>
+    <string name="font_fragment_select_folder_description">Grant access to your \'FontViewer+\' folder</string>
+    
+    <!-- رسالة القائمة الفارغة -->
+    <string name="font_fragment_empty_message">No fonts in FontViewer+ folder yet.\n\nTap \"Import Fonts from Device\" above to get started, or manually copy font files to:\nDocuments/FontViewer+</string>
+    
+    <!-- رسالة رفض الصلاحية -->
+    <string name="font_fragment_permission_denied">Storage permission is required to search for font files on your device.\n\nYou can grant this permission in Settings, or manually copy font files to Documents/FontViewer+ folder.</string>
+    
+    <!-- قسم عرض الخطوط (Font Display Section) -->
+    <string name="settings_font_display_section">Font Display</string>
+    <string name="settings_font_preview">Font Preview</string>
+    <string name="settings_font_preview_description">Display font names using their own fonts in the font list</string>
+    <string name="font_size_dialog_title">Font Size</string>
+
+    <string name="settings_translation">Translation font info</string>
+    <string name="settings_translation_description">Translate font information automatically</string>
+
+    <!-- أضف هذه النصوص إلى ملف strings.xml الخاص بك -->
+
+<!-- نصوص البحث -->
+    <string name="search_font">Search</string>
+    <string name="no_results_found">No results found</string>
+    
+    <!-- ═══════════════════════════════════════════════════════════════
+     About Activity
+     ═══════════════════════════════════════════════════════════════ -->
+
+    <string name="about_title">About</string>
+    <string name="about_button_status">Status</string>
+    <string name="about_button_github">GitHub</string>
+    <string name="about_error_no_browser">No browser app found</string>
+
+    <string name="font_fragment_import_failed">%d files failed to import</string>
+
+    <!-- أضف هذه النصوص إلى ملف res/values/strings.xml الخاص بك -->
+
+<!-- Sort Menu Strings -->
+<string name="sort_fonts">Sort Fonts</string>
+<string name="sort_name_ascending">Name (A to Z)</string>
+<string name="sort_name_descending">Name (Z to A)</string>
+<string name="sort_date_ascending">Date (Oldest First)</string>
+<string name="sort_date_descending">Date (Newest First)</string>
+
+    <string name="sort_size">Size</string>
+    <string name="sort_date">Date</string>
+    <string name="sort_name">Name</string>
+    <string name="sort_ascending">Ascending</string>
+    <string name="sort_descending">Descending</string>
+
+    <string name="navigate_up">Navigate up</string>
+
+    <!-- Font List Count Strings -->
+    <string name="font_list_count_single">%1$d font file</string>
+    <string name="font_list_count_multiple">%1$d font file</string>
+    <string name="font_list_count_none">No font available</string>
+
+    <!-- System Font List Fragment -->
+    <string name="drawer_system_fonts">System Fonts</string>
+    <string name="system_fonts_title">System Fonts</string>
+    <string name="system_fonts_subtitle">Browse fonts installed on your device</string>
+    <string name="system_fonts_loading">Loading system fonts…</string>
+    <string name="system_fonts_empty">No system fonts found</string>
+    <string name="system_fonts_api_unavailable">System Fonts API is not available</string>
+    <string name="system_fonts_requires_api_29">This feature requires Android 10 (API 29) or higher</string>
+
+    <!-- أضف هذه النصوص إلى ملف res/values/strings.xml -->
+
+<!-- Font Selection and Actions -->
+<string name="action_rename">Rename</string>
+<string name="action_delete">Delete</string>
+<string name="action_delete_all">Delete all</string>
+<string name="action_cancel">Cancel</string>
+
+<!-- Selection Mode -->
+<string name="selected_count">%d محدد</string>
+<string name="selected_count_one">عنصر واحد محدد</string>
+<string name="all_selected">الكل محدد</string>
+
+<!-- Delete Confirmation -->
+<string name="delete_single_confirmation">Do you want to delete 1 file?</string>
+<string name="delete_multiple_confirmation">Do you want to delete %d files?</string>
+<string name="delete_all_confirmation">Do you want to delete all files?</string>
+
+<!-- Rename Dialog -->
+<string name="rename_dialog_title">Rename font</string>
+<string name="rename_dialog_hint">Enter new name</string>
+<string name="new_name_label">New name</string>
+
+<!-- Error Messages -->
+<string name="error_rename_failed">The renaming failed</string>
+<string name="error_delete_failed">Deletion failed</string>
+<string name="error_file_exists">The file name already in use</string>
+<string name="error_invalid_name">Invalid name</string>
+<string name="error_file_not_found">The file is not found</string>
+<string name="rename_error_text">The name already exists</string>
+
+<!-- Success Messages -->
+<string name="success_renamed">Renamed successfully</string>
+<string name="success_deleted">Deleted successfully</string>
+<string name="success_deleted_multiple">%d Files deleted</string>
+    <!-- أضف هذا السطر إلى ملف res/values/strings.xml الموجود لديك -->
+
+<string name="unknown_font">Unknown Font</string>
+
+<!-- يُستخدم عندما يكون الخط تالفاً أو لا يمكن قراءة اسمه الحقيقي -->
+
+<string name="settings_theme_transparent">Black</string>  
+<string name="settings_theme_transparent_description">Black menu background in dark mode, and light gray in light mode.</string>
+
+<string name="exit_on_double_back">Press again to exit</string>
+    
+</resources>

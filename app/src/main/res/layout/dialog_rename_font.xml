@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:overScrollMode="ifContentScrolls">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="95dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="20dp"
+            android:paddingHorizontal="20dp"
+            android:orientation="vertical">
+            
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/rename_edit_text"
+                android:hint="@string/rename_dialog_hint"
+                android:inputType="text"
+                android:singleLine="true" />
+
+        </LinearLayout>
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="70dp"
+            android:paddingHorizontal="33dp"
+            android:orientation="vertical">
+
+            <!-- ★ رسالة الخطأ تحت حقل الإدخال — مخفية بالافتراضي ★ -->
+            <TextView
+                android:id="@+id/rename_error_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="@color/oui_functional_red_color"
+                android:visibility="gone"/>
+            
+        </LinearLayout>
+        
+    </FrameLayout>
+    
+</ScrollView>

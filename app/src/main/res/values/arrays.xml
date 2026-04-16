@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         قائمة خيارات اللغة (Language Options)
+         ═══════════════════════════════════════════════════════════════ -->
+    
+    <string-array name="settings_language_entries">
+        <item>@string/settings_language_system</item>
+        <item>@string/settings_language_arabic</item>
+        <item>@string/settings_language_english</item>
+    </string-array>
+    
+    <string-array name="settings_language_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         قائمة خيارات الثيم مع الصور (Theme Options with Images)
+         متوافقة 100% مع المكتبة الرسمية
+         ═══════════════════════════════════════════════════════════════ -->
+    
+    <!-- النصوص المعروضة للمستخدم (Light و Dark فقط) -->
+    <string-array name="settings_theme_entries">
+        <item>@string/settings_theme_light</item>
+        <item>@string/settings_theme_dark</item>
+    </string-array>
+    
+    <!-- القيم المحفوظة - متطابقة تماماً مع المكتبة الرسمية
+         "0" = Light Mode (THEME_LIGHT)
+         "1" = Dark Mode (THEME_DARK)
+         
+         ملاحظة: الوضع التلقائي (System) يُدار بشكل منفصل عبر SwitchPreference
+    -->
+    <string-array name="settings_theme_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+    
+    <!-- صور الثيم (Light Mode و Dark Mode) -->
+    <array name="settings_theme_entries_image">
+        <item>@drawable/display_help_light_mode</item>
+        <item>@drawable/display_help_dark_mode</item>
+    </array>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         قائمة خيارات الخط (Font Options)
+         ═══════════════════════════════════════════════════════════════ -->
+    
+    <string-array name="settings_font_entries">
+        <item>@string/settings_font_system</item>
+        <item>@string/settings_font_wf_rglr</item>
+        <item>@string/settings_font_samsung_one</item>
+        <item>@string/settings_font_sst_roman</item>
+        <item>@string/settings_font_product_sans</item>
+        <item>@string/settings_font_new_sec_keypad</item>
+        <item>@string/settings_font_din_next_lt</item>
+    </string-array>
+    
+    <string-array name="settings_font_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </string-array>
+
+</resources>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+   <dimen name="sort_by_list_sort_padding">7.0dp</dimen>
+    <dimen name="sort_by_list_shape_padding">8.0dp</dimen>
+    <dimen name="sort_by_list_shape_padding_end">12.0dp</dimen>
+    <dimen name="sort_by_list_sort_image_margin_end">6.0dp</dimen>
+    <dimen name="sort_by_list_sort_text_size">13.0sp</dimen>
+    <dimen name="sort_by_list_sort_divider_width">0.5dp</dimen>
+    <dimen name="sort_by_list_sort_divider_height">16.0dp</dimen>
+    <dimen name="sort_by_list_sort_icon_padding_start">10.0dp</dimen>
+    <dimen name="basic_text_button_ripple_radius">22.0dp</dimen>
+    <dimen name="sort_by_list_sort_text_ripple_margin_end">4.0dp</dimen>
+    <dimen name="sort_by_list_sort_icon_ripple_margin_end">13.0dp</dimen>
+    <dimen name="sort_by_list_sort_icon_ripple_margin_start">3.0dp</dimen>
+
+    <dimen name="title_text_size">30sp</dimen>
+    <dimen name="subtitle_text_size">15sp</dimen>
+
+
+   <!-- <dimen name="sesl_appbar_extended_subtitle_text_size">15sp</dimen>-->
+   <!-- <dimen name="sesl_appbar_extended_title_and_subtitle_padding">4dp</dimen> -->
+   <!-- <dimen name="sesl_appbar_extended_title_extra_line_space">-3dp</dimen> -->
+<!--    <dimen name="sesl_appbar_extended_title_padding">24dp</dimen> -->
+   <!-- <dimen name="sesl_appbar_extended_title_text_size">34sp</dimen> -->
+ <!--   <dimen name="sesl_toolbar_subtitle_margin_top">0dp</dimen> -->
+   <!-- <dimen name="sesl_appbar_extended_title_text_view_height">150.0dip</dimen> -->
+   <!-- <dimen name="sesl_appbar_extended_title_text_size_with_subtitle">30sp</dimen> -->
+
+</resources>

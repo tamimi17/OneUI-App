@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/transparent"
+    android:orientation="vertical">
+
+    <!-- شريط الفرز — نفس الـ id لضمان التوافق مع SortHeaderViewHolder -->
+    <com.example.oneuiapp.ui.widget.SortByItemLayout
+        android:id="@+id/sort_layout"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"/>
+
+    <!-- ★ View وهمي بارتفاع صفر — محفوظ لتجنب NullPointerException
+         في أي كود يستدعي findViewById(R.id.divider) ★ -->
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="gone" />
+
+</LinearLayout>

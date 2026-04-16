@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" 
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"
+        android:minSdkVersion="33" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"
+        android:minSdkVersion="33" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"
+        android:minSdkVersion="33" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+        
+    <application
+        android:name=".MyApplication"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme"
+        android:hardwareAccelerated="true"
+        android:supportsRtl="true"
+        android:localeConfig="@xml/locale_config"
+        android:resizeableActivity="true"
+        android:usesCleartextTraffic="true"
+        tools:targetApi="36">
+
+        <meta-data
+            android:name="SamsungBasicInteraction"
+            android:value="SEP10" />
+        <meta-data
+            android:name="com.samsung.android.icon_container.has_icon_container"
+            android:value="true" />
+        <meta-data
+            android:name="com.samsung.android.icon_container.feature_appicon"
+            android:value="ADAPTIVEICON_SHADOW" />
+
+        <meta-data
+            android:name="theming-meta"
+            android:value="meta_998_sesl_app" />
+        <meta-data
+            android:name="theming-meta-xml"
+            android:value="@xml/meta_998_sesl_app" />
+
+        <!-- ★ بدون locale|layoutDirection في configChanges ★
+             عند تغيير اللغة، يقوم النظام بإعادة بناء هذه الأنشطة تلقائياً
+             في الخلفية (بدون علم المستخدم). عند الرجوع إليها يجد المستخدم
+             اللغة محدّثة بالكامل. هذا السلوك هو المطلوب لحل مشكلة عدم
+             تحديث الفراجمنتات الأخرى عند الرجوع للخلف.
+             ملاحظة: لم نضف uiMode عمداً لأنه يُسبّب خللاً في الثيم. -->
+        <activity
+            android:name=".activity.MainActivity"
+            android:configChanges="orientation|screenLayout|screenSize"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme.Starting">
+            
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+
+            <meta-data
+                android:name="com.sec.android.app.launcher.icon_theme"
+                android:value="themeColor" />
+
+            
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                
+                <action android:name="android.intent.action.SEARCH" />
+                
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <!-- ★ بدون locale|layoutDirection: النظام يعيد بناءها عند تغيير اللغة ★ -->
+        <activity
+            android:name=".activity.HomeActivity"
+            android:configChanges="orientation|screenSize|screenLayout" />
+
+        <!-- ★ بدون locale|layoutDirection: النظام يعيد بناءها عند تغيير اللغة ★ -->
+        <activity
+            android:name=".activity.AboutActivity" />
+
+        <!-- ★ locale|layoutDirection موجود هنا فقط ★
+             SettingsActivity هي الشاشة التي يرى فيها المستخدم تغيير اللغة
+             بشكل مباشر، لذا نمنع تدميرها لتفادي وميض الصور والرسومات.
+             التحديث يتم يدوياً في onConfigurationChanged عبر LanguageHelper.
+             ملاحظة: لم نضف uiMode عمداً لأنه يُسبّب خللاً في الثيم. -->
+        <activity
+            android:name=".activity.SettingsActivity"
+            android:configChanges="orientation|screenSize|screenLayout|locale|layoutDirection" />
+
+    </application>
+</manifest>

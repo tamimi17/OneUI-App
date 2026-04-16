@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- النصوص الأساسية للتطبيق -->
+    <string name="app_name">تطبيق One UI</string>
+    <string name="app_subtitle">تجربة One UI الحديثة</string>
+    <string name="settings_subtitle">خصص تطبيقك</string>
+    
+    <!-- عناوين الأقسام -->
+    <string name="title_features">الميزات الرئيسية</string>
+    <string name="title_about">حول</string>
+    <string name="title_settings">الإعدادات</string>
+    <string name="swipe_up">اسحب للأعلى</string>
+    
+    <!-- الميزات -->
+    <string name="feature1">يتم عرض المحتوى والتحكم به بسهولة</string>
+    <string name="feature2">تصميم بسيط وسهل الاستخدام</string>
+    <string name="feature3">عناصر واجهة مستخدم متناسقة لتجربة أفضل</string>
+    <string name="feature4">يدعم الوضع الداكن لراحة العين</string>
+    
+    <!-- حول التطبيق -->
+    <string name="about_text">هذا تطبيق تجريبي لعرض تصميم OneUI</string>
+    
+    <!-- عناصر الدرج -->
+    <string name="drawer_home">الرئيسية</string>
+    <string name="drawer_settings">الإعدادات</string>
+    <string name="drawer_font_viewer">عارض الخطوط</string>
+    <string name="drawer_local_fonts">الخطوط المحلية</string>
+    
+    <!-- الإعدادات -->
+    <string name="settings_info">يمكنك التحكم بإعدادات التطبيق من هنا</string>
+    
+    <!-- التنقل -->
+    <string name="navigation_drawer_open">فتح درج التنقل</string>
+    <string name="navigation_drawer_close">إغلاق درج التنقل</string>
+    
+    <!-- ═══════════════════════════════════════════════════════════════
+         إعدادات عامة (General Settings)
+         ═══════════════════════════════════════════════════════════════ -->
+    
+    <string name="settings_general">عام</string>
+    
+    <!-- نص المعاينة (Preview Text) -->
+    <string name="settings_preview_text">نص المعاينة</string>
+    <string name="settings_preview_text_summary">عدّل النص المعروض في المعاينة</string>
+    <string name="settings_preview_text_default">الحب سر الوجود والجمال أساس الحياة</string>
+    <string name="settings_preview_text_dialog_title">تعديل نص المعاينة</string>
+    <string name="settings_preview_text_dialog_message">أدخل النص الذي تريد عرضه في المعاينة</string>
+    
+    <!-- ═══════════════════════════════════════════════════════════════
+         إعدادات المظهر (Appearance Settings)
+         ═══════════════════════════════════════════════════════════════ -->
+    
+    <string name="settings_appearance">المظهر</string>
+    
+    <!-- إعدادات اللغة -->
+    <string name="settings_language">اللغة</string>
+    <string name="settings_language_system">افتراضي النظام</string>
+    <string name="settings_language_arabic">العربية</string>
+    <string name="settings_language_english">الإنجليزية</string>
+    
+    <!-- إعدادات الثيم -->
+    <string name="settings_theme">الثيم</string>
+    <string name="settings_theme_system">افتراضي النظام</string>
+    <string name="settings_theme_light">فاتح</string>
+    <string name="settings_theme_dark">داكن</string>
+
+    <!-- إعدادات الخط -->
+    <string name="settings_font">نمط الخط</string>
+    <string name="settings_font_system">الافتراضي للنظام</string>
+    <string name="settings_font_wf_rglr">WF عادي</string>
+    <string name="settings_font_samsung_one">Samsung One</string>
+    <string name="settings_font_sst_roman">SST Roman</string>
+    <string name="settings_font_product_sans">Product Sans</string>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         إعدادات الإشعارات (Notification Settings)
+         ═══════════════════════════════════════════════════════════════ -->
+    
+    <string name="settings_notifications_section">الإشعارات</string>
+    <string name="settings_notifications_placeholder">ميزة الإشعارات قادمة قريبًا</string>
+    <string name="settings_notifications">الإشعارات</string>
+    <string name="settings_notifications_description">استقبال إشعارات التطبيق</string>
+    <string name="notifications_enabled">الإشعارات مفعّلة</string>
+    <string name="notifications_disabled">الإشعارات معطّلة</string>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         نصوص عارض الخطوط (Font Viewer)
+         ═══════════════════════════════════════════════════════════════ -->
+    
+    <string name="font_viewer_select_font">اختر ملف الخط</string>
+    <string name="font_viewer_select_description">اختر ملف خط من جهازك (‎.ttf‎ أو ‎.otf‎)</string>
+    <string name="font_viewer_no_font_selected">لم يتم اختيار أي خط</string>
+    <string name="font_info">معلومات الخط</string>
+    <string name="font_size_and_style">حجم ونمط الخط</string>
+    
+    <string name="font_viewer_english_sentence">The quick brown fox jumps over the lazy dog.</string>
+    <string name="font_viewer_english_numbers">1234567890</string>
+    <string name="font_viewer_arabic_sentence">الحب سر الوجود والجمال أساس الحياة.</string>
+    <string name="font_viewer_arabic_numbers">١٢٣٤٥٦٧٨٩٠</string>
+    
+    <string name="font_viewer_error_opening_picker">تعذر فتح منتقي الملفات</string>
+    <string name="font_viewer_error_loading_font">حدث خطأ أثناء تحميل ملف الخط</string>
+
+    <!-- عارض الخطوط - نصوص الشريط السفلي -->
+    <string name="font_viewer_adjust_size">تعديل حجم الخط</string>
+    <string name="font_viewer_import_font">استيراد خط</string>
+    <string name="font_viewer_toggle_bold">تفعيل/إلغاء العريض</string>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         نصوص FontFragment - إدارة مجلد الخطوط
+         ═══════════════════════════════════════════════════════════════ -->
+    
+    <!-- زر الاستيراد -->
+    <string name="font_fragment_import_button">استيراد خطوط من الجهاز</string>
+    <string name="font_fragment_import_description">نسخ جميع ملفات الخطوط الموجودة في جهازك إلى مجلد FontViewer+</string>
+    <string name="font_fragment_select_folder_button">إختر مجلد</string>
+    
+    <!-- رسائل حوار الاستيراد -->
+    <string name="font_fragment_import_title">استيراد الخطوط</string>
+    <string name="font_fragment_import_message">سيتم البحث عن جميع ملفات الخطوط ‏(ttf. و otf.) في جهازك ونسخها إلى مجلد FontViewer+ في المستندات.\n\nهل تريد المتابعة؟</string>
+    <string name="font_fragment_import_confirm">استيراد</string>
+    <string name="font_fragment_importing">جارٍ استيراد الخطوط…</string>
+    <string name="font_fragment_please_wait">يُرجى الانتظار بينما يتم نسخ الخطوط إلى مجلد FontViewer+</string>
+    
+    <!-- رسائل النتائج -->
+    <string name="font_fragment_import_success">تم استيراد %d خط بنجاح إلى مجلد FontViewer+</string>
+    <string name="font_fragment_import_no_fonts">لم يتم العثور على ملفات خطوط في جهازك</string>
+    
+    <!-- رسالة القائمة الفارغة -->
+    <string name="font_fragment_empty_message">لا توجد خطوط في مجلد FontViewer+ بعد.\n\nانقر على \"استيراد خطوط من الجهاز\" أعلاه للبدء، أو انسخ ملفات الخطوط يدوياً إلى:\nالمستندات/FontViewer+</string>
+    
+    <!-- رسالة رفض الصلاحية -->
+    <string name="font_fragment_permission_denied">صلاحية الوصول للتخزين مطلوبة للبحث عن ملفات الخطوط في جهازك.\n\nيمكنك منح هذه الصلاحية من الإعدادات، أو نسخ ملفات الخطوط يدوياً إلى مجلد المستندات/FontViewer+</string>
+
+<!-- قسم عرض الخطوط (Font Display Section) -->
+    <string name="settings_font_display_section">عرض الخطوط</string>
+    <string name="settings_font_preview">معاينة الخطوط</string>
+    <string name="settings_font_preview_description">عرض أسماء الخطوط بخطوطها المخصصة في قائمة الخطوط</string>
+
+    <string name="settings_translation">ترجمة معلومات الخط</string>
+    <string name="settings_translation_description">ترجم معلومات الخط تلقائيا</string>
+
+    <!-- أضف هذه النصوص إلى ملف strings.xml الخاص بك -->
+
+<!-- نصوص البحث -->
+<string name="search_font">بحث</string>
+<string name="no_results_found">لا يوجد نتائج</string>
+    
+<!-- ═══════════════════════════════════════════════════════════════
+     About Activity
+     ═══════════════════════════════════════════════════════════════ -->
+
+<string name="about_title">حول</string>
+<string name="about_button_status">الحالة</string>
+<string name="about_button_github">GitHub</string>
+<string name="about_error_no_browser">لا يوجد تطبيق متصفح</string>
+
+<string name="font_fragment_import_failed">فشل استيراد %d ملف</string>
+
+<string name="sort_size">الحجم</string>
+    <string name="sort_date">التاريخ</string>
+    <string name="sort_name">الاسم</string>
+    <string name="sort_ascending">تصاعدي</string>
+    <string name="sort_descending">تنازلي</string>
+
+    <string name="navigate_up">الرجوع للخلف</string>
+
+    <!-- Font List Count Strings -->
+    <string name="font_list_count_single">%1$d ملف خط</string>
+    <string name="font_list_count_multiple">%1$d ملف خط</string>
+    <string name="font_list_count_none">لا يوجد ملفات خط</string>
+
+    <!-- System Font List Fragment -->
+    <string name="drawer_system_fonts">خطوط النظام</string>
+    <string name="system_fonts_title">خطوط النظام</string>
+    <string name="system_fonts_subtitle">تصفح الخطوط المثبتة على جهازك</string>
+    <string name="system_fonts_loading">جارٍ تحميل خطوط النظام…</string>
+    <string name="system_fonts_empty">لم يتم العثور على خطوط النظام</string>
+    <string name="system_fonts_api_unavailable">واجهة API خطوط النظام غير متاحة</string>
+    <string name="system_fonts_requires_api_29">تتطلب هذه الميزة نظام Android 10 (API 29) .أو أحدث</string>
+
+    <!-- Font Selection and Actions -->
+<string name="action_rename">إعادة تسمية</string>
+<string name="action_delete">حذف</string>
+<string name="action_delete_all">حذف الكل</string>
+<string name="action_cancel">إلغاء</string>
+
+<!-- Selection Mode -->
+<string name="selected_count">%d محدد</string>
+<string name="selected_count_one">عنصر واحد محدد</string>
+<string name="all_selected">الكل محدد</string>
+
+<!-- Delete Confirmation -->
+<string name="delete_single_confirmation">هل تريد حذف ملف واحد؟</string>
+<string name="delete_multiple_confirmation">هل تريد حذف %d ملفات؟</string>
+<string name="delete_all_confirmation">هل تريد حذف جميع الملفات؟</string>
+
+<!-- Rename Dialog -->
+<string name="rename_dialog_title">إعادة تسمية الخط</string>
+<string name="rename_dialog_hint">أدخل اسماً جديداً</string>
+<string name="new_name_label">الاسم الجديد</string>
+
+<!-- Error Messages -->
+<string name="error_rename_failed">فشلت إعادة التسمية</string>
+<string name="error_delete_failed">فشل الحذف</string>
+<string name="error_file_exists">اسم الملف مستخدم مسبقاً</string>
+<string name="error_invalid_name">اسم غير صالح</string>
+<string name="error_file_not_found">الملف غير موجود</string>
+<string name="rename_error_text">اسم الملف موجود مسبقاً</string>
+
+<!-- Success Messages -->
+<string name="success_renamed">تمت إعادة التسمية بنجاح</string>
+<string name="success_deleted">تم الحذف بنجاح</string>
+<string name="success_deleted_multiple">تم حذف %d ملفات</string>
+
+<string name="font_size_dialog_title">حجم الخط</string>
+
+<string name="settings_theme_transparent">اسود</string>  
+<string name="settings_theme_transparent_description">خلفية قوائم سوداء في الوضع الداكن، ورمادي فاتح في الوضع الفاتح.</string>
+
+<string name="exit_on_double_back">اضغط مرة أخرى للخروج</string>
+  
+</resources>
