@@ -45,11 +45,8 @@
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/font_item_name"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="25sp"
                 android:ellipsize="end"
-                android:lineHeight="20sp"
-                android:lineSpacingExtra="0dp"
-                android:lineSpacingMultiplier="1.0"
                 android:includeFontPadding="false"                android:maxLines="1"
                 android:textSize="16sp"
                 android:textColor="?android:attr/textColorPrimary"
