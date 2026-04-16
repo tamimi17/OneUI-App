@@ -46,7 +46,7 @@
                     android:text="@string/app_name"
                     android:textSize="30sp"
                     app:fontFamily="@font/samsungsharpsans_bold"
-                    android:textColor="@color/oui_primary_text_color"/>
+                    android:textColor="@color/secondary_text_default_material"/>
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/header_app_subtitle"
