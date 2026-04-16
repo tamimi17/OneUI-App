@@ -30,16 +30,15 @@
         <!-- حاوية عمودية إضافية للنصوص -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="28dp"
-            android:paddingVertical="12dp"	
+            android:layout_height="wrap_content"	
             android:orientation="vertical">
 
             <!-- اسم الخط داخل LinearLayout مستقل -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="30sp"
-                android:layout_marginHorizontal="8dp">
+                android:paddingHorizontal="28dp"
+                android:paddingTop="12dp">
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/font_item_name"
@@ -58,6 +57,8 @@
             <!-- الوزن/العرض داخل LinearLayout مستقل -->
             <LinearLayout
                 android:layout_width="wrap_content"
+                android:paddingHorizontal="28dp"
+                android:paddingBottom="12dp"
                 android:layout_height="25sp">
 
                 <androidx.appcompat.widget.AppCompatTextView
