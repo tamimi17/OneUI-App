@@ -26,7 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="7dp"
-            android:textColor="@color/secondary_text_default_material"
+            android:textColor="@color/sesl_secondary_text_color"
             android:textSize="16dp" />
             
      </LinearLayout>
