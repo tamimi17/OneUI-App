@@ -1,0 +1,53 @@
+name: Build Signed Release APK (No Local PC)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'gradle'
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Build and Sign Release APK
+        env:
+          JITPACK_TOKEN: ${{ secrets.JITPACK_TOKEN }}
+        run: |
+          # إنشاء مفتاح التوقيع
+          keytool -genkey -v -keystore my-release-key.jks -keyalg RSA -keysize 2048 -validity 10000 \
+            -alias my-alias -storepass mypassword -keypass mypassword \
+            -dname "CN=Android, OU=Dev, O=App, L=City, S=State, C=US"
+          
+          # البناء مع تفعيل الفحص الصارم وتخصيص ذاكرة كافية
+          ./gradlew assembleRelease \
+            -Dorg.gradle.jvmargs="-Xmx4096m" \
+            --parallel \
+            --daemon \
+            -x test \
+            -Pandroid.injected.signing.store.file=$(pwd)/my-release-key.jks \
+            -Pandroid.injected.signing.store.password=mypassword \
+            -Pandroid.injected.signing.key.alias=my-alias \
+            -Pandroid.injected.signing.key.password=mypassword
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: oneui-signed-release-apk
+          path: app/build/outputs/apk/release/app-release.apk
+
+      - name: Upload ProGuard Mapping
+        uses: actions/upload-artifact@v7
+        with:
+          name: mapping-files
+          path: app/build/outputs/mapping/release/usage.txt

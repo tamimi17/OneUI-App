@@ -1,1 +1,50 @@
-k
+name: Unzip project.zip to repo root and remove zip
+
+on:
+  # هذا السطر يجعل التشغيل يدوياً فقط من واجهة GitHub Actions
+  workflow_dispatch:
+
+jobs:
+  unzip:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Ensure unzip is available
+        run: sudo apt-get update && sudo apt-get install -y unzip
+
+      - name: Check for project.zip and unzip to repo root
+        run: |
+          if [ -f project.zip ]; then
+            unzip -o project.zip -d .
+            rm -f project.zip
+            echo "unzipped_and_removed" > .unzip_marker
+          else
+            echo "No project.zip found, skipping."
+          fi
+
+      - name: Show root files (debug)
+        run: ls -la
+
+      - name: Commit and push extracted files
+        run: |
+          if [ -f .unzip_marker ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -A
+            # حذف الماركر قبل الالتزام ليبقى المستودع نظيفاً
+            rm -f .unzip_marker
+            if git diff --staged --quiet; then
+              echo "No changes to commit"
+            else
+              git commit -m "Unpack project.zip and remove archive (Manual Run)"
+              git push
+            fi
+          else
+            echo "Nothing to commit"
+          fi
