@@ -30,7 +30,7 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="28dp"	
+            android:paddingHorizontal="20dp"	
             android:orientation="vertical">
 
             <!-- اسم الخط داخل LinearLayout مستقل -->
@@ -76,6 +76,7 @@
                 android:id="@+id/item_divider"
                 android:layout_height="1dp"
                 android:layout_width="match_parent"
+                android:layout_marginHorizontal="8dp"
                 android:background="@color/oui_list_divider_color" />
 
         </LinearLayout>
