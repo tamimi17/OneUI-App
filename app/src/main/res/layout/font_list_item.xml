@@ -36,7 +36,7 @@
             <!-- اسم الخط داخل LinearLayout مستقل -->
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="25sp"
+                android:layout_height="30sp"
                 android:paddingTop="12dp">
 
                 <androidx.appcompat.widget.AppCompatTextView
@@ -57,7 +57,7 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:paddingBottom="12dp"
-                android:layout_height="22sp">
+                android:layout_height="25sp">
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/font_item_weight_width"
@@ -76,7 +76,6 @@
                 android:id="@+id/item_divider"
                 android:layout_height="1dp"
                 android:layout_width="match_parent"
-                android:layout_marginHorizontal="20dp"
                 android:background="@color/oui_list_divider_color" />
 
         </LinearLayout>
