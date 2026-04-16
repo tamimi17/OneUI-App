@@ -1,10 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    ★ التعديل: إعادة هيكلة الـ LinearLayout الداخلي لدعم سطرَين ★
-    - الارتفاع: من 70dp ثابت إلى wrap_content مع minHeight="70dp"
-    - تم تضمين paddingVertical="12dp" لمنح الفراغ الكافي للسطرَين
-    - اسم الخط ووصف الوزن/العرض داخل LinearLayout عمودي موزون
--->
 <dev.oneuiproject.oneui.widget.RoundLinearLayout 
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -16,15 +10,13 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="63sp"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:background="@drawable/font_list_ripple"
         android:animateLayoutChanges="true"
-        android:paddingHorizontal="28dp"
-        android:paddingVertical="12dp">
+        android:paddingHorizontal="28dp">
 
-        <!-- CheckBox للتحديد المتعدد — يظهر فقط في وضع الاختيار -->
         <CheckBox
             android:id="@+id/checkbox"
             android:layout_width="wrap_content"
@@ -35,37 +27,47 @@
             android:focusable="false"
             android:visibility="gone" />
 
-        <!-- ★ LinearLayout عمودي يحتوي اسم الخط + وصف الوزن/العرض ★ -->
+        <!-- حاوية عمودية إضافية للنصوص -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- اسم الخط — يدعم تظليل نص البحث -->
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/font_item_name"
+            <!-- اسم الخط داخل LinearLayout مستقل -->
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="25sp"
-                android:gravity="center_vertical"
-                android:ellipsize="end"
-                android:includeFontPadding="false"                android:maxLines="1"
-                android:textSize="16sp"
-                android:textColor="?android:attr/textColorPrimary"
-                android:fontFamily="sec-bold"
-                tools:text="Font Name Example" />
+                android:layout_height="25sp">
 
-            <!-- ★ وصف الوزن والعرض — باللون الثانوي ★
-                 أمثلة: "Bold, Condensed" | "VF · Regular" | "غير معروف" -->
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/font_item_weight_width"
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/font_item_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:includeFontPadding="false"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textSize="16sp"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:fontFamily="sec-bold"
+                    tools:text="Font Name Example" />
+            </LinearLayout>
+
+            <!-- الوزن/العرض داخل LinearLayout مستقل -->
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:textSize="13sp"
-                android:textColor="?android:attr/textColorSecondary"
-                tools:text="Bold, Condensed" />
+                android:layout_height="22sp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/font_item_weight_width"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textSize="13sp"
+                    android:textColor="?android:attr/textColorSecondary"
+                    tools:text="Bold, Condensed" />
+            </LinearLayout>
 
         </LinearLayout>
 
