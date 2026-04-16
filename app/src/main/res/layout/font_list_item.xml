@@ -13,9 +13,8 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:animateLayoutChanges="true"
-        android:paddingVertical="12dp"
-        android:paddingHorizontal="28dp">
+        android:background="@drawable/font_list_ripple"
+        android:animateLayoutChanges="true">
 
         <CheckBox
             android:id="@+id/checkbox"
@@ -31,7 +30,8 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/font_list_ripple"
+            android:paddingVertical="12dp"
+            android:paddingHorizontal="28dp"
             android:orientation="vertical">
 
             <!-- اسم الخط داخل LinearLayout مستقل -->
@@ -70,16 +70,23 @@
                     tools:text="Bold, Condensed" />
                     
             </LinearLayout>
+                
+        </LinearLayout>
         
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            
             <View
                 android:id="@+id/item_divider"
                 android:layout_height="1dp"
-                android:layout_marginHorizontal="20dp"
                 android:layout_width="match_parent"
+                android:layout_marginHorizontal="20dp"
                 android:background="@color/oui_list_divider_color" />
                 
         </LinearLayout>
-            
+       
     </LinearLayout>
 
 </dev.oneuiproject.oneui.widget.RoundLinearLayout>
