@@ -72,7 +72,7 @@ configurations.all {
     resolutionStrategy {
         force 'org.jetbrains.kotlin:kotlin-stdlib:2.3.20'
         force 'androidx.annotation:annotation:1.10.0'
-        force 'com.google.guava:guava:33.5.0-jre'
+        force 'com.google.guava:guava:33.6.0-jre'
     }
 }
 
