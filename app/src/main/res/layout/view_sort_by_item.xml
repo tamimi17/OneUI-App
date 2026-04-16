@@ -18,7 +18,7 @@
         <ImageView
             android:layout_width="19dp"
             android:layout_height="19dp"
-            android:tint="?android:attr/textColorSecondary"
+            android:tint="@color/secondary_text_default_material"
             android:src="@drawable/ic_oui_list_sort" />
 
         <TextView
@@ -36,7 +36,7 @@
          android:layout_width="1dp"
          android:layout_marginStart="7dp"
          android:layout_marginEnd="10dp"
-         android:background="?android:attr/textColorPrimary" />
+         android:background="@color/oui_list_divider_color" />
 
      <ImageView
          android:id="@+id/sort_order_icon"
@@ -44,7 +44,7 @@
          android:layout_height="34dp"
          android:padding="8dp"
          android:layout_marginEnd="9dp"
-         android:tint="?android:attr/textColorSecondary"
+         android:tint="@color/secondary_text_default_material"
          android:background="@drawable/sort_btn_ripple_oval" />
 
 </LinearLayout>
