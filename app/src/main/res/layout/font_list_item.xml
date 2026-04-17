@@ -16,7 +16,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="86sp"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:background="@drawable/font_list_ripple"
@@ -42,10 +42,10 @@
             android:orientation="vertical">
 
             <!-- اسم الخط — يدعم تظليل نص البحث -->
-            <androidx.appcompat.widget.AppCompatTextView
+            <TextView
                 android:id="@+id/font_item_name"
                 android:layout_width="wrap_content"
-                android:layout_height="40sp"
+                android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:includeFontPadding="false"
                 android:ellipsize="end"
@@ -57,7 +57,7 @@
 
             <!-- ★ وصف الوزن والعرض — باللون الثانوي ★
                  أمثلة: "Bold, Condensed" | "VF · Regular" | "غير معروف" -->
-            <androidx.appcompat.widget.AppCompatTextView
+            <TextView
                 android:id="@+id/font_item_weight_width"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
