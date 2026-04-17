@@ -22,7 +22,7 @@
         android:background="@drawable/font_list_ripple"
         android:animateLayoutChanges="true"
         android:paddingHorizontal="28dp"
-        android:paddingVertical="12dp">
+        android:paddingVertical="9dp">
 
         <!-- CheckBox للتحديد المتعدد — يظهر فقط في وضع الاختيار -->
         <CheckBox
@@ -45,7 +45,7 @@
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/font_item_name"
                 android:layout_width="wrap_content"
-                android:layout_height="30sp"
+                android:layout_height="25sp"
                 android:includeFontPadding="false"
                 android:ellipsize="end"
                 android:maxLines="1"
