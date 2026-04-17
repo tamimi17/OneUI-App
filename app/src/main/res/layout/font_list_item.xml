@@ -48,7 +48,6 @@
                 android:layout_height="30sp"
                 android:gravity="center_vertical"
                 android:includeFontPadding="false"
-                android:layout_marginBottom="7sp"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:textSize="16sp"
