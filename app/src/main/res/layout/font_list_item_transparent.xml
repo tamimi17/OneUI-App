@@ -12,6 +12,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginVertical="5dp"
+    android:layout_marginHorizontal="5dp"
     android:orientation="vertical"
     app:cardBackgroundColor="@android:color/transparent"
     app:cardCornerRadius="15dp"
@@ -25,7 +26,7 @@
         android:orientation="horizontal"
         android:animateLayoutChanges="true"
         android:background="@drawable/font_list_ripple"
-        android:paddingVertical="14dp"
+        android:paddingVertical="15dp"
         android:paddingHorizontal="28dp">
 
         <!-- ★ CheckBox للتحديد المتعدد — يظهر فقط في وضع الاختيار ★ -->
@@ -54,7 +55,6 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:layout_marginBottom="7sp"
-                android:layout_marginTop="-2sp"
                 android:textSize="16sp"
                 android:textColor="?android:attr/textColorPrimary"
                 android:fontFamily="sans-serif"
