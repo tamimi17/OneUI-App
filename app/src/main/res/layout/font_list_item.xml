@@ -28,7 +28,7 @@
         <CheckBox
             android:id="@+id/checkbox"
             android:layout_width="wrap_content"
-            android:layout_height="60sp"
+            android:layout_height="wrap_content"
             android:layout_marginEnd="?android:listPreferredItemPaddingStart"
             android:background="@null"
             android:clickable="false"
@@ -38,7 +38,7 @@
         <!-- ★ LinearLayout عمودي يحتوي اسم الخط + وصف الوزن/العرض ★ -->
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="60sp"
             android:orientation="vertical">
 
             <!-- اسم الخط — يدعم تظليل نص البحث -->
