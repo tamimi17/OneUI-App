@@ -12,6 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="15dp"
         android:background="@drawable/font_list_ripple"
         android:gravity="center_vertical"
         android:animateLayoutChanges="true">
@@ -21,7 +23,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="?android:listPreferredItemPaddingStart"
-            android:layout_marginStart="?android:listPreferredItemPaddingStart"
             android:background="@null"
             android:clickable="false"
             android:focusable="false"
@@ -37,8 +38,7 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="30sp"
-                android:paddingHorizontal="28dp"
-                android:paddingTop="12dp">
+                android:paddingHorizontal="8dp">
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/font_item_name"
@@ -57,9 +57,8 @@
             <!-- الوزن/العرض داخل LinearLayout مستقل -->
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:paddingHorizontal="28dp"
-                android:paddingBottom="12dp"
-                android:layout_height="25sp">
+                android:layout_height="25sp"
+                android:paddingHorizontal="8dp">
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/font_item_weight_width"
@@ -74,19 +73,11 @@
                     
             </LinearLayout>  
            
-            <LinearLayout  
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="20dp"
-                android:orientation="vertical">
-            	
                 <View
                     android:id="@+id/item_divider"
                     android:layout_height="1dp"
                     android:layout_width="wrap_content"
                     android:background="@color/oui_list_divider_color" />
-             
-            </LinearLayout>
             
         </LinearLayout>
             
