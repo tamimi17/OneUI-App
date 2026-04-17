@@ -22,7 +22,7 @@
         android:background="@drawable/font_list_ripple"
         android:animateLayoutChanges="true"
         android:paddingHorizontal="28dp"
-        android:paddingVertical="9dp">
+        android:paddingVertical="13dp">
 
         <!-- CheckBox للتحديد المتعدد — يظهر فقط في وضع الاختيار -->
         <CheckBox
@@ -45,11 +45,9 @@
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/font_item_name"
                 android:layout_width="wrap_content"
-                android:layout_height="25sp"
+                android:layout_height="27sp"
                 android:includeFontPadding="false"
                 android:ellipsize="end"
-                android:layout_gravity="top|start"
-                android:gravity="center_vertical|start"
                 android:maxLines="1"
                 android:textSize="16sp"
                 android:textColor="?android:attr/textColorPrimary"
@@ -63,8 +61,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
-                android:layout_gravity="bottom|start"
-                android:gravity="center_vertical|start"
+                android:includeFontPadding="false"
                 android:maxLines="1"
                 android:textSize="13sp"
                 android:textColor="?android:attr/textColorSecondary"
