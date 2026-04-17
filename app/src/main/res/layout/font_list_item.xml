@@ -22,7 +22,7 @@
         android:background="@drawable/font_list_ripple"
         android:animateLayoutChanges="true"
         android:paddingHorizontal="28dp"
-        android:paddingVertical="20dp">
+        android:paddingVertical="14dp">
 
         <!-- CheckBox للتحديد المتعدد — يظهر فقط في وضع الاختيار -->
         <CheckBox
