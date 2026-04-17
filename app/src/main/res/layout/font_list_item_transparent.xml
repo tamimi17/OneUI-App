@@ -25,7 +25,7 @@
         android:orientation="horizontal"
         android:animateLayoutChanges="true"
         android:background="@drawable/font_list_ripple"
-        android:paddingVertical="20dp"
+        android:paddingVertical="14dp"
         android:paddingHorizontal="28dp">
 
         <!-- ★ CheckBox للتحديد المتعدد — يظهر فقط في وضع الاختيار ★ -->
