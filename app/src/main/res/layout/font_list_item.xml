@@ -48,6 +48,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:includeFontPadding="false"
+                android:includeFontMargin="false"
                 android:layout_marginBottom="7sp"
                 android:ellipsize="end"
                 android:maxLines="1"
