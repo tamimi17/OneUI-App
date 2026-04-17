@@ -38,14 +38,14 @@
         <!-- ★ LinearLayout عمودي يحتوي اسم الخط + وصف الوزن/العرض ★ -->
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="46sp"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <!-- اسم الخط — يدعم تظليل نص البحث -->
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/font_item_name"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="30sp"
                 android:gravity="center_vertical"
                 android:includeFontPadding="false"
                 android:layout_marginBottom="7sp"
