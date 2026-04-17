@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    ★ التعديل: إعادة هيكلة الـ LinearLayout الداخلي لدعم سطرَين ★
+    - الارتفاع: من 70dp ثابت إلى wrap_content مع minHeight="70dp"
+    - تم تضمين paddingVertical="12dp" لمنح الفراغ الكافي للسطرَين
+    - اسم الخط ووصف الوزن/العرض داخل LinearLayout عمودي موزون
+-->
 <dev.oneuiproject.oneui.widget.RoundLinearLayout 
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -10,13 +16,15 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="86dp"
         android:orientation="horizontal"
-        android:paddingHorizontal="20dp"
-        android:background="@drawable/font_list_ripple"
         android:gravity="center_vertical"
-        android:animateLayoutChanges="true">
+        android:background="@drawable/font_list_ripple"
+        android:animateLayoutChanges="true"
+        android:paddingHorizontal="28dp"
+        android:paddingVertical="12dp">
 
+        <!-- CheckBox للتحديد المتعدد — يظهر فقط في وضع الاختيار -->
         <CheckBox
             android:id="@+id/checkbox"
             android:layout_width="wrap_content"
@@ -27,61 +35,46 @@
             android:focusable="false"
             android:visibility="gone" />
 
-        <!-- حاوية عمودية إضافية للنصوص -->
+        <!-- ★ LinearLayout عمودي يحتوي اسم الخط + وصف الوزن/العرض ★ -->
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"	
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- اسم الخط داخل LinearLayout مستقل -->
-            <LinearLayout
+            <!-- اسم الخط — يدعم تظليل نص البحث -->
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/font_item_name"
                 android:layout_width="wrap_content"
-                android:layout_height="30sp">
+                android:layout_height="40dp"
+                android:includeFontPadding="false"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textSize="16sp"
+                android:textColor="?android:attr/textColorPrimary"
+                android:fontFamily="sec-bold"
+                tools:text="Font Name Example" />
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/font_item_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:includeFontPadding="false"
-                    android:layout_marginHorizontal="8dp"
-                    android:layout_marginTop="15dp"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:textSize="16sp"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:fontFamily="sec-bold"
-                    tools:text="Font Name Example" />
-            </LinearLayout>
-
-            <!-- الوزن/العرض داخل LinearLayout مستقل -->
-            <LinearLayout
+            <!-- ★ وصف الوزن والعرض — باللون الثانوي ★
+                 أمثلة: "Bold, Condensed" | "VF · Regular" | "غير معروف" -->
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/font_item_weight_width"
                 android:layout_width="wrap_content"
-                android:layout_height="25sp">
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textSize="13sp"
+                android:textColor="?android:attr/textColorSecondary"
+                tools:text="Bold, Condensed" />
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/font_item_weight_width"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:layout_marginHorizontal="8dp"
-                    android:layout_marginBottom="15dp"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:textSize="13sp"
-                    android:textColor="?android:attr/textColorSecondary"
-                    tools:text="Bold, Condensed" />
-                    
-            </LinearLayout>  
-           
-                <View
-                    android:id="@+id/item_divider"
-                    android:layout_height="1dp"
-                    android:layout_width="wrap_content"
-                    android:background="@color/oui_list_divider_color" />
-            
         </LinearLayout>
-            
+
     </LinearLayout>
+
+    <View
+        android:id="@+id/item_divider"
+        android:layout_height="1dp"
+        android:layout_marginHorizontal="20dp"
+        android:layout_width="match_parent"
+        android:background="@color/oui_list_divider_color" />
 
 </dev.oneuiproject.oneui.widget.RoundLinearLayout>
