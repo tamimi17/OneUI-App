@@ -40,18 +40,31 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/sesl_secondary_text_color"
-                android:textSize="16sp"
+                android:textSize="17sp"
                 android:layout_marginBottom="16dp"
                 android:visibility="gone" />
-
-            <!-- منتقي الوزن للخطوط المتغيرة -->
-            <androidx.appcompat.widget.AppCompatSpinner
-                android:id="@+id/weight_spinner"
+                
+            <dev.oneuiproject.oneui.widget.RoundLinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@color/sesl_btn_background_color"
-                android:layout_marginBottom="16dp"
-                android:visibility="gone" />
+                android:minHeight="52dp"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:backgroundTint="@color/sesl_btn_background_color"
+                android:background="@drawable/font_list_ripple"
+                android:clickable="true"
+                android:focusable="true"
+                android:orientation="vertical">
+
+                <!-- منتقي الوزن للخطوط المتغيرة -->
+                <androidx.appcompat.widget.AppCompatSpinner
+                    android:id="@+id/weight_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:visibility="gone" />
+                    
+            </dev.oneuiproject.oneui.widget.RoundLinearLayout>
 
             <!-- معاينة النص -->
             <TextView
