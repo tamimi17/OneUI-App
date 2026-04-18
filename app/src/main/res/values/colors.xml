@@ -46,7 +46,7 @@
     <color name="material_grey_100">#e2e2e2</color>
     <color name="material_grey_900">#373737</color> -->
 
-
+    <color name="sesl_btn_background_color">@color/sesl_btn_background_color_light</color>
     <color name="sesl_btn_background_color_light">#e4e4e7</color>
     <color name="sesl_btn_background_color_dark">#2d2d30</color>
 
