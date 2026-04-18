@@ -21,6 +21,32 @@
             android:background="@color/oui_background_color"
             android:orientation="vertical">
 
+            <!--
+                ★ حاوية معلومات الوزن — في أعلى العارض ★
+                تُعرض هنا نتيجةً واحدة فقط في أي وقت:
+                  • weight_label_text : نص ثابت للخطوط غير المتغيرة (مثل "Bold, Condensed")
+                  • weight_spinner    : منتقي تفاعلي للخطوط المتغيرة (Variable Fonts)
+                كلاهما يبدأ مخفياً (gone) ويُظهره FontViewerFragment بعد تحميل الخط.
+            -->
+
+            <!-- وصف الوزن والعرض للخطوط الثابتة -->
+            <TextView
+                android:id="@+id/weight_label_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="14sp"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone" />
+
+            <!-- منتقي الوزن للخطوط المتغيرة -->
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/weight_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone" />
+
             <!-- معاينة النص -->
             <TextView
                 android:id="@+id/preview_sentence"
