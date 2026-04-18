@@ -219,5 +219,13 @@
 <string name="settings_theme_transparent_description">خلفية قوائم سوداء في الوضع الداكن، ورمادي فاتح في الوضع الفاتح.</string>
 
 <string name="exit_on_double_back">اضغط مرة أخرى للخروج</string>
+
+<!--
+    ★ أضف هذين السطرين داخل ملف strings.xml الموجود لديك ★
+    يُستخدمان كـ contentDescription لأزرار شريط التنسيق السفلي
+    لدعم إمكانية الوصول (Accessibility / TalkBack).
+-->
+<string name="font_bold">Bold</string>
+<string name="font_italic">Italic</string>
   
 </resources>
