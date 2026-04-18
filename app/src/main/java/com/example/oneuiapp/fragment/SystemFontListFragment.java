@@ -47,6 +47,10 @@ import com.example.oneuiapp.viewmodel.SettingsViewModel;
  *
  * ★ يستخدم FontSortManager(context, true) → مفاتيح DataStore خاصة بخطوط النظام فقط ★
  * هذا يضمن عدم تأثر هذا الـ Fragment بأي تغيير في فرز المجلد المحلي ويحل مشكلة التجمد نهائياً.
+ *
+ * ★ التعديل: تحديث OnFontSelectedListener ليشمل weightWidthLabel كمعامل خامس ★
+ *   لتمريره مباشرةً إلى NavManager ثم FontViewerFragment دون إعادة استخراجه،
+ *   إذ أن الوزن مستخرج مسبقاً وموجود في بيانات القائمة.
  */
 public class SystemFontListFragment extends Fragment implements AppBarLayout.OnOffsetChangedListener {
 
@@ -101,8 +105,13 @@ public class SystemFontListFragment extends Fragment implements AppBarLayout.OnO
             public void onRequestDisallowInterceptTouchEvent(boolean b) {}
         };
 
+    /**
+     * ★ التعديل: إضافة weightWidthLabel كمعامل خامس ★
+     * يحمل وصف الوزن/العرض الجاهز من القائمة لتمريره لـ NavManager ثم FontViewerFragment.
+     */
     public interface OnFontSelectedListener {
-        void onFontSelected(String fontPath, String realName, String fileName, int ttcIndex);
+        void onFontSelected(String fontPath, String realName, String fileName,
+                            int ttcIndex, String weightWidthLabel);
     }
 
     // ─────────────────────────────────────────────────────────
@@ -307,10 +316,12 @@ public class SystemFontListFragment extends Fragment implements AppBarLayout.OnO
 
         mAdapter = new SystemFontListAdapter(mContext, mExecutor);
 
-        mAdapter.setFontClickListener((fontPath, realName, fileName, ttcIndex) -> {
+        // ★ التعديل: استقبال weightWidthLabel كمعامل خامس وتمريره إلى mFontSelectedListener ★
+        mAdapter.setFontClickListener((fontPath, realName, fileName, ttcIndex, weightWidthLabel) -> {
             mViewModel.recordFontAccess(fontPath);
             if (mFontSelectedListener != null) {
-                mFontSelectedListener.onFontSelected(fontPath, realName, fileName, ttcIndex);
+                mFontSelectedListener.onFontSelected(fontPath, realName, fileName,
+                                                     ttcIndex, weightWidthLabel);
             }
         });
 
@@ -603,4 +614,4 @@ public class SystemFontListFragment extends Fragment implements AppBarLayout.OnO
         if (mMainHandler != null) mMainHandler.removeCallbacksAndMessages(null);
         if (mExecutor != null)    mExecutor.shutdown();
     }
-}
+                }
