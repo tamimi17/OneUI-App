@@ -39,30 +39,18 @@
                 android:id="@+id/weight_label_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/sesl_secondary_text_color"
-                android:textSize="17sp"
+                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="18sp"
                 android:layout_marginBottom="16dp"
                 android:visibility="gone" />
-                
-            <dev.oneuiproject.oneui.widget.RoundLinearLayout
+
+            <!-- منتقي الوزن للخطوط المتغيرة -->
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/weight_spinner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@color/sesl_btn_background_color"
-                android:clickable="true"
-                android:focusable="true"
                 android:layout_marginBottom="16dp"
-                android:orientation="vertical">
-
-                <!-- منتقي الوزن للخطوط المتغيرة -->
-                <androidx.appcompat.widget.AppCompatSpinner
-                    android:id="@+id/weight_spinner"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:visibility="gone"
-                    android:gravity="center"
-                    android:layout_gravity="center_vertical" />
-                    
-            </dev.oneuiproject.oneui.widget.RoundLinearLayout>
+                android:visibility="gone" />
 
             <!-- معاينة النص -->
             <TextView
