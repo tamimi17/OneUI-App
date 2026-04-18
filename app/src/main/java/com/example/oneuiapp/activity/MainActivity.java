@@ -19,8 +19,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.app.AlertDialog;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +58,10 @@ import com.example.oneuiapp.fontlist.search.SearchCoordinator;
  * يجب تحديث واجهتَي LocalFontListFragment.OnFontSelectedListener
  * و SystemFontListFragment.OnFontSelectedListener في ملفي الفراغمنتات المقابلين
  * ليتضمنا المعامل الجديد String weightWidthLabel.
+ *
+ * ★ التعديل الجديد: حذف الـ FAB (fab_font_size) ★
+ * تم نقل وظيفة ضبط حجم الخط إلى شريط التنسيق السفلي داخل FontViewerFragment.
+ * الشريط يعيش ويموت مع الـ Fragment تلقائياً دون الحاجة لإدارة رؤيته من هنا.
  */
 public class MainActivity extends BaseActivity
         implements FontViewerFragment.OnFontChangedListener,
@@ -95,7 +97,8 @@ public class MainActivity extends BaseActivity
 
     private MenuItem mFontMetaMenuItem;
     private MenuItem mSearchMenuItem;
-    private FloatingActionButton fabFontSize;
+
+    // ★ حُذف: fabFontSize — تم نقل وظيفته إلى شريط التنسيق في FontViewerFragment ★
 
     private SearchCoordinator mSearchCoordinator;
     private ProgressDialog loadingDialog;
@@ -138,7 +141,6 @@ public class MainActivity extends BaseActivity
         }
 
         setupDrawer();
-        setupFabFontSize();
         updateDrawerTitle(mCurrentFragmentIndex);
 
         handleIntent(getIntent());
@@ -159,7 +161,8 @@ public class MainActivity extends BaseActivity
     private void initViews() {
         mDrawerLayout   = findViewById(R.id.drawer_layout);
         mDrawerListView = findViewById(R.id.drawer_list_view);
-        fabFontSize     = findViewById(R.id.fab_font_size);
+        // ★ حُذف: fabFontSize = findViewById(R.id.fab_font_size)
+        //   تم نقل الوظيفة إلى شريط التنسيق السفلي في FontViewerFragment ★
     }
 
     private void initFragmentsList() {
@@ -237,16 +240,7 @@ public class MainActivity extends BaseActivity
         startActivity(new Intent(this, SettingsActivity.class));
     }
 
-    private void setupFabFontSize() {
-        if (fabFontSize != null) {
-            fabFontSize.setOnClickListener(v -> {
-                Fragment currentFragment = mFragments.get(mCurrentFragmentIndex);
-                if (currentFragment instanceof FontViewerFragment) {
-                    ((FontViewerFragment) currentFragment).showFontSizeDialogPublic();
-                }
-            });
-        }
-    }
+    // ★ حُذف: setupFabFontSize() — تم نقل الوظيفة إلى شريط التنسيق في FontViewerFragment ★
 
     private void restoreFragmentsState(Bundle savedInstanceState) {
         mCurrentFragmentIndex = savedInstanceState.getInt(KEY_CURRENT_FRAGMENT, 1);
@@ -431,11 +425,15 @@ public class MainActivity extends BaseActivity
         }
     }
 
+    /**
+     * ★ التعديل: الدالة فارغة بعد حذف الـ FAB ★
+     * شريط التنسيق الآن جزء من FontViewerFragment ويعيش ويموت معه تلقائياً،
+     * لذا لا حاجة لإدارة رؤيته من هنا.
+     * الدالة محفوظة لأنها جزء من واجهة NavManager.Host.
+     */
     @Override
     public void updateFabVisibility(int position) {
-        if (fabFontSize != null) {
-            fabFontSize.setVisibility(position == 1 ? View.VISIBLE : View.GONE);
-        }
+        // ★ لا شيء هنا — الشريط السفلي يُدار داخل FontViewerFragment ★
     }
 
     /**
@@ -662,7 +660,7 @@ public class MainActivity extends BaseActivity
 
     /**
      * يُنفّذ الخروج الفعلي من التطبيق.
-     * يُفرّق بين Android O (API 26) مع isTaskRoot وبقية الإصدارات.
+     * يُفرِّق بين Android O (API 26) مع isTaskRoot وبقية الإصدارات.
      */
     @Override
     public void performExit() {
