@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    ★ خلفية تبديل حالة أزرار التنسيق (Bold / Italic) ★
+    تُغيّر لون الخلفية بين الشفاف والمُميَّز بناءً على حالة setSelected().
+    الشكل الدائري (oval) يمنح مظهراً أنيقاً مشابهاً لتطبيقات سامسونج.
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- الحالة المُفعَّلة: خلفية مستطيلة بزوايا دائرية مُميَّزة بلون المظهر -->
+    <item android:state_selected="true">
+        <shape android:shape="rectangle">
+            <solid android:color="?attr/colorControlHighlight" />
+            <corners android:radius="12dp" />
+        </shape>
+    </item>
+
+    <!-- الحالة الافتراضية: شفافة بالكامل مع نفس الشكل للحفاظ على الأبعاد -->
+    <item android:state_selected="false">
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+            <corners android:radius="12dp" />
+        </shape>
+    </item>
+
+</selector>
