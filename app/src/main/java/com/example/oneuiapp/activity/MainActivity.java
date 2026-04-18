@@ -55,6 +55,11 @@ import com.example.oneuiapp.fontlist.search.SearchCoordinator;
  * ولا تُوفّر دالة عامة للوصول إليه. يتولى NavManager البحث عنه مرة واحدة
  * في setup() عبر اجتياز شجرة الـ Views، واستدعاء isDrawerOpen() مباشرةً
  * دون الحاجة لأي متغير تتبع منفصل أو مستمع إضافي.
+ *
+ * ★ التعديل: تحديث onFontSelected لاستقبال weightWidthLabel وتمريره لـ NavManager ★
+ * يجب تحديث واجهتَي LocalFontListFragment.OnFontSelectedListener
+ * و SystemFontListFragment.OnFontSelectedListener في ملفي الفراغمنتات المقابلين
+ * ليتضمنا المعامل الجديد String weightWidthLabel.
  */
 public class MainActivity extends BaseActivity
         implements FontViewerFragment.OnFontChangedListener,
@@ -73,7 +78,7 @@ public class MainActivity extends BaseActivity
     private static final String KEY_SYSTEM_FONTS_COUNT  = "system_fonts_count";
     private static final String TAG_HOME                = "fragment_home";
     private static final String TAG_FONT_VIEWER         = "fragment_font_viewer";
-    private static final String TAG_LOCAL_FONT_LIST           = "fragment_font_list";
+    private static final String TAG_LOCAL_FONT_LIST     = "fragment_font_list";
     private static final String TAG_SYSTEM_FONT_LIST    = "fragment_system_font_list";
 
     private String currentFontRealName;
@@ -253,7 +258,7 @@ public class MainActivity extends BaseActivity
         FragmentManager fm = getSupportFragmentManager();
         Fragment homeFragment           = fm.findFragmentByTag(TAG_HOME);
         Fragment fontViewerFragment     = fm.findFragmentByTag(TAG_FONT_VIEWER);
-        Fragment localFontListFragment       = fm.findFragmentByTag(TAG_LOCAL_FONT_LIST);
+        Fragment localFontListFragment  = fm.findFragmentByTag(TAG_LOCAL_FONT_LIST);
         Fragment systemFontListFragment = fm.findFragmentByTag(TAG_SYSTEM_FONT_LIST);
 
         if (homeFragment != null && fontViewerFragment != null
@@ -552,13 +557,20 @@ public class MainActivity extends BaseActivity
     // ════════════════════════════════════════════════════════
 
     /**
-     * ★ الإصلاح الجوهري لمشكلة أنيميشن إعادة الترتيب ★
-     * التفاصيل الكاملة لآلية التأخير وترتيب العمليات موثَّقة في NavManager.handleFontSelected().
-     * هذه الدالة تُفوِّض العملية بالكامل للـ NavManager.
+     * ★ التعديل: استقبال weightWidthLabel وتمريره لـ NavManager ★
+     *
+     * يتطلب هذا التعديل تحديث واجهتَي:
+     *   - LocalFontListFragment.OnFontSelectedListener
+     *   - SystemFontListFragment.OnFontSelectedListener
+     * بإضافة المعامل الخامس: String weightWidthLabel
+     *
+     * كما يتطلب تحديث التنفيذ في كلا الفراغمنتَين ليمرروا weightWidthLabel
+     * عند استدعاء listener.onFontSelected(..., weightWidthLabel).
      */
     @Override
-    public void onFontSelected(String fontPath, String realName, String fileName, int ttcIndex) {
-        mNavManager.handleFontSelected(fontPath, realName, fileName, ttcIndex);
+    public void onFontSelected(String fontPath, String realName, String fileName,
+                               int ttcIndex, String weightWidthLabel) {
+        mNavManager.handleFontSelected(fontPath, realName, fileName, ttcIndex, weightWidthLabel);
     }
 
     @Override
