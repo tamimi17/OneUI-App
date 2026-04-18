@@ -34,7 +34,7 @@
   <!--   <color name="primary_material_1">@color/material_grey_900</color>
      <color name="material_grey_900">#373737</color> -->
     
-
+    <color name="sesl_btn_background_color">@color/sesl_btn_background_color_dark</color>
     <color name="sesl_btn_background_color_dark">#2d2d30</color>
 
     <color name="secondary_text_default_material">@color/secondary_text_default_material_dark</color>
