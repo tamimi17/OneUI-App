@@ -47,7 +47,6 @@
             <dev.oneuiproject.oneui.widget.RoundLinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="52dp"
                 android:background="@color/sesl_btn_background_color"
                 android:clickable="true"
                 android:focusable="true"
