@@ -87,7 +87,7 @@
         android:id="@+id/bottom_formatting_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_location="root"
+        app:layout_location="footer"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="24dp"
