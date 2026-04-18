@@ -13,16 +13,21 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import dev.oneuiproject.oneui.widget.Toast;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -41,37 +46,54 @@ import com.example.oneuiapp.viewmodel.SettingsViewModel;
  * FontViewerFragment - Clean DataStore version
  * All SharedPreferences removed, using SettingsViewModel for reactive updates
  * ★ يختار Layout المناسب بناءً على حالة الثيم الشفاف عند الإنشاء ★
+ *
+ * ★ التعديل: نقل عرض وزن الخط من FontSizeDialog إلى هذا الفراغمنت ★
+ *   - الخطوط الثابتة: عرض weight_label_text بوصف الوزن/العرض القادم من القائمة
+ *   - الخطوط المتغيرة: عرض weight_spinner لاختيار الوزن تفاعلياً
+ *   يبدأ كلا العنصرين مخفياً (GONE) ويُظهره الفراغمنت بعد تحميل الخط.
  */
 public class FontViewerFragment extends Fragment {
 
-    private static final String KEY_FONT_PATH = "font_path";
-    private static final String KEY_FONT_FILE_NAME = "font_file_name";
-    private static final String KEY_FONT_REAL_NAME = "font_real_name";
+    private static final String KEY_FONT_PATH          = "font_path";
+    private static final String KEY_FONT_FILE_NAME     = "font_file_name";
+    private static final String KEY_FONT_REAL_NAME     = "font_real_name";
     private static final String KEY_ORIGINAL_FONT_PATH = "original_font_path";
-    private static final String KEY_FONT_SIZE = "font_size";
-    private static final String KEY_FONT_WEIGHT = "font_weight";
-    private static final String KEY_IS_VARIABLE_FONT = "is_variable_font";
-    private static final String KEY_TTC_INDEX = "ttc_index";
-    private static final String KEY_IS_SYSTEM_FONT = "is_system_font";
+    private static final String KEY_FONT_SIZE          = "font_size";
+    private static final String KEY_FONT_WEIGHT        = "font_weight";
+    private static final String KEY_IS_VARIABLE_FONT   = "is_variable_font";
+    private static final String KEY_TTC_INDEX          = "ttc_index";
+    private static final String KEY_IS_SYSTEM_FONT     = "is_system_font";
+    // ★ مفتاح حفظ وصف الوزن/العرض في الـ Bundle لاستعادته عند إعادة البناء ★
+    private static final String KEY_WEIGHT_WIDTH_LABEL = "weight_width_label";
     private static final String TAG = "FontViewerFragment";
 
-    private static final float DEFAULT_FONT_SIZE = 18f;
-    private static final float MIN_FONT_SIZE = 12f;
-    private static final float MAX_FONT_SIZE = 45f;
+    private static final float DEFAULT_FONT_SIZE   = 18f;
+    private static final float MIN_FONT_SIZE       = 12f;
+    private static final float MAX_FONT_SIZE       = 45f;
     private static final float DEFAULT_FONT_WEIGHT = 400f;
 
+    // ★ مراجع واجهة المستخدم ★
     private TextView previewSentence;
+    // ★ الجديد: عنصرا عرض الوزن في أعلى الصفحة ★
+    private TextView weightLabelText;
+    private AppCompatSpinner weightSpinner;
 
     private String currentFontPath;
     private String currentFontFileName;
     private String currentFontRealName;
     public String originalFontPath;
     private Typeface currentTypeface;
-    private float currentFontSize = DEFAULT_FONT_SIZE;
+    private float currentFontSize   = DEFAULT_FONT_SIZE;
     private float currentFontWeight = DEFAULT_FONT_WEIGHT;
-    private boolean isVariableFont = false;
-    private int currentTtcIndex = 0;
-    private boolean isSystemFont = false;
+    private boolean isVariableFont  = false;
+    private int currentTtcIndex     = 0;
+    private boolean isSystemFont    = false;
+
+    // ★ وصف الوزن/العرض القادم من قائمة الخطوط (مُستخرج مسبقاً، لا يُعاد استخراجه) ★
+    private String currentWeightWidthLabel;
+
+    // ★ قائمة أوزان الخط المتغير — تُستخدم في setupWeightSpinner ★
+    private List<VariableFontHelper.VariableInstance> currentVariableInstances;
 
     private OnFontChangedListener fontChangedListener;
 
@@ -110,7 +132,7 @@ public class FontViewerFragment extends Fragment {
             fontChangedListener = (OnFontChangedListener) context;
         }
 
-        storageManager = new FontViewerStorageManager(context);
+        storageManager    = new FontViewerStorageManager(context);
         preferenceManager = new FontViewerPreferenceManager(context);
     }
 
@@ -127,7 +149,7 @@ public class FontViewerFragment extends Fragment {
         // Initialize ViewModel
         settingsViewModel = new ViewModelProvider(requireActivity()).get(SettingsViewModel.class);
 
-        currentFontSize = preferenceManager.getFontSize(DEFAULT_FONT_SIZE);
+        currentFontSize   = preferenceManager.getFontSize(DEFAULT_FONT_SIZE);
         currentFontWeight = preferenceManager.getFontWeight(DEFAULT_FONT_WEIGHT);
     }
 
@@ -164,15 +186,17 @@ public class FontViewerFragment extends Fragment {
         });
 
         if (savedInstanceState != null) {
-            currentFontPath = savedInstanceState.getString(KEY_FONT_PATH);
-            currentFontFileName = savedInstanceState.getString(KEY_FONT_FILE_NAME);
-            currentFontRealName = savedInstanceState.getString(KEY_FONT_REAL_NAME);
-            originalFontPath = savedInstanceState.getString(KEY_ORIGINAL_FONT_PATH);
-            currentFontSize = savedInstanceState.getFloat(KEY_FONT_SIZE, DEFAULT_FONT_SIZE);
-            currentFontWeight = savedInstanceState.getFloat(KEY_FONT_WEIGHT, DEFAULT_FONT_WEIGHT);
-            isVariableFont = savedInstanceState.getBoolean(KEY_IS_VARIABLE_FONT, false);
-            currentTtcIndex = savedInstanceState.getInt(KEY_TTC_INDEX, 0);
-            isSystemFont = savedInstanceState.getBoolean(KEY_IS_SYSTEM_FONT, false);
+            currentFontPath        = savedInstanceState.getString(KEY_FONT_PATH);
+            currentFontFileName    = savedInstanceState.getString(KEY_FONT_FILE_NAME);
+            currentFontRealName    = savedInstanceState.getString(KEY_FONT_REAL_NAME);
+            originalFontPath       = savedInstanceState.getString(KEY_ORIGINAL_FONT_PATH);
+            currentFontSize        = savedInstanceState.getFloat(KEY_FONT_SIZE, DEFAULT_FONT_SIZE);
+            currentFontWeight      = savedInstanceState.getFloat(KEY_FONT_WEIGHT, DEFAULT_FONT_WEIGHT);
+            isVariableFont         = savedInstanceState.getBoolean(KEY_IS_VARIABLE_FONT, false);
+            currentTtcIndex        = savedInstanceState.getInt(KEY_TTC_INDEX, 0);
+            isSystemFont           = savedInstanceState.getBoolean(KEY_IS_SYSTEM_FONT, false);
+            // ★ استعادة وصف الوزن/العرض (قد يكون null إذا لم يُحفظ) ★
+            currentWeightWidthLabel = savedInstanceState.getString(KEY_WEIGHT_WIDTH_LABEL);
 
             if (currentFontPath != null && !currentFontPath.isEmpty()) {
                 notifyFontChangedImmediate();
@@ -202,6 +226,9 @@ public class FontViewerFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         previewSentence = null;
+        // ★ إلغاء ربط عناصر الوزن الجديدة عند تدمير الـ View ★
+        weightLabelText = null;
+        weightSpinner   = null;
     }
 
     @Override
@@ -216,6 +243,10 @@ public class FontViewerFragment extends Fragment {
         preferenceManager.saveFontSize(newSize);
     }
 
+    /**
+     * ★ يُستدعى من weight_spinner عند اختيار المستخدم وزناً جديداً ★
+     * يُطبّق الوزن الجديد على الخط المتغير ويُحدّث معاينة النص.
+     */
     private void onFontWeightChanged(VariableFontHelper.VariableInstance instance) {
         if (instance == null || currentFontPath == null) {
             return;
@@ -263,20 +294,40 @@ public class FontViewerFragment extends Fragment {
         applyFontSize();
     }
 
+    /**
+     * ★ التعديل: ربط عناصر واجهة الوزن الجديدة بجانب معاينة النص ★
+     */
     private void initViews(View view) {
         previewSentence = view.findViewById(R.id.preview_sentence);
+        // ★ ربط عنصري عرض الوزن في أعلى الصفحة ★
+        weightLabelText = view.findViewById(R.id.weight_label_text);
+        weightSpinner   = view.findViewById(R.id.weight_spinner);
     }
 
+    // ─────────────────────────────────────────────────────────
+    // دوال loadFontFromPath — ترتيب التفويض يحافظ على تعيين currentWeightWidthLabel
+    // ─────────────────────────────────────────────────────────
+
+    /**
+     * ★ يُعيد تعيين currentWeightWidthLabel قبل التفويض — لا label متاح هنا ★
+     */
     public void loadFontFromPath(String path, String fileName, String realName) {
+        currentWeightWidthLabel = null;
         loadFontFromPath(path, fileName, realName, 0, false);
     }
 
+    /**
+     * ★ يُعيد تعيين currentWeightWidthLabel قبل التفويض — لا label متاح هنا ★
+     */
     public void loadFontFromPath(String path, String fileName, String realName, int ttcIndex) {
+        currentWeightWidthLabel = null;
         loadFontFromPath(path, fileName, realName, ttcIndex, false);
     }
 
     /**
      * Enhanced handling for real font name
+     * ★ هذه هي الدالة الأساسية — لا تُعيد تعيين currentWeightWidthLabel
+     *   لأن المُستدعي (سواء الـ 6-param أو غيره) مسؤول عن ضبطها مسبقاً ★
      */
     public void loadFontFromPath(String path, String fileName, String realName, int ttcIndex, boolean isSystemFont) {
         Log.d(TAG, "loadFontFromPath - Received data:");
@@ -285,11 +336,11 @@ public class FontViewerFragment extends Fragment {
         Log.d(TAG, "  ttcIndex: " + ttcIndex);
         Log.d(TAG, "  isSystemFont: " + isSystemFont);
 
-        currentFontPath = path;
+        currentFontPath     = path;
         currentFontFileName = fileName;
         currentFontRealName = realName;
-        currentTtcIndex = ttcIndex;
-        this.isSystemFont = isSystemFont;
+        currentTtcIndex     = ttcIndex;
+        this.isSystemFont   = isSystemFont;
 
         if (originalFontPath == null || originalFontPath.isEmpty()) {
             originalFontPath = extractRealPathFromUri(path);
@@ -300,6 +351,20 @@ public class FontViewerFragment extends Fragment {
 
         // Start loading font in background
         loadFontFromPathWithWeight(path, fileName, realName, DEFAULT_FONT_WEIGHT);
+    }
+
+    /**
+     * ★ الدالة الجديدة: تُستدعى من NavManager مع weightWidthLabel القادم من القائمة ★
+     * تُعيّن currentWeightWidthLabel ثم تُفوّض للدالة الأساسية.
+     * هذا يُغني عن إعادة استخراج الوزن لأنه مستخرج مسبقاً في القائمة.
+     *
+     * @param weightWidthLabel وصف الوزن/العرض الجاهز من القائمة (مثل "Bold, Condensed" أو "VF · Regular")
+     */
+    public void loadFontFromPath(String path, String fileName, String realName,
+                                 int ttcIndex, boolean isSystemFont, String weightWidthLabel) {
+        // ★ تعيين الـ label قبل استدعاء الدالة الأساسية حتى يكون متاحاً عند عرض الخط ★
+        currentWeightWidthLabel = weightWidthLabel;
+        loadFontFromPath(path, fileName, realName, ttcIndex, isSystemFont);
     }
 
     private String extractRealPathFromUri(String pathOrUri) {
@@ -333,6 +398,8 @@ public class FontViewerFragment extends Fragment {
 
     /**
      * Enhanced handling for corrupted fonts
+     * ★ التعديل: إضافة استخراج أوزان الخط المتغير في الخيط الخلفي ★
+     *   وتحديث واجهة الوزن (spinner أو label) في الخيط الرئيسي بعد تحميل الخط.
      */
     private void loadFontFromPathWithWeight(String path, String fileName, String realName, float weight) {
         bgExecutor.execute(() -> {
@@ -351,6 +418,13 @@ public class FontViewerFragment extends Fragment {
                     preferenceManager.saveFontWeight(400f);
                 }
 
+                // ★ استخراج قائمة أوزان الخط المتغير في الخيط الخلفي لتجنب تأخير الواجهة ★
+                // للخطوط الثابتة: لا داعي للاستخراج لأن الوزن موجود في currentWeightWidthLabel
+                List<VariableFontHelper.VariableInstance> variableInstances = null;
+                if (isVar) {
+                    variableInstances = VariableFontHelper.extractVariableInstances(fontFile, currentTtcIndex);
+                }
+
                 Typeface typeface = null;
 
                 try {
@@ -367,7 +441,7 @@ public class FontViewerFragment extends Fragment {
                     mainHandler.post(() -> {
                         // 1. Set name to "Unknown Font"
                         currentFontRealName = getString(R.string.unknown_font);
-                        currentTypeface = null;
+                        currentTypeface     = null;
 
                         // 2. ★ Force MainActivity to update title immediately ★
                         if (fontChangedListener != null) {
@@ -376,13 +450,16 @@ public class FontViewerFragment extends Fragment {
                             Log.d(TAG, "★ Updated title to 'Unknown Font' for corrupted font");
                         }
 
-                        // 3. Reset displayed typeface
+                        // 3. إخفاء عناصر الوزن عند فشل تحميل الخط
+                        hideWeightUI();
+
+                        // 4. Reset displayed typeface
                         Typeface defaultTypeface = Typeface.DEFAULT;
                         if (previewSentence != null) {
                             previewSentence.setTypeface(defaultTypeface);
                         }
 
-                        // 4. Show error message
+                        // 5. Show error message
                         Toast.makeText(requireContext(),
                             getString(R.string.font_viewer_error_loading_font) +
                             " (" + getString(R.string.unknown_font) + ")",
@@ -392,14 +469,25 @@ public class FontViewerFragment extends Fragment {
                 }
 
                 if (typeface != null) {
-                    final Typeface finalTypeface = typeface;
-                    final float finalWeightForHandler = finalWeight;
-                    final boolean finalIsVariable = isVar;
+                    final Typeface finalTypeface             = typeface;
+                    final float finalWeightForHandler        = finalWeight;
+                    final boolean finalIsVariable            = isVar;
+                    // ★ تمرير القائمة إلى الخيط الرئيسي لإعداد الـ Spinner إن لزم ★
+                    final List<VariableFontHelper.VariableInstance> finalInstances = variableInstances;
 
                     mainHandler.post(() -> {
-                        currentTypeface = finalTypeface;
+                        currentTypeface   = finalTypeface;
                         currentFontWeight = finalWeightForHandler;
-                        isVariableFont = finalIsVariable;
+                        isVariableFont    = finalIsVariable;
+
+                        // ★ تحديث عرض الوزن بعد تحديد نوع الخط ★
+                        // الخط المتغير → Spinner لاختيار الوزن
+                        // الخط الثابت  → نص يعرض الوزن/العرض من القائمة
+                        if (finalIsVariable && finalInstances != null && !finalInstances.isEmpty()) {
+                            setupWeightSpinner(finalInstances);
+                        } else {
+                            showWeightLabel(currentWeightWidthLabel);
+                        }
 
                         applyFontToPreviewTexts();
                         Log.d(TAG, "Font typeface loaded and applied successfully");
@@ -420,14 +508,17 @@ public class FontViewerFragment extends Fragment {
                         Log.d(TAG, "★ Updated title to 'Unknown Font' after general error");
                     }
 
-                    // 3. Reset typeface
+                    // 3. إخفاء عناصر الوزن عند الخطأ العام
+                    hideWeightUI();
+
+                    // 4. Reset typeface
                     currentTypeface = null;
                     Typeface defaultTypeface = Typeface.DEFAULT;
                     if (previewSentence != null) {
                         previewSentence.setTypeface(defaultTypeface);
                     }
 
-                    // 4. Show error message
+                    // 5. Show error message
                     Toast.makeText(requireContext(),
                         getString(R.string.font_viewer_error_loading_font) +
                         " (" + getString(R.string.unknown_font) + ")",
@@ -439,9 +530,107 @@ public class FontViewerFragment extends Fragment {
         });
     }
 
+    // ─────────────────────────────────────────────────────────
+    // ★ دوال إدارة عرض الوزن ★
+    // ─────────────────────────────────────────────────────────
+
+    /**
+     * ★ يُعدّ weight_spinner للخطوط المتغيرة ويُظهره بدلاً من weight_label_text ★
+     *
+     * ترتيب العمليات المقصود:
+     * 1. ضبط الـ Adapter
+     * 2. ضبط الاختيار الأولي
+     * 3. تعيين المستمع في الـ post التالي — لتجنب تشغيل onFontWeightChanged أثناء التهيئة،
+     *    لأن setAdapter و setSelection يُشغّلان onItemSelected في دورة الرسم التالية.
+     *
+     * @param instances قائمة أوزان الخط المتغير المُستخرجة في الخيط الخلفي
+     */
+    private void setupWeightSpinner(List<VariableFontHelper.VariableInstance> instances) {
+        if (weightSpinner == null || weightLabelText == null || !isAdded()) return;
+
+        currentVariableInstances = instances;
+        weightLabelText.setVisibility(View.GONE);
+        weightSpinner.setVisibility(View.VISIBLE);
+
+        // بناء قائمة أسماء الأوزان للـ Spinner
+        List<String> instanceNames = new ArrayList<>();
+        for (VariableFontHelper.VariableInstance inst : instances) {
+            instanceNames.add(inst.name);
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            instanceNames
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // ★ ضبط الـ Adapter والاختيار الأولي قبل تعيين المستمع ★
+        weightSpinner.setAdapter(adapter);
+
+        // البحث عن الوزن الحالي في قائمة الأوزان للاختيار المبدئي الصحيح
+        int selectedIndex = 0;
+        for (int i = 0; i < instances.size(); i++) {
+            if (Math.abs(instances.get(i).value - currentFontWeight) < 1f) {
+                selectedIndex = i;
+                break;
+            }
+        }
+        weightSpinner.setSelection(selectedIndex);
+
+        // ★ تعيين المستمع في الـ post التالي بعد اكتمال دورة الرسم ★
+        // هذا يضمن أن onItemSelected الناتج عن setAdapter و setSelection لن يصل إلى المستمع،
+        // وأي تغيير لاحق من المستخدم سيُشغّل onFontWeightChanged بشكل صحيح.
+        final List<VariableFontHelper.VariableInstance> finalInstances = instances;
+        weightSpinner.post(() -> {
+            if (weightSpinner == null || !isAdded()) return;
+            weightSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    if (position >= 0 && position < finalInstances.size()) {
+                        onFontWeightChanged(finalInstances.get(position));
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {}
+            });
+        });
+    }
+
+    /**
+     * ★ يُظهر weight_label_text بوصف الوزن/العرض للخطوط الثابتة ★
+     * إذا كان الـ label فارغاً أو null يُخفي العنصر.
+     *
+     * @param label النص القادم من القائمة (مثل "Bold, Condensed") أو null
+     */
+    private void showWeightLabel(String label) {
+        if (weightLabelText == null || weightSpinner == null) return;
+
+        weightSpinner.setVisibility(View.GONE);
+
+        if (label != null && !label.isEmpty()) {
+            weightLabelText.setText(label);
+            weightLabelText.setVisibility(View.VISIBLE);
+        } else {
+            // لا label متاح (خط محلي قديم أو خط مُحمَّل من URI) — نُخفي العنصر بهدوء
+            weightLabelText.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * ★ يُخفي كلا عنصري الوزن — يُستدعى عند خطأ تحميل الخط أو إعادة ضبط العارض ★
+     */
+    private void hideWeightUI() {
+        if (weightLabelText != null) weightLabelText.setVisibility(View.GONE);
+        if (weightSpinner != null)   weightSpinner.setVisibility(View.GONE);
+    }
+
     public void loadFontFromUri(Uri uri, String fileName) {
         originalFontPath = storageManager.getRealPathFromUri(uri);
-        isSystemFont = false;
+        isSystemFont     = false;
+        // ★ لا label متاح عند التحميل من URI (خارج القائمة) ★
+        currentWeightWidthLabel = null;
 
         bgExecutor.execute(() -> {
             File copiedFont = storageManager.copyFontForViewing(uri, fileName);
@@ -503,9 +692,13 @@ public class FontViewerFragment extends Fragment {
         }
     }
 
+    /**
+     * ★ التعديل: حُذفت جميع استدعاءات الوزن من هذه الدالة ★
+     * يختص FontSizeDialog الآن بضبط حجم الخط فقط.
+     * وزن الخط يُدار مباشرةً عبر weight_spinner في هذا الفراغمنت.
+     */
     public void showFontSizeDialogPublic() {
-        final float originalSize = currentFontSize;
-        final float originalWeight = currentFontWeight;
+        final float originalSize      = currentFontSize;
         final Typeface originalTypeface = currentTypeface;
 
         FontSizeDialog fontSizeDialog = new FontSizeDialog(
@@ -515,21 +708,12 @@ public class FontViewerFragment extends Fragment {
             MAX_FONT_SIZE
         );
 
-        fontSizeDialog.setCurrentWeight(currentFontWeight);
         fontSizeDialog.setOnFontSizeChangedListener(this::onFontSizeChanged);
 
-        if (currentFontPath != null) {
-            File fontFile = new File(currentFontPath);
-            fontSizeDialog.setFontFile(fontFile);
-            fontSizeDialog.setTtcIndex(currentTtcIndex);
-            fontSizeDialog.setOnWeightChangedListener(this::onFontWeightChanged);
-        }
-
         fontSizeDialog.setOnDialogCancelledListener(() -> {
-            currentFontSize = originalSize;
-            currentFontWeight = originalWeight;
-            currentTypeface = originalTypeface;
-
+            // ★ استعادة الحجم فقط عند الإلغاء — الوزن يُدار الآن بالـ Spinner ★
+            currentFontSize   = originalSize;
+            currentTypeface   = originalTypeface;
             applyFontToPreviewTexts();
             applyFontSize();
         });
@@ -538,18 +722,24 @@ public class FontViewerFragment extends Fragment {
     }
 
     private void resetFontDisplay() {
-        currentTypeface = null;
-        currentFontPath = null;
-        currentFontFileName = null;
-        currentFontRealName = null;
-        originalFontPath = null;
-        isVariableFont = false;
-        currentFontWeight = DEFAULT_FONT_WEIGHT;
-        currentTtcIndex = 0;
-        isSystemFont = false;
+        currentTypeface         = null;
+        currentFontPath         = null;
+        currentFontFileName     = null;
+        currentFontRealName     = null;
+        originalFontPath        = null;
+        isVariableFont          = false;
+        currentFontWeight       = DEFAULT_FONT_WEIGHT;
+        currentTtcIndex         = 0;
+        isSystemFont            = false;
+        // ★ إعادة ضبط الـ label عند مسح حالة العارض ★
+        currentWeightWidthLabel  = null;
+        currentVariableInstances = null;
 
         Typeface defaultTypeface = Typeface.DEFAULT;
         if (previewSentence != null) previewSentence.setTypeface(defaultTypeface);
+
+        // ★ إخفاء عناصر الوزن عند مسح الخط ★
+        hideWeightUI();
 
         if (fontChangedListener != null) {
             fontChangedListener.onFontCleared();
@@ -557,19 +747,21 @@ public class FontViewerFragment extends Fragment {
     }
 
     private void loadLastUsedFont() {
-        String lastPath = preferenceManager.getLastViewedFontPath();
+        String lastPath     = preferenceManager.getLastViewedFontPath();
         String lastFileName = preferenceManager.getLastViewedFontFileName();
         String lastRealName = preferenceManager.getLastViewedFontRealName();
-        float lastWeight = preferenceManager.getFontWeight(DEFAULT_FONT_WEIGHT);
+        float lastWeight    = preferenceManager.getFontWeight(DEFAULT_FONT_WEIGHT);
 
         if (lastPath != null && !lastPath.isEmpty()) {
             File localFile = new File(lastPath);
             if (localFile.exists()) {
-                currentFontPath = lastPath;
+                currentFontPath     = lastPath;
                 currentFontFileName = lastFileName;
                 currentFontRealName = lastRealName;
-                currentTtcIndex = 0;
-                isSystemFont = false;
+                currentTtcIndex     = 0;
+                isSystemFont        = false;
+                // ★ لا label متاح للخط الأخير المحفوظ (لم يُفتح من القائمة مباشرةً) ★
+                currentWeightWidthLabel = null;
 
                 // Check real name
                 if (currentFontRealName == null || currentFontRealName.isEmpty()) {
@@ -640,6 +832,10 @@ public class FontViewerFragment extends Fragment {
         if (originalFontPath != null) {
             outState.putString(KEY_ORIGINAL_FONT_PATH, originalFontPath);
         }
+        // ★ حفظ وصف الوزن/العرض لاستعادته عند إعادة البناء ★
+        if (currentWeightWidthLabel != null) {
+            outState.putString(KEY_WEIGHT_WIDTH_LABEL, currentWeightWidthLabel);
+        }
         outState.putFloat(KEY_FONT_SIZE, currentFontSize);
         outState.putFloat(KEY_FONT_WEIGHT, currentFontWeight);
         outState.putBoolean(KEY_IS_VARIABLE_FONT, isVariableFont);
@@ -658,4 +854,4 @@ public class FontViewerFragment extends Fragment {
     public boolean hasFontSelected() {
         return currentFontPath != null && !currentFontPath.isEmpty();
     }
-            }
+                    }
