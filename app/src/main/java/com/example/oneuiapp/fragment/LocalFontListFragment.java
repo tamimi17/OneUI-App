@@ -56,6 +56,10 @@ import com.example.oneuiapp.viewmodel.SettingsViewModel;
  * ★ عند وصول بيانات جديدة → mAdapter.updateFilteredFonts() → SortedList يرتبها تلقائياً ★
  *
  * ★ يستخدم FontSortManager(context, false) → مفاتيح DataStore خاصة بالمجلد المحلي فقط ★
+ *
+ * ★ التعديل: تحديث OnFontSelectedListener ليشمل weightWidthLabel كمعامل خامس ★
+ *   لتمريره مباشرةً إلى NavManager ثم FontViewerFragment دون إعادة استخراجه،
+ *   إذ أن الوزن مستخرج مسبقاً وموجود في بيانات القائمة.
  */
 public class LocalFontListFragment extends Fragment implements AppBarLayout.OnOffsetChangedListener {
 
@@ -99,8 +103,13 @@ public class LocalFontListFragment extends Fragment implements AppBarLayout.OnOf
             public void onRequestDisallowInterceptTouchEvent(boolean b) {}
         };
 
+    /**
+     * ★ التعديل: إضافة weightWidthLabel كمعامل خامس ★
+     * يحمل وصف الوزن/العرض الجاهز من القائمة لتمريره لـ NavManager ثم FontViewerFragment.
+     */
     public interface OnFontSelectedListener {
-        void onFontSelected(String fontPath, String realName, String fileName, int ttcIndex);
+        void onFontSelected(String fontPath, String realName, String fileName,
+                            int ttcIndex, String weightWidthLabel);
     }
 
     // ─────────────────────────────────────────────────────────
@@ -376,9 +385,11 @@ public class LocalFontListFragment extends Fragment implements AppBarLayout.OnOf
 
         mAdapter = new LocalFontListAdapter(mContext, mExecutor);
 
-        mAdapter.setFontClickListener((fontPath, realName, fileName, ttcIndex) -> {
+        // ★ التعديل: استقبال weightWidthLabel كمعامل خامس وتمريره إلى mFontSelectedListener ★
+        mAdapter.setFontClickListener((fontPath, realName, fileName, ttcIndex, weightWidthLabel) -> {
             if (mFontSelectedListener != null) {
-                mFontSelectedListener.onFontSelected(fontPath, realName, fileName, ttcIndex);
+                mFontSelectedListener.onFontSelected(fontPath, realName, fileName,
+                                                     ttcIndex, weightWidthLabel);
             }
         });
 
@@ -747,4 +758,4 @@ public class LocalFontListFragment extends Fragment implements AppBarLayout.OnOf
         if (mMainHandler != null) mMainHandler.removeCallbacksAndMessages(null);
         if (mExecutor != null)    mExecutor.shutdown();
     }
-        }
+            }
