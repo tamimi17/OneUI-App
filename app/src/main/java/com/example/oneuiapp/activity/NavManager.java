@@ -47,6 +47,9 @@ import dev.oneuiproject.oneui.layout.DrawerLayout;
  * عند كل ضغطة رجوع نستدعي mInnerDrawer.isDrawerOpen() مباشرةً،
  * وهي دالة عامة موجودة في androidx DrawerLayout تعكس الحالة الفعلية دائماً
  * دون الحاجة لأي متغير تتبع منفصل أو مستمع إضافي.
+ *
+ * ★ التعديل: إضافة weightWidthLabel كمعامل في handleFontSelected
+ *   ليُمرَّر مباشرةً إلى FontViewerFragment.loadFontFromPath دون إعادة استخراجه.
  */
 public class NavManager {
 
@@ -380,12 +383,18 @@ public class NavManager {
      * يُطبَّق أنيميشن الانتقال الأفقي عند الانتقال من أي قائمة خطوط (index 2 أو 3)
      * إلى شاشة عارض الخطوط (index 1) فقط، دون أي حالة تنقل أخرى.
      *
-     * @param fontPath  مسار ملف الخط أو content URI
-     * @param realName  الاسم الحقيقي للخط
-     * @param fileName  اسم ملف الخط
-     * @param ttcIndex  فهرس الخط داخل ملف TTC
+     * ★ التعديل: إضافة معامل weightWidthLabel ★
+     * يُمرَّر مباشرةً إلى FontViewerFragment.loadFontFromPath بدلاً من إعادة استخراجه،
+     * إذ أن الوزن مستخرج مسبقاً وموجود في بيانات القائمة.
+     *
+     * @param fontPath        مسار ملف الخط أو content URI
+     * @param realName        الاسم الحقيقي للخط
+     * @param fileName        اسم ملف الخط
+     * @param ttcIndex        فهرس الخط داخل ملف TTC
+     * @param weightWidthLabel وصف الوزن والعرض الجاهز من القائمة (قد يكون null)
      */
-    public void handleFontSelected(String fontPath, String realName, String fileName, int ttcIndex) {
+    public void handleFontSelected(String fontPath, String realName, String fileName,
+                                   int ttcIndex, String weightWidthLabel) {
         List<Fragment> fragments = mHost.getFragments();
 
         // ★ تحديد الفراغمنت المصدر الفعلي بدلاً من الاعتماد على getCurrentIndex() ★
@@ -459,9 +468,12 @@ public class NavManager {
                 fontViewerFragment.originalFontPath = fontPath;
                 boolean isSystemFont = (sourceFragmentIndex == 3);
                 if (fontPath != null && fontPath.startsWith("content://")) {
+                    // ★ خطوط URI: لا يوجد weightWidthLabel من القائمة — يُستخرج التنوع تلقائياً ★
                     fontViewerFragment.loadFontFromUri(Uri.parse(fontPath), realName);
                 } else {
-                    fontViewerFragment.loadFontFromPath(fontPath, fileName, realName, ttcIndex, isSystemFont);
+                    // ★ التعديل: تمرير weightWidthLabel مباشرةً للفراغمنت ★
+                    fontViewerFragment.loadFontFromPath(fontPath, fileName, realName,
+                                                        ttcIndex, isSystemFont, weightWidthLabel);
                 }
             }
 
@@ -640,4 +652,4 @@ public class NavManager {
         }
         return array;
     }
-            }
+}
