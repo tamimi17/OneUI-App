@@ -48,12 +48,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:minHeight="52dp"
-                android:gravity="center"
-                android:layout_gravity="center"
-                android:backgroundTint="@color/sesl_btn_background_color"
-                android:background="@drawable/font_list_ripple"
+                android:visibility="gone"
+                android:background="@color/sesl_btn_background_color"
                 android:clickable="true"
                 android:focusable="true"
+                android:layout_marginBottom="16dp"
                 android:orientation="vertical">
 
                 <!-- منتقي الوزن للخطوط المتغيرة -->
@@ -61,8 +60,9 @@
                     android:id="@+id/weight_spinner"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:visibility="gone" />
+                    android:visibility="gone"
+                    android:gravity="center"
+                    android:layout_gravity="center_vertical" />
                     
             </dev.oneuiproject.oneui.widget.RoundLinearLayout>
 
@@ -79,6 +79,6 @@
         
         </dev.oneuiproject.oneui.widget.RoundLinearLayout>
         
-    </LinearLayout>
+    <LinearLayout>
     
 </androidx.core.widget.NestedScrollView>
