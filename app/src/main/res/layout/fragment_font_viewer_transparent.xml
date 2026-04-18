@@ -79,6 +79,6 @@
         
         </dev.oneuiproject.oneui.widget.RoundLinearLayout>
         
-    <LinearLayout>
+    </LinearLayout>
     
 </androidx.core.widget.NestedScrollView>
