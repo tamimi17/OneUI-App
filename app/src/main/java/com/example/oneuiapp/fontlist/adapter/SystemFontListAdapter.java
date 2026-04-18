@@ -40,6 +40,11 @@ import java.util.concurrent.ExecutorService;
  * ★ isTransparentTheme يُعطّل حسابات الزوايا والفواصل غير الضرورية لتوفير المعالجة ★
  *
  * ★ التعديل: تمرير weightWidthLabel من SystemFontInfo إلى SystemFontViewHolder ★
+ * ★ التعديل: إضافة weightWidthLabel كمعامل خامس في OnFontClickListener
+ *   لتمريره إلى NavManager ثم FontViewerFragment دون إعادة استخراجه ★
+ *
+ * ملاحظة للمطوّر: بعد تحديث هذه الواجهة، يجب تحديث SystemFontListFragment ليعكس
+ * التغيير في تنفيذه لـ onFontClick وليمرر weightWidthLabel إلى onFontSelected.
  */
 public class SystemFontListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements SectionIndexer {
 
@@ -134,8 +139,20 @@ public class SystemFontListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         }
     }
 
+    /**
+     * ★ التعديل: إضافة weightWidthLabel كمعامل خامس ★
+     * يحمل وصف الوزن والعرض الجاهز من القائمة (مثل "Bold, Condensed" أو "VF · Regular")
+     * مما يُغني عن إعادة استخراجه عند فتح شاشة العارض.
+     *
+     * تحديث مطلوب في SystemFontListFragment:
+     *   void onFontClick(String fontPath, String realName, String fileName,
+     *                    int ttcIndex, String weightWidthLabel) {
+     *       listener.onFontSelected(fontPath, realName, fileName, ttcIndex, weightWidthLabel);
+     *   }
+     */
     public interface OnFontClickListener {
-        void onFontClick(String fontPath, String realName, String fileName, int ttcIndex);
+        void onFontClick(String fontPath, String realName, String fileName,
+                         int ttcIndex, String weightWidthLabel);
     }
 
     public SystemFontListAdapter(Context context, ExecutorService executor) {
@@ -460,15 +477,18 @@ public class SystemFontListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         if (SettingsHelper.isFontPreviewEnabled(context)) loadFontPreview(holder, path);
         else holder.setDefaultTypeface(SettingsHelper.getTypeface(context));
 
-        final String finalRealName = realName;
-        final int    finalTtcIndex = ttcIndex;
+        final String finalRealName      = realName;
+        final int    finalTtcIndex      = ttcIndex;
+        // ★ حفظ weightWidthLabel كـ final لاستخدامه في مستمع النقر ★
+        final String finalWeightWidth   = weightWidthLabel;
 
         holder.setOnClickListener(v -> {
             // ★ الحارس: يمنع تشغيل نقرتين متزامنتين ★
             if (mClickGuard) return;
             mClickGuard = true;
             if (fontClickListener != null)
-                fontClickListener.onFontClick(path, finalRealName, fileName, finalTtcIndex);
+                // ★ التعديل: تمرير finalWeightWidth كمعامل خامس ★
+                fontClickListener.onFontClick(path, finalRealName, fileName, finalTtcIndex, finalWeightWidth);
         });
     }
 
