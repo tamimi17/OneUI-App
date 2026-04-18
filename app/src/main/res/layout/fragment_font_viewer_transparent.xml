@@ -39,8 +39,8 @@
                 android:id="@+id/weight_label_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="?android:attr/textColorSecondary"
-                android:textSize="14sp"
+                android:textColor="@color/sesl_secondary_text_color"
+                android:textSize="16sp"
                 android:layout_marginBottom="16dp"
                 android:visibility="gone" />
 
@@ -49,6 +49,7 @@
                 android:id="@+id/weight_spinner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@color/sesl_btn_background_color"
                 android:layout_marginBottom="16dp"
                 android:visibility="gone" />
 
