@@ -44,7 +44,7 @@
                 android:id="@+id/weight_spinner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@color/oui_background_color"
+                android:background="@color/sesl_btn_background_color"
                 android:layout_marginBottom="16dp"
                 android:visibility="gone" />
 
