@@ -58,6 +58,12 @@ import com.example.oneuiapp.viewmodel.SettingsViewModel;
  *   - btn_font_size  : فتح FontSizeDialog (منقول من الـ FAB)
  *   - btn_font_bold  : تبديل حالة الخط العريض مع تمييز الخلفية
  *   - btn_font_italic: تبديل حالة الخط المائل مع تمييز الخلفية
+ *
+ * ★ الإصلاحات المضافة ★
+ *   - (المشكلة 1) عدّاد الجيل mFontLoadGeneration يمنع تطبيق نتيجة طلب تحميل
+ *     قديم فوق خط جديد عند التبديل السريع بين الخطوط (race condition).
+ *   - (المشكلة 4) تصفير isBoldActive و isItalicActive في loadFontFromPath
+ *     يضمن بدء كل خط جديد بحالة تنسيق نظيفة.
  */
 public class FontViewerFragment extends Fragment {
 
@@ -113,6 +119,11 @@ public class FontViewerFragment extends Fragment {
 
     // ★ قائمة أوزان الخط المتغير — تُستخدم في setupWeightSpinner ★
     private List<VariableFontHelper.VariableInstance> currentVariableInstances;
+
+    // ★ الإصلاح (المشكلة 1): عدّاد الجيل لمنع race condition عند التبديل السريع بين الخطوط ★
+    // volatile يضمن رؤية القيمة المحدَّثة من الخيط الخلفي فور تغييرها في الخيط الرئيسي.
+    // عند اختيار خط جديد يُزاد العدّاد، فيتجاهل أي mainHandler.post قديم لا يطابق القيمة الحالية.
+    private volatile int mFontLoadGeneration = 0;
 
     private OnFontChangedListener fontChangedListener;
 
@@ -217,6 +228,8 @@ public class FontViewerFragment extends Fragment {
             // ★ استعادة وصف الوزن/العرض (قد يكون null إذا لم يُحفظ) ★
             currentWeightWidthLabel = savedInstanceState.getString(KEY_WEIGHT_WIDTH_LABEL);
             // ★ استعادة حالتَي Bold وItalic وتحديث مظهر الأزرار فوراً ★
+            // ملاحظة: هذا المسار لا يمرّ بـ loadFontFromPath، لذا لا تصفير هنا —
+            // نريد فعلاً استعادة الحالة المحفوظة.
             isBoldActive   = savedInstanceState.getBoolean(KEY_IS_BOLD_ACTIVE, false);
             isItalicActive = savedInstanceState.getBoolean(KEY_IS_ITALIC_ACTIVE, false);
             if (btnFontBold   != null) btnFontBold.setSelected(isBoldActive);
@@ -224,6 +237,8 @@ public class FontViewerFragment extends Fragment {
 
             if (currentFontPath != null && !currentFontPath.isEmpty()) {
                 notifyFontChangedImmediate();
+                // ★ يستدعي loadFontFromPathWithWeight مباشرةً لتجنب تصفير حالة Bold/Italic
+                //   المستعادة للتو من savedInstanceState ★
                 loadFontFromPathWithWeight(currentFontPath, currentFontFileName, currentFontRealName, currentFontWeight);
             }
         } else {
@@ -387,6 +402,11 @@ public class FontViewerFragment extends Fragment {
      * Enhanced handling for real font name
      * ★ هذه هي الدالة الأساسية — لا تُعيد تعيين currentWeightWidthLabel
      *   لأن المُستدعي (سواء الـ 6-param أو غيره) مسؤول عن ضبطها مسبقاً ★
+     *
+     * ★ الإصلاح (المشكلة 4): تصفير حالتَي Bold وItalic عند كل تحميل خط جديد ★
+     * يضمن ألا تنتقل حالة التنسيق من خط سابق إلى الخط الجديد الذي يختاره المستخدم.
+     * هذا المسار لا يُستدعى من savedInstanceState (الذي يستدعي loadFontFromPathWithWeight
+     * مباشرةً)، لذا التصفير هنا لا يتعارض مع استعادة الحالة المحفوظة.
      */
     public void loadFontFromPath(String path, String fileName, String realName, int ttcIndex, boolean isSystemFont) {
         Log.d(TAG, "loadFontFromPath - Received data:");
@@ -400,6 +420,14 @@ public class FontViewerFragment extends Fragment {
         currentFontRealName = realName;
         currentTtcIndex     = ttcIndex;
         this.isSystemFont   = isSystemFont;
+
+        // ★ الإصلاح (المشكلة 4): تصفير حالتَي التنسيق وتحديث مظهر الأزرار فوراً ★
+        // يُطبَّق قبل استدعاء loadFontFromPathWithWeight حتى إذا ضغط المستخدم
+        // Bold أثناء تحميل الخط الجديد، تبدأ من حالة نظيفة.
+        isBoldActive   = false;
+        isItalicActive = false;
+        if (btnFontBold   != null) btnFontBold.setSelected(false);
+        if (btnFontItalic != null) btnFontItalic.setSelected(false);
 
         if (originalFontPath == null || originalFontPath.isEmpty()) {
             originalFontPath = extractRealPathFromUri(path);
@@ -459,13 +487,34 @@ public class FontViewerFragment extends Fragment {
      * Enhanced handling for corrupted fonts
      * ★ التعديل: إضافة استخراج أوزان الخط المتغير في الخيط الخلفي ★
      *   وتحديث واجهة الوزن (spinner أو label) في الخيط الرئيسي بعد تحميل الخط.
+     *
+     * ★ الإصلاح (المشكلة 1): منع race condition عبر عدّاد الجيل mFontLoadGeneration ★
+     * عند استدعاء هذه الدالة يُزاد العدّاد ويُحفظ في myGeneration. عند اكتمال
+     * الخيط الخلفي، إذا كانت myGeneration لا تساوي mFontLoadGeneration الحالية،
+     * فهذا يعني أن المستخدم اختار خطاً جديداً أثناء التحميل، فتُتجاهل النتيجة القديمة.
+     *
+     * يُمسح currentTypeface فوراً في بداية الدالة حتى لا يظهر خط قديم إذا
+     * ضغط المستخدم على Bold أثناء تحميل الخط الجديد.
      */
     private void loadFontFromPathWithWeight(String path, String fileName, String realName, float weight) {
+
+        // ★ الإصلاح (المشكلة 1): مسح الخط الحالي فوراً لتجنب عرض خط قديم ★
+        // إذا ضغط المستخدم Bold أثناء تحميل الخط الجديد، سيظهر الخط الافتراضي
+        // بدلاً من خط الجلسة السابقة.
+        currentTypeface = null;
+
+        // ★ الإصلاح (المشكلة 1): حفظ رقم الجيل لتحديد ما إذا كان هذا الطلب لا يزال صالحاً ★
+        final int myGeneration = ++mFontLoadGeneration;
+
         bgExecutor.execute(() -> {
             try {
                 File fontFile = new File(path);
                 if (!fontFile.exists()) {
-                    mainHandler.post(this::resetFontDisplay);
+                    mainHandler.post(() -> {
+                        // ★ تجاهل النتيجة إذا بدأ طلب تحميل أحدث ★
+                        if (myGeneration != mFontLoadGeneration) return;
+                        resetFontDisplay();
+                    });
                     return;
                 }
 
@@ -498,6 +547,9 @@ public class FontViewerFragment extends Fragment {
 
                     // ★★★ Solution: Immediate title update when corrupted font detected ★★★
                     mainHandler.post(() -> {
+                        // ★ تجاهل النتيجة إذا بدأ طلب تحميل أحدث ★
+                        if (myGeneration != mFontLoadGeneration) return;
+
                         // 1. Set name to "Unknown Font"
                         currentFontRealName = getString(R.string.unknown_font);
                         currentTypeface     = null;
@@ -535,6 +587,9 @@ public class FontViewerFragment extends Fragment {
                     final List<VariableFontHelper.VariableInstance> finalInstances = variableInstances;
 
                     mainHandler.post(() -> {
+                        // ★ تجاهل النتيجة إذا بدأ طلب تحميل أحدث (الإصلاح الجوهري للمشكلة 1) ★
+                        if (myGeneration != mFontLoadGeneration) return;
+
                         currentTypeface   = finalTypeface;
                         currentFontWeight = finalWeightForHandler;
                         isVariableFont    = finalIsVariable;
@@ -558,6 +613,9 @@ public class FontViewerFragment extends Fragment {
             } catch (Exception e) {
                 // ★★★ General error handling ★★★
                 mainHandler.post(() -> {
+                    // ★ تجاهل النتيجة إذا بدأ طلب تحميل أحدث ★
+                    if (myGeneration != mFontLoadGeneration) return;
+
                     // 1. Set name to "Unknown Font"
                     currentFontRealName = getString(R.string.unknown_font);
 
@@ -862,6 +920,8 @@ public class FontViewerFragment extends Fragment {
                 }
 
                 notifyFontChangedImmediate();
+                // ★ يستدعي loadFontFromPathWithWeight مباشرةً (لا مرور بـ loadFontFromPath)
+                //   لأن isBoldActive/isItalicActive عند بداية التطبيق يساويان false افتراضياً ★
                 loadFontFromPathWithWeight(lastPath, lastFileName, lastRealName, lastWeight);
             } else {
                 preferenceManager.clearLastViewedFont();
@@ -946,4 +1006,4 @@ public class FontViewerFragment extends Fragment {
     public boolean hasFontSelected() {
         return currentFontPath != null && !currentFontPath.isEmpty();
     }
-    }
+                    }
