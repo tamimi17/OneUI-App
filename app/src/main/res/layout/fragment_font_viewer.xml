@@ -15,6 +15,12 @@
     - CardView عائم فوق NestedScrollView عبر layout_gravity="bottom" مما يُزيل
       المشكلة البصرية في الوضع الداكن ويثبّته بمعزل عن أي تغيّر في حجم المحتوى.
 -->
+
+<dev.oneuiproject.oneui.layout.ToolbarLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -102,9 +108,7 @@
         مظهره العائم مشابه لواجهات سامسونج الأصلية (مثل تطبيق Samsung Notes).
     -->
 
-    <dev.oneuiproject.oneui.layout.ToolbarLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+    
         
     <androidx.cardview.widget.CardView
         android:id="@+id/bottom_formatting_bar"
@@ -183,6 +187,8 @@
 
     </androidx.cardview.widget.CardView>
 
+    </FrameLayout>
+
   </dev.oneuiproject.oneui.layout.ToolbarLayout>
 
-</FrameLayout>
+
