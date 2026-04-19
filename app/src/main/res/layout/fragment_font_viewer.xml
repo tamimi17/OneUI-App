@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<dev.oneuiproject.oneui.layout.ToolbarLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <FrameLayout
+    <dev.oneuiproject.oneui.layout.ToolbarLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -66,6 +66,8 @@
 
         </androidx.core.widget.NestedScrollView>
 
+    </dev.oneuiproject.oneui.layout.ToolbarLayout>
+
         <!-- شريط الأدوات العائم -->
         <androidx.cardview.widget.CardView
             android:id="@+id/bottom_formatting_bar"
@@ -123,5 +125,3 @@
         </androidx.cardview.widget.CardView>
 
     </FrameLayout>
-
-</dev.oneuiproject.oneui.layout.ToolbarLayout>
