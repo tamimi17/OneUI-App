@@ -1,6 +1,11 @@
 package com.example.oneuiapp.activity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
@@ -19,11 +24,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.app.AlertDialog;
 
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Typeface;
-import android.graphics.Color;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -66,11 +66,12 @@ import com.example.oneuiapp.fontlist.search.SearchCoordinator;
  * و SystemFontListFragment.OnFontSelectedListener في ملفي الفراغمنتات المقابلين
  * ليتضمنا المعامل الجديد String weightWidthLabel.
  *
- * ★ التعديل الجديد: استبدال FAB العادي بـ ExtendedFloatingActionButton ★
- * يعرض الـ FAB الممتد حجم الخط الحالي كرقم بدلاً من أيقونة ثابتة.
- * يُوضع في activity_main.xml بـ layout_location="root" ليبقى ثابتاً
+ * ★ التعديل الجديد: استبدال شريط التنسيق السفلي بـ FAB يعرض حجم الخط كرقم ★
+ * يستخدم FloatingActionButton العادي المتوافق مع ثيم AppCompat.
+ * يُرسم الرقم على Bitmap في updateFabFontSize() ويُضبط كأيقونة للـ FAB.
+ * اللون مُحدَّد في XML عبر app:tint، وآلية tint في Android تُلوّنه تلقائياً.
+ * الـ FAB موضوع في activity_main.xml بـ layout_location="root" ليبقى ثابتاً
  * خارج نطاق CollapsingToolbar في جميع الأوقات.
- * عند النقر عليه يفتح FontSizeDialog عبر FontViewerFragment.showFontSizeDialogPublic().
  */
 public class MainActivity extends BaseActivity
         implements FontViewerFragment.OnFontChangedListener,
@@ -171,10 +172,10 @@ public class MainActivity extends BaseActivity
     }
 
     private void initViews() {
-        mDrawerLayout = findViewById(R.id.drawer_layout);
+        mDrawerLayout   = findViewById(R.id.drawer_layout);
         mDrawerListView = findViewById(R.id.drawer_list_view);
 
-        // ★ الـ FAB الممتد موضوع في activity_main.xml بـ layout_location="root" ★
+        // ★ الـ FAB موضوع في activity_main.xml بـ layout_location="root" ★
         // يُبحث عنه هنا لأنه في الطبقة الجذرية لـ DrawerLayout وليس داخل الفراغمنت.
         mFabFontSize = findViewById(R.id.fab_font_size);
         if (mFabFontSize != null) {
@@ -447,8 +448,8 @@ public class MainActivity extends BaseActivity
     }
 
     /**
-     * ★ التعديل: إظهار/إخفاء الـ FAB الممتد بحسب الفراغمنت النشط ★
-     * يُظهر الـ FAB عند FontViewerFragment (index=1) فقط، ويُحدّث نصه
+     * ★ التعديل: إظهار/إخفاء الـ FAB بحسب الفراغمنت النشط ★
+     * يُظهر الـ FAB عند FontViewerFragment (index=1) فقط، ويُحدّث أيقونته
      * بحجم الخط الحالي قبل الإظهار لضمان عرض القيمة الصحيحة دائماً.
      * الدالة جزء من واجهة NavManager.Host وتُستدعى عند كل تنقل.
      */
@@ -457,11 +458,10 @@ public class MainActivity extends BaseActivity
         if (mFabFontSize == null) return;
 
         if (position == 1) {
-            // ★ تحديث نص الـ FAB بحجم الخط الحالي قبل الإظهار ★
+            // ★ تحديث أيقونة الـ FAB بحجم الخط الحالي قبل الإظهار ★
             Fragment frag = mFragments.size() > 1 ? mFragments.get(1) : null;
             if (frag instanceof FontViewerFragment) {
-                int size = (int) ((FontViewerFragment) frag).getCurrentFontSize();
-                mFabFontSize.setText(String.valueOf(size));
+                updateFabFontSize((int) ((FontViewerFragment) frag).getCurrentFontSize());
             }
             mFabFontSize.setVisibility(View.VISIBLE);
         } else {
@@ -475,11 +475,11 @@ public class MainActivity extends BaseActivity
      * استخدام Bitmap بدلاً من نص مباشر هو الحل المتوافق مع ثيم AppCompat،
      * إذ لا يدعم FloatingActionButton العادي عرض نص مباشرةً.
      *
-     * اللون مستخرج من imageTintList الخاصة بالـ FAB لضمان التوافق مع أي ثيم،
-     * بدلاً من تثبيته كقيمة ثابتة قد تتعارض مع الثيم الحالي أو المستقبلي.
+     * اللون مُحدَّد في XML عبر app:tint على الـ FAB. آلية tint في Android
+     * تُلوّن البكسلات غير الشفافة بلون الـ tint تلقائياً (وضع SRC_IN)،
+     * لذا يُرسم النص بالأبيض على خلفية شفافة ويتولى النظام تلوينه.
      *
-     * حجم النص ثابت لأن نطاق الحجم (12–45) يتكون دائماً من رقمَين،
-     * فلا توجد حالة تستدعي تغيير الحجم.
+     * حجم النص ثابت لأن نطاق الحجم (12–45) يتكون دائماً من رقمَين.
      *
      * @param size حجم الخط الجديد بوحدة SP
      */
@@ -493,6 +493,26 @@ public class MainActivity extends BaseActivity
 
         Bitmap bitmap = Bitmap.createBitmap(bitmapSize, bitmapSize, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
+
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        // ★ الأبيض هنا ليس اللون النهائي — آلية tint في Android تُلوّن البكسلات
+        //   غير الشفافة بـ app:tint المُحدَّد في XML تلقائياً (تعمل بوضع SRC_IN).
+        //   لون النص الفعلي مُحدَّد في activity_main.xml عبر app:tint على الـ FAB ★
+        paint.setColor(Color.WHITE);
+        paint.setTextAlign(Paint.Align.CENTER);
+        paint.setTypeface(Typeface.DEFAULT_BOLD);
+        // ★ حجم النص ثابت لأن نطاق الحجم (12–45) يتكون دائماً من رقمَين ★
+        paint.setTextSize(android.util.TypedValue.applyDimension(
+            android.util.TypedValue.COMPLEX_UNIT_SP, 18f,
+            getResources().getDisplayMetrics()));
+
+        // ★ توسيط الرقم عمودياً وأفقياً داخل الـ Bitmap ★
+        float x = bitmapSize / 2f;
+        float y = bitmapSize / 2f - (paint.descent() + paint.ascent()) / 2f;
+        canvas.drawText(String.valueOf(size), x, y, paint);
+
+        mFabFontSize.setImageBitmap(bitmap);
+    }
 
     /**
      * ★ الإصلاح الجوهري للمشكلتين 1 و 3 ★
@@ -780,4 +800,4 @@ public class MainActivity extends BaseActivity
             updateDrawerTitle(position);
         }
     }
-                }
+            }
