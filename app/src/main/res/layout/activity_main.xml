@@ -22,7 +22,7 @@
         android:scrollbars="vertical"
         app:layout_location="drawer_panel" />
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_font_size"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
