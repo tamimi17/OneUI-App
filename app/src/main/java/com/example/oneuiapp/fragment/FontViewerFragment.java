@@ -1,8 +1,6 @@
 package com.example.oneuiapp.fragment;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
@@ -33,10 +31,12 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.example.oneuiapp.activity.MainActivity;
 import com.example.oneuiapp.dialog.FontSizeDialog;
 import com.example.oneuiapp.R;
 import com.example.oneuiapp.utils.VariableFontHelper;
 import com.example.oneuiapp.utils.SettingsHelper;
+import com.example.oneuiapp.fontviewer.BoldItalicFormatting;
 import com.example.oneuiapp.fontviewer.FontViewerStorageManager;
 import com.example.oneuiapp.fontviewer.FontViewerPreferenceManager;
 import com.example.oneuiapp.fontlist.systemfont.SystemFontCache;
@@ -53,17 +53,17 @@ import com.example.oneuiapp.viewmodel.SettingsViewModel;
  *   - الخطوط المتغيرة: عرض weight_spinner لاختيار الوزن تفاعلياً
  *   يبدأ كلا العنصرين مخفياً (GONE) ويُظهره الفراغمنت بعد تحميل الخط.
  *
- * ★ التعديل الجديد: إضافة شريط أدوات التنسيق السفلي العائم ★
- *   يحتوي الشريط على 3 أزرار بدون نصوص:
- *   - btn_font_size  : فتح FontSizeDialog (منقول من الـ FAB)
- *   - btn_font_bold  : تبديل حالة الخط العريض مع تمييز الخلفية
- *   - btn_font_italic: تبديل حالة الخط المائل مع تمييز الخلفية
+ * ★ التعديل: استبدال شريط التنسيق السفلي بأيقونتَي B وI فوق نص المعاينة ★
+ *   الأيقونتان موضوعتان في fragment_font_viewer.xml تحت weight_label_text مباشرةً،
+ *   ويُدار منطقهما بالكامل في BoldItalicFormatting.java لتقليص حجم هذا الفراغمنت.
+ *   زر حجم الخط نُقل إلى FAB ممتد في activity_main.xml بـ layout_location="root"
+ *   يعرض حجم الخط الحالي كرقم ويبقى ثابتاً غير متأثر بتمدد CollapsingToolbar.
  *
  * ★ الإصلاحات المضافة ★
  *   - (المشكلة 1) عدّاد الجيل mFontLoadGeneration يمنع تطبيق نتيجة طلب تحميل
  *     قديم فوق خط جديد عند التبديل السريع بين الخطوط (race condition).
  *   - (المشكلة 4) تصفير isBoldActive و isItalicActive في loadFontFromPath
- *     يضمن بدء كل خط جديد بحالة تنسيق نظيفة.
+ *     يضمن بدء كل خط جديد بحالة تنسيق نظيفة — مُفوَّض الآن لـ BoldItalicFormatting.reset().
  */
 public class FontViewerFragment extends Fragment {
 
@@ -78,9 +78,8 @@ public class FontViewerFragment extends Fragment {
     private static final String KEY_IS_SYSTEM_FONT     = "is_system_font";
     // ★ مفتاح حفظ وصف الوزن/العرض في الـ Bundle لاستعادته عند إعادة البناء ★
     private static final String KEY_WEIGHT_WIDTH_LABEL = "weight_width_label";
-    // ★ مفاتيح حفظ حالتَي التنسيق لاستعادتهما عند إعادة البناء ★
-    private static final String KEY_IS_BOLD_ACTIVE     = "is_bold_active";
-    private static final String KEY_IS_ITALIC_ACTIVE   = "is_italic_active";
+    // ★ مفاتيح حالتَي Bold وItalic انتقلت إلى BoldItalicFormatting ★
+
     private static final String TAG = "FontViewerFragment";
 
     private static final float DEFAULT_FONT_SIZE   = 18f;
@@ -94,14 +93,8 @@ public class FontViewerFragment extends Fragment {
     private TextView weightLabelText;
     private AppCompatSpinner weightSpinner;
 
-    // ★ أزرار شريط أدوات التنسيق السفلي ★
-    private ImageView btnFontSize;
-    private ImageView btnFontBold;
-    private ImageView btnFontItalic;
-
-    // ★ متغيرات لحفظ حالة التنسيق الحالي (تستمر مع Scroll وإعادة البناء) ★
-    private boolean isBoldActive   = false;
-    private boolean isItalicActive = false;
+    // ★ مدير منطق Bold وItalic — مُفصول في BoldItalicFormatting لتقليص حجم هذا الفراغمنت ★
+    private final BoldItalicFormatting mFormatting = new BoldItalicFormatting();
 
     private String currentFontPath;
     private String currentFontFileName;
@@ -191,7 +184,7 @@ public class FontViewerFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                                @Nullable Bundle savedInstanceState) {
+                             @Nullable Bundle savedInstanceState) {
         boolean transparentTheme = SettingsHelper.isTransparentThemeEnabled(requireContext());
         int layoutRes = transparentTheme
                 ? R.layout.fragment_font_viewer_transparent
@@ -227,13 +220,13 @@ public class FontViewerFragment extends Fragment {
             isSystemFont           = savedInstanceState.getBoolean(KEY_IS_SYSTEM_FONT, false);
             // ★ استعادة وصف الوزن/العرض (قد يكون null إذا لم يُحفظ) ★
             currentWeightWidthLabel = savedInstanceState.getString(KEY_WEIGHT_WIDTH_LABEL);
-            // ★ استعادة حالتَي Bold وItalic وتحديث مظهر الأزرار فوراً ★
+
+            // ★ استعادة حالتَي Bold وItalic عبر BoldItalicFormatting ★
             // ملاحظة: هذا المسار لا يمرّ بـ loadFontFromPath، لذا لا تصفير هنا —
             // نريد فعلاً استعادة الحالة المحفوظة.
-            isBoldActive   = savedInstanceState.getBoolean(KEY_IS_BOLD_ACTIVE, false);
-            isItalicActive = savedInstanceState.getBoolean(KEY_IS_ITALIC_ACTIVE, false);
-            if (btnFontBold   != null) btnFontBold.setSelected(isBoldActive);
-            if (btnFontItalic != null) btnFontItalic.setSelected(isItalicActive);
+            // restoreState() يحفظ القيم، وsyncViewState() يُطبّقها على الأيقونتين بعد setup().
+            mFormatting.restoreState(savedInstanceState);
+            mFormatting.syncViewState();
 
             if (currentFontPath != null && !currentFontPath.isEmpty()) {
                 notifyFontChangedImmediate();
@@ -268,10 +261,8 @@ public class FontViewerFragment extends Fragment {
         // ★ إلغاء ربط عناصر الوزن الجديدة عند تدمير الـ View ★
         weightLabelText = null;
         weightSpinner   = null;
-        // ★ إلغاء ربط أزرار شريط التنسيق عند تدمير الـ View ★
-        btnFontSize  = null;
-        btnFontBold  = null;
-        btnFontItalic = null;
+        // ★ إلغاء ربط أيقونتَي Bold وItalic عبر BoldItalicFormatting لمنع memory leak ★
+        mFormatting.unbind();
     }
 
     @Override
@@ -284,6 +275,10 @@ public class FontViewerFragment extends Fragment {
         currentFontSize = newSize;
         applyFontSize();
         preferenceManager.saveFontSize(newSize);
+        // ★ تحديث نص الـ FAB الممتد في MainActivity بالحجم الجديد ★
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).updateFabFontSize((int) newSize);
+        }
     }
 
     /**
@@ -338,8 +333,9 @@ public class FontViewerFragment extends Fragment {
     }
 
     /**
-     * ★ التعديل: ربط عناصر واجهة الوزن الجديدة وأزرار شريط التنسيق ★
-     * يتضمن الآن ربط الأزرار الثلاثة في الشريط السفلي وضبط مستمعاتها.
+     * ★ التعديل: ربط عناصر واجهة الوزن وأيقونتَي B وI ★
+     * أيقونتا B وI مرتبطتان بـ BoldItalicFormatting.setup() الذي يتولى
+     * ضبط مستمعاتهما واحتساب الستايل وإبلاغ applyFontToPreviewTexts().
      */
     private void initViews(View view) {
         previewSentence = view.findViewById(R.id.preview_sentence);
@@ -347,35 +343,10 @@ public class FontViewerFragment extends Fragment {
         weightLabelText = view.findViewById(R.id.weight_label_text);
         weightSpinner   = view.findViewById(R.id.weight_spinner);
 
-        // ★ ربط أزرار شريط أدوات التنسيق السفلي ★
-        btnFontSize  = view.findViewById(R.id.btn_font_size);
-        btnFontBold  = view.findViewById(R.id.btn_font_bold);
-        btnFontItalic = view.findViewById(R.id.btn_font_italic);
-
-        // ★ زر حجم الخط — يستدعي FontSizeDialog (منقول من الـ FAB في MainActivity) ★
-        if (btnFontSize != null) {
-            btnFontSize.setOnClickListener(v -> showFontSizeDialogPublic());
-        }
-
-        // ★ زر الخط العريض (Bold) — تبديل الحالة مع تمييز الخلفية ★
-        // setSelected(true) يُشغّل الـ selector في bg_format_toggle ليُلوّن الخلفية
-        if (btnFontBold != null) {
-            btnFontBold.setOnClickListener(v -> {
-                isBoldActive = !isBoldActive;
-                btnFontBold.setSelected(isBoldActive);
-                applyFontToPreviewTexts();
-            });
-        }
-
-        // ★ زر الخط المائل (Italic) — تبديل الحالة مع تمييز الخلفية ★
-        // setSelected(true) يُشغّل الـ selector في bg_format_toggle ليُلوّن الخلفية
-        if (btnFontItalic != null) {
-            btnFontItalic.setOnClickListener(v -> {
-                isItalicActive = !isItalicActive;
-                btnFontItalic.setSelected(isItalicActive);
-                applyFontToPreviewTexts();
-            });
-        }
+        // ★ ربط أيقونتَي B وI وتفويض منطقهما لـ BoldItalicFormatting ★
+        ImageView btnBold   = view.findViewById(R.id.btn_font_bold);
+        ImageView btnItalic = view.findViewById(R.id.btn_font_italic);
+        mFormatting.setup(btnBold, btnItalic, textStyle -> applyFontToPreviewTexts());
     }
 
     // ─────────────────────────────────────────────────────────
@@ -421,13 +392,10 @@ public class FontViewerFragment extends Fragment {
         currentTtcIndex     = ttcIndex;
         this.isSystemFont   = isSystemFont;
 
-        // ★ الإصلاح (المشكلة 4): تصفير حالتَي التنسيق وتحديث مظهر الأزرار فوراً ★
+        // ★ الإصلاح (المشكلة 4): تصفير حالتَي التنسيق عبر BoldItalicFormatting ★
         // يُطبَّق قبل استدعاء loadFontFromPathWithWeight حتى إذا ضغط المستخدم
         // Bold أثناء تحميل الخط الجديد، تبدأ من حالة نظيفة.
-        isBoldActive   = false;
-        isItalicActive = false;
-        if (btnFontBold   != null) btnFontBold.setSelected(false);
-        if (btnFontItalic != null) btnFontItalic.setSelected(false);
+        mFormatting.reset();
 
         if (originalFontPath == null || originalFontPath.isEmpty()) {
             originalFontPath = extractRealPathFromUri(path);
@@ -580,9 +548,9 @@ public class FontViewerFragment extends Fragment {
                 }
 
                 if (typeface != null) {
-                    final Typeface finalTypeface             = typeface;
-                    final float finalWeightForHandler        = finalWeight;
-                    final boolean finalIsVariable            = isVar;
+                    final Typeface finalTypeface      = typeface;
+                    final float finalWeightForHandler = finalWeight;
+                    final boolean finalIsVariable     = isVar;
                     // ★ تمرير القائمة إلى الخيط الرئيسي لإعداد الـ Spinner إن لزم ★
                     final List<VariableFontHelper.VariableInstance> finalInstances = variableInstances;
 
@@ -797,21 +765,15 @@ public class FontViewerFragment extends Fragment {
     }
 
     /**
-     * ★ التعديل: دمج حالتَي Bold وItalic عند تطبيق الخط على نص المعاينة ★
-     * يُحدَّث الـ textStyle بناءً على isBoldActive وisItalicActive معاً.
+     * ★ التعديل: تفويض احتساب textStyle لـ BoldItalicFormatting ★
+     * يُحدَّث الـ textStyle عبر mFormatting.getCurrentTextStyle() بدلاً
+     * من المنطق المحلي الذي كان موجوداً هنا سابقاً.
      */
     private void applyFontToPreviewTexts() {
         if (previewSentence == null) return;
 
-        // ★ تحديد الستايل المطلوب بناءً على حالة أزرار التنسيق ★
-        int textStyle = Typeface.NORMAL;
-        if (isBoldActive && isItalicActive) {
-            textStyle = Typeface.BOLD_ITALIC;
-        } else if (isBoldActive) {
-            textStyle = Typeface.BOLD;
-        } else if (isItalicActive) {
-            textStyle = Typeface.ITALIC;
-        }
+        // ★ الحصول على الستايل المناسب من BoldItalicFormatting ★
+        int textStyle = mFormatting.getCurrentTextStyle();
 
         // ★ تطبيق الخط مع الستايل المدمج — setTypeface(face, style) يدمجهما معاً ★
         if (currentTypeface != null) {
@@ -835,7 +797,7 @@ public class FontViewerFragment extends Fragment {
      * وزن الخط يُدار مباشرةً عبر weight_spinner في هذا الفراغمنت.
      */
     public void showFontSizeDialogPublic() {
-        final float originalSize      = currentFontSize;
+        final float originalSize       = currentFontSize;
         final Typeface originalTypeface = currentTypeface;
 
         FontSizeDialog fontSizeDialog = new FontSizeDialog(
@@ -849,17 +811,21 @@ public class FontViewerFragment extends Fragment {
 
         fontSizeDialog.setOnDialogCancelledListener(() -> {
             // ★ استعادة الحجم فقط عند الإلغاء — الوزن يُدار الآن بالـ Spinner ★
-            currentFontSize   = originalSize;
-            currentTypeface   = originalTypeface;
+            currentFontSize = originalSize;
+            currentTypeface = originalTypeface;
             applyFontToPreviewTexts();
             applyFontSize();
+            // ★ إعادة نص الـ FAB للحجم الأصلي عند الإلغاء ★
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).updateFabFontSize((int) currentFontSize);
+            }
         });
 
         fontSizeDialog.show();
     }
 
     /**
-     * ★ التعديل: إضافة تصفير حالتَي Bold وItalic عند مسح الخط المعروض ★
+     * ★ التعديل: تفويض تصفير حالتَي Bold وItalic لـ BoldItalicFormatting ★
      * يضمن ألا تبقى حالة التنسيق مُفعَّلة بعد عدم وجود خط.
      */
     private void resetFontDisplay() {
@@ -876,11 +842,8 @@ public class FontViewerFragment extends Fragment {
         currentWeightWidthLabel  = null;
         currentVariableInstances = null;
 
-        // ★ تصفير حالتَي التنسيق وتحديث مظهر الأزرار ★
-        isBoldActive   = false;
-        isItalicActive = false;
-        if (btnFontBold   != null) btnFontBold.setSelected(false);
-        if (btnFontItalic != null) btnFontItalic.setSelected(false);
+        // ★ تصفير حالتَي التنسيق عبر BoldItalicFormatting ★
+        mFormatting.reset();
 
         Typeface defaultTypeface = Typeface.DEFAULT;
         if (previewSentence != null) previewSentence.setTypeface(defaultTypeface);
@@ -985,9 +948,8 @@ public class FontViewerFragment extends Fragment {
         if (currentWeightWidthLabel != null) {
             outState.putString(KEY_WEIGHT_WIDTH_LABEL, currentWeightWidthLabel);
         }
-        // ★ حفظ حالتَي التنسيق لاستعادتهما عند إعادة البناء (دوران الشاشة مثلاً) ★
-        outState.putBoolean(KEY_IS_BOLD_ACTIVE, isBoldActive);
-        outState.putBoolean(KEY_IS_ITALIC_ACTIVE, isItalicActive);
+        // ★ حفظ حالتَي Bold وItalic — مُفوَّض لـ BoldItalicFormatting ★
+        mFormatting.saveState(outState);
         outState.putFloat(KEY_FONT_SIZE, currentFontSize);
         outState.putFloat(KEY_FONT_WEIGHT, currentFontWeight);
         outState.putBoolean(KEY_IS_VARIABLE_FONT, isVariableFont);
@@ -995,15 +957,11 @@ public class FontViewerFragment extends Fragment {
         outState.putBoolean(KEY_IS_SYSTEM_FONT, isSystemFont);
     }
 
-    public String getCurrentFontRealName() {
-        return currentFontRealName;
-    }
-
-    public String getCurrentFontFileName() {
-        return currentFontFileName;
-    }
+    public String getCurrentFontRealName() { return currentFontRealName; }
+    public String getCurrentFontFileName() { return currentFontFileName; }
+    public float  getCurrentFontSize()     { return currentFontSize; }
 
     public boolean hasFontSelected() {
         return currentFontPath != null && !currentFontPath.isEmpty();
     }
-                    }
+                }
