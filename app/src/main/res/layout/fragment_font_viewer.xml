@@ -1,34 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    ★ الإصلاح: تغيير الجذر من RelativeLayout إلى FrameLayout ★
 
-    أسباب التغيير:
-    1. (المشكلة 2) RelativeLayout مع layout_height="match_parent" + layout_above
-       يُعطي نتائج غير محددة عند تمدد CollapsingToolbar، مما يُسبب اختفاء
-       الشريط السفلي لأن المقياسين يتعارضان أثناء التحريك.
-    2. (المشكلة 3) الفراغ الناتج بين NestedScrollView والشاشة كان يُظهر خلفية
-       RelativeLayout الداكنة خلف زوايا الـ CardView المستديرة في الوضع الداكن.
-
-    الحل المعتمد:
-    - NestedScrollView يملأ match_parent مع clipToPadding="false" و paddingBottom
-      لضمان تمرير المحتوى كاملاً فوق الشريط دون فراغ مكشوف خلفه.
-
-    ★ التعديل الجديد: حُذف CardView (bottom_formatting_bar) من هذا الملف ★
-    انتقل الشريط إلى bottom_formatting_bar.xml ويُدرج في activity_main.xml عبر
-    <include app:layout_location="root"> ليُثبَّت في الطبقة الجذرية لـ DrawerLayout
-    بعيداً عن تأثير CollapsingToolbar. تُدار رؤيته من MainActivity لا من Fragment.
--->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!--
-        ★ الـ NestedScrollView يملأ الشاشة بالكامل ★
-        clipToPadding="false" يُتيح للمحتوى التمرير إلى ما وراء الـ paddingBottom
-        حتى يظهر آخر عنصر كاملاً فوق الشريط السفلي العائم عند التمرير للنهاية.
-        paddingBottom يُوفّر مساحة كافية بحيث لا يختفي آخر المحتوى خلف الشريط.
-    -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/font_viewer_scroll"
         android:layout_width="match_parent"
@@ -50,40 +26,6 @@
                 android:background="@color/oui_background_color"
                 android:orientation="vertical">
 
-                <!--
-                    ★ حاوية معلومات الوزن — في أعلى العارض ★
-                    تُعرض هنا نتيجةً واحدة فقط في أي وقت:
-                      • weight_label_text : نص ثابت للخطوط غير المتغيرة (مثل "Bold, Condensed")
-                      • weight_spinner    : منتقي تفاعلي للخطوط المتغيرة (Variable Fonts)
-                    كلاهما يبدأ مخفياً (gone) ويُظهره FontViewerFragment بعد تحميل الخط.
-                -->
-
-                <!-- وصف الوزن والعرض للخطوط الثابتة -->
-                <TextView
-                    android:id="@+id/weight_label_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:textSize="17sp"
-                    android:layout_marginBottom="8dp"
-                    android:visibility="gone" />
-
-                <!-- منتقي الوزن للخطوط المتغيرة -->
-                <androidx.appcompat.widget.AppCompatSpinner
-                    android:id="@+id/weight_spinner"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:visibility="gone" />
-
-                <!--
-                    ★ أيقونتا Bold وItalic — ثابتتان في جميع الحالات ★
-                    توضعان دائماً تحت نص الوزن/العرض أو الـ Spinner مباشرةً،
-                    بغض النظر عن نوع الخط أو حالته (ثابت / متغير / تالف).
-                    وظيفتهما برمجية بحتة: تعريض النص أو تمييله بصرفالنظر عن الخط.
-                    يُدار منطق التبديل والحالة بالكامل في BoldItalicFormatting.java.
-                    bg_format_toggle يُغيّر لون الخلفية عند setSelected(true).
-                -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -111,6 +53,24 @@
                         android:contentDescription="@string/font_italic" />
 
                 </LinearLayout>
+
+                <!-- وصف الوزن والعرض للخطوط الثابتة -->
+                <TextView
+                    android:id="@+id/weight_label_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:textSize="17sp"
+                    android:layout_marginBottom="8dp"
+                    android:visibility="gone" />
+
+                <!-- منتقي الوزن للخطوط المتغيرة -->
+                <androidx.appcompat.widget.AppCompatSpinner
+                    android:id="@+id/weight_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:visibility="gone" />
 
                 <!-- معاينة النص -->
                 <TextView
