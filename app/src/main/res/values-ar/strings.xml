@@ -91,7 +91,7 @@
     <string name="font_viewer_select_description">اختر ملف خط من جهازك (‎.ttf‎ أو ‎.otf‎)</string>
     <string name="font_viewer_no_font_selected">لم يتم اختيار أي خط</string>
     <string name="font_info">معلومات الخط</string>
-    <string name="font_size_and_style">حجم ونمط الخط</string>
+    <string name="font_size">حجم الخط</string>
     
     <string name="font_viewer_english_sentence">The quick brown fox jumps over the lazy dog.</string>
     <string name="font_viewer_english_numbers">1234567890</string>
