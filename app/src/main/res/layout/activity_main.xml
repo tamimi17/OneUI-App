@@ -30,7 +30,6 @@
         android:layout_margin="24dp"
         android:text="18"
         android:visibility="gone"
-        app:srcCompat="@drawable/ic_oui_font_size"
         app:backgroundTint="@color/background_floating_material"
         app:elevation="4dp"
         android:tooltipText="@string/font_size"
