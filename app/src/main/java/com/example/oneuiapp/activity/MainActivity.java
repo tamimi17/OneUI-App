@@ -19,7 +19,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.app.AlertDialog;
 
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Typeface;
+import android.graphics.Color;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,9 +108,10 @@ public class MainActivity extends BaseActivity
     private MenuItem mFontMetaMenuItem;
     private MenuItem mSearchMenuItem;
 
-    // ★ FAB ممتد يعرض حجم الخط كرقم — موضوع في activity_main.xml بـ layout_location="root" ★
-    // يبقى ثابتاً خارج نطاق CollapsingToolbar ويُظهر/يُخفى بحسب الفراغمنت النشط.
-    private ExtendedFloatingActionButton mFabFontSize;
+    // ★ FAB عادي متوافق مع ثيم AppCompat — يعرض حجم الخط كرقم عبر Bitmap ★
+    // موضوع في activity_main.xml بـ layout_location="root" ليبقى ثابتاً
+    // خارج نطاق CollapsingToolbar ويُظهر/يُخفى بحسب الفراغمنت النشط.
+    private FloatingActionButton mFabFontSize;
 
     private SearchCoordinator mSearchCoordinator;
     private ProgressDialog loadingDialog;
@@ -464,16 +471,29 @@ public class MainActivity extends BaseActivity
     }
 
     /**
-     * ★ يُحدّث نص الـ FAB بالحجم الجديد ★
+     * ★ يُحدّث أيقونة الـ FAB بالحجم الجديد كرقم مرسوم على Bitmap ★
      * يُستدعى من FontViewerFragment.onFontSizeChanged() عند كل تغيير في حجم الخط.
+     * استخدام Bitmap بدلاً من نص مباشر هو الحل المتوافق مع ثيم AppCompat،
+     * إذ لا يدعم FloatingActionButton العادي عرض نص مباشرةً.
+     *
+     * اللون مستخرج من imageTintList الخاصة بالـ FAB لضمان التوافق مع أي ثيم،
+     * بدلاً من تثبيته كقيمة ثابتة قد تتعارض مع الثيم الحالي أو المستقبلي.
+     *
+     * حجم النص ثابت لأن نطاق الحجم (12–45) يتكون دائماً من رقمَين،
+     * فلا توجد حالة تستدعي تغيير الحجم.
      *
      * @param size حجم الخط الجديد بوحدة SP
      */
     public void updateFabFontSize(int size) {
-        if (mFabFontSize != null) {
-            mFabFontSize.setText(String.valueOf(size));
-        }
-    }
+        if (mFabFontSize == null) return;
+
+        // ★ رسم الرقم على Bitmap بحجم مناسب لأيقونة الـ FAB ★
+        int bitmapSize = (int) android.util.TypedValue.applyDimension(
+            android.util.TypedValue.COMPLEX_UNIT_DIP, 40,
+            getResources().getDisplayMetrics());
+
+        Bitmap bitmap = Bitmap.createBitmap(bitmapSize, bitmapSize, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
 
     /**
      * ★ الإصلاح الجوهري للمشكلتين 1 و 3 ★
@@ -761,4 +781,4 @@ public class MainActivity extends BaseActivity
             updateDrawerTitle(position);
         }
     }
-                    }
+                }
