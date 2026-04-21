@@ -14,6 +14,8 @@ import java.util.List;
 
 /**
  * FontDao - محسّن مع دوال فعّالة لإدارة الكاش
+ *
+ * ★ الإصدار 3: إضافة استعلامات المفضلة (Favorites) ★
  */
 @Dao
 public interface FontDao {
@@ -250,4 +252,53 @@ public interface FontDao {
      */
     @Query("SELECT * FROM fonts WHERE weight_width_label IS NULL LIMIT :limit")
     List<FontEntity> getFontsWithoutWeightWidth(int limit);
+
+    // ════════════════════════════════════════════════════════════
+    // ★ استعلامات المفضلة (Favorites) — الإصدار 3 ★
+    // ════════════════════════════════════════════════════════════
+
+    /**
+     * جلب جميع الخطوط المفضلة مرتبةً أبجدياً (مع تحديث تلقائي عبر LiveData).
+     */
+    @Query("SELECT * FROM fonts WHERE is_favorite = 1 ORDER BY file_name ASC")
+    LiveData<List<FontEntity>> getFavoriteFonts();
+
+    /**
+     * جلب جميع الخطوط المفضلة بشكل متزامن (بدون LiveData).
+     */
+    @Query("SELECT * FROM fonts WHERE is_favorite = 1 ORDER BY file_name ASC")
+    List<FontEntity> getFavoriteFontsSync();
+
+    /**
+     * تحديث حالة المفضلة لخط واحد بمساره.
+     *
+     * @param path      مسار ملف الخط
+     * @param isFavorite true للإضافة، false للإزالة
+     * @param timestamp وقت التحديث
+     */
+    @Query("UPDATE fonts SET is_favorite = :isFavorite, updated_at = :timestamp WHERE path = :path")
+    int updateFavoriteStatus(String path, boolean isFavorite, long timestamp);
+
+    /**
+     * تحديث حالة المفضلة لمجموعة من الخطوط دفعةً واحدة (عملية SQL واحدة).
+     * أسرع بكثير من استدعاء updateFavoriteStatus في حلقة.
+     *
+     * @param paths     قائمة مسارات الخطوط
+     * @param isFavorite true للإضافة، false للإزالة
+     * @param timestamp وقت التحديث
+     */
+    @Query("UPDATE fonts SET is_favorite = :isFavorite, updated_at = :timestamp WHERE path IN (:paths)")
+    int updateFavoriteStatusBatch(List<String> paths, boolean isFavorite, long timestamp);
+
+    /**
+     * عدد الخطوط المفضلة (مع تحديث تلقائي عبر LiveData).
+     */
+    @Query("SELECT COUNT(*) FROM fonts WHERE is_favorite = 1")
+    LiveData<Integer> getFavoriteFontsCount();
+
+    /**
+     * عدد الخطوط المفضلة بشكل متزامن.
+     */
+    @Query("SELECT COUNT(*) FROM fonts WHERE is_favorite = 1")
+    int getFavoriteFontsCountSync();
 }
