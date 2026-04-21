@@ -1,187 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    ★ نسخة الثيم الشفاف من عارض الخطوط ★
-
-    الإصلاح: تغيير الجذر من RelativeLayout إلى FrameLayout لنفس أسباب
-    النسخة الاعتيادية (المشكلتان 2 و3):
-    - يُزيل التعارض بين layout_height="match_parent" و layout_above عند
-      تمدد CollapsingToolbar فيختفي الشريط السفلي.
-    - يُزيل الفراغ الداكن المكشوف خلف زوايا الـ CardView في الوضع الداكن.
-
-    الحفاظ على خصائص الثيم الشفاف (clickable/focusable على العناصر).
-    بدون android:background على RoundLinearLayout لإظهار الخلفية الشفافة.
--->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/font_viewer_scroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clickable="true"
-    android:focusable="true">
-
-    <!--
-        ★ الـ NestedScrollView يملأ الشاشة بالكامل ★
-        clipToPadding="false" يُتيح للمحتوى التمرير إلى ما وراء الـ paddingBottom
-        حتى يظهر آخر عنصر كاملاً فوق الشريط السفلي العائم عند التمرير للنهاية.
-        paddingBottom يُوفّر مساحة كافية بحيث لا يختفي آخر المحتوى خلف الشريط.
-    -->
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/font_viewer_scroll"
+    android:focusable="true"
+    android:overScrollMode="always"
+    android:scrollbars="vertical"
+    android:fillViewport="true">
+       
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:paddingBottom="96dp"
         android:clickable="true"
         android:focusable="true"
-        android:overScrollMode="always"
-        android:scrollbars="vertical"
-        android:fillViewport="true">
+        android:orientation="vertical"
+        android:paddingBottom="120dp">
 
-        <LinearLayout
+        <dev.oneuiproject.oneui.widget.RoundLinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clickable="true"
             android:focusable="true"
-            android:orientation="vertical"
-            android:paddingBottom="16dp">
+            android:padding="27dp"
+            android:orientation="vertical">
 
-            <dev.oneuiproject.oneui.widget.RoundLinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+            <!--
+                ★ حاوية معلومات الوزن — في أعلى العارض (نسخة الثيم الشفاف) ★
+                تُعرض هنا نتيجةً واحدة فقط في أي وقت:
+                  • weight_label_text : نص ثابت للخطوط غير المتغيرة (مثل "Bold, Condensed")
+                  • weight_spinner    : منتقي تفاعلي للخطوط المتغيرة (Variable Fonts)
+                كلاهما يبدأ مخفياً (gone) ويُظهره FontViewerFragment بعد تحميل الخط.
+            -->
+
+            <!-- وصف الوزن والعرض للخطوط الثابتة -->
+            <TextView
+                android:id="@+id/weight_label_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="17sp"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone" />
+
+            <!-- منتقي الوزن للخطوط المتغيرة -->
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/weight_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone" />
+
+            <!-- معاينة النص -->
+            <TextView
+                android:id="@+id/preview_sentence"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:lineSpacingExtra="7dp"
                 android:clickable="true"
                 android:focusable="true"
-                android:padding="27dp"
-                android:orientation="vertical">
-
-                <!--
-                    ★ حاوية معلومات الوزن — في أعلى العارض (نسخة الثيم الشفاف) ★
-                    تُعرض هنا نتيجةً واحدة فقط في أي وقت:
-                      • weight_label_text : نص ثابت للخطوط غير المتغيرة (مثل "Bold, Condensed")
-                      • weight_spinner    : منتقي تفاعلي للخطوط المتغيرة (Variable Fonts)
-                    كلاهما يبدأ مخفياً (gone) ويُظهره FontViewerFragment بعد تحميل الخط.
-                -->
-
-                <!-- وصف الوزن والعرض للخطوط الثابتة -->
-                <TextView
-                    android:id="@+id/weight_label_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:textSize="17sp"
-                    android:layout_marginBottom="16dp"
-                    android:visibility="gone" />
-
-                <!-- منتقي الوزن للخطوط المتغيرة -->
-                <androidx.appcompat.widget.AppCompatSpinner
-                    android:id="@+id/weight_spinner"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:visibility="gone" />
-
-                <!-- معاينة النص -->
-                <TextView
-                    android:id="@+id/preview_sentence"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:lineSpacingExtra="7dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:textSize="18sp"
-                    android:textColor="@color/oui_primary_text_color" />
-
-            </dev.oneuiproject.oneui.widget.RoundLinearLayout>
-
-        </LinearLayout>
-
-    </androidx.core.widget.NestedScrollView>
-
-    <!--
-        ★ شريط أدوات التنسيق العائم — ثابت في أسفل الشاشة دائماً ★
-
-        الإصلاح (المشكلتان 2 و3):
-        layout_gravity="bottom|center_horizontal" في FrameLayout بدلاً من
-        layout_alignParentBottom + layout_centerHorizontal في RelativeLayout.
-
-        الإصلاح (المشكلة 5): تغيير layout_width من wrap_content إلى match_parent
-        لتفعيل توزيع الأوزان (layout_weight) داخل LinearLayout بشكل صحيح.
-        wrap_content كان يمنع اللينيار لايوت من حساب ثلث العرض لكل زر.
-
-        استخدام CardView بدلاً من BottomNavigationView هو الخيار الصحيح معمارياً؛
-        لأن هذا شريط تنسيق (Formatting Toolbar) وليس شريط تنقل (Navigation).
-    -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/bottom_formatting_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="24dp"
-        app:cardCornerRadius="24dp"
-        app:cardElevation="6dp"
-        app:cardBackgroundColor="?attr/colorBackgroundFloating">
-
-        <!--
-            ★ الإصلاح (المشكلة 5): توزيع الأيقونات بالتساوي عبر layout_weight ★
-            كل زر يحصل على layout_weight="1" ليحتل ثلث العرض بالضبط،
-            مع layout_width="0dp" لتفعيل توزيع الأوزان بشكل صحيح.
-        -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="8dp"
-            android:gravity="center_vertical">
-
-            <!--
-                زر تغيير حجم الخط — يفتح FontSizeDialog (منقول من الـ FAB)
-                layout_weight="1" يمنحه ثلث عرض الشريط لضمان التوزيع المتساوي.
-                scaleType="center" يُثبّت حجم الأيقونة الأصلي داخل المساحة الموسّعة.
-            -->
-            <ImageView
-                android:id="@+id/btn_font_size"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:padding="12dp"
-                android:scaleType="center"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_oui_font_size"
-                android:contentDescription="@string/font_size_and_style" />
-
-            <!--
-                زر الخط العريض (Bold) — يتمتع بحالة تبديل مُميَّزة
-                bg_format_toggle يُغيّر لون الخلفية عند setSelected(true).
-                layout_weight="1" يمنحه ثلث عرض الشريط.
-            -->
-            <ImageView
-                android:id="@+id/btn_font_bold"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:padding="12dp"
-                android:scaleType="center"
-                android:background="@drawable/bg_format_toggle"
-                android:src="@drawable/ic_oui_text_bold"
-                android:contentDescription="@string/font_bold" />
-
-            <!--
-                زر الخط المائل (Italic) — يتمتع بحالة تبديل مُميَّزة
-                bg_format_toggle يُغيّر لون الخلفية عند setSelected(true).
-                layout_weight="1" يمنحه ثلث عرض الشريط.
-            -->
-            <ImageView
-                android:id="@+id/btn_font_italic"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:padding="12dp"
-                android:scaleType="center"
-                android:background="@drawable/bg_format_toggle"
-                android:src="@drawable/ic_oui_text_italic"
-                android:contentDescription="@string/font_italic" />
-
-        </LinearLayout>
-
-    </androidx.cardview.widget.CardView>
-
-</FrameLayout>
+                android:textSize="18sp"
+                android:textColor="@color/oui_primary_text_color" />
+        
+        </dev.oneuiproject.oneui.widget.RoundLinearLayout>
+        
+    </LinearLayout>
+    
+</androidx.core.widget.NestedScrollView>

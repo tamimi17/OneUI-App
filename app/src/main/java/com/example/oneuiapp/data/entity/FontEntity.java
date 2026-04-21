@@ -14,16 +14,13 @@ import androidx.annotation.Nullable;
  *
  * ★ الإصدار 2: إضافة حقل weight_width_label لتخزين وصف الوزن والعرض ★
  * مثال: "Bold, Condensed" أو "VF · Regular" أو "غير معروف"
- *
- * ★ الإصدار 3: إضافة حقل is_favorite لدعم قائمة المفضلة ★
  */
 @Entity(
     tableName = "fonts",
     indices = {
         @Index(value = "path", unique = true),
         @Index(value = "is_system_font"),
-        @Index(value = "last_modified"),
-        @Index(value = "is_favorite") // ★ جديد: فهرس للمفضلة لتسريع الاستعلامات ★
+        @Index(value = "last_modified")
     }
 )
 public class FontEntity {
@@ -78,20 +75,12 @@ public class FontEntity {
     @ColumnInfo(name = "updated_at")
     private long updatedAt;
 
-    // ★ الحقل الجديد (v2): وصف الوزن والعرض المُستخرج من جدول OS/2 ★
+    // ★ الحقل الجديد: وصف الوزن والعرض المُستخرج من جدول OS/2 ★
     // أمثلة: "Bold, Condensed" / "VF · Regular" / "غير معروف"
     // يُعبأ بواسطة FontWeightWidthExtractor عند المزامنة أو في الخلفية
     @Nullable
     @ColumnInfo(name = "weight_width_label")
     private String weightWidthLabel;
-
-    // ════════════════════════════════════════════════════════════
-    // ★ الحقل الجديد (v3): حالة المفضلة ★
-    // القيمة الافتراضية: 0 (غير مفضل)
-    // يُعيَّن إلى 1 عند إضافة الخط إلى المفضلة
-    // ════════════════════════════════════════════════════════════
-    @ColumnInfo(name = "is_favorite", defaultValue = "0")
-    private boolean isFavorite;
     
     public FontEntity(@NonNull String path, @NonNull String fileName) {
         this.path = path;
@@ -106,7 +95,6 @@ public class FontEntity {
         this.accessCount = 0;
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
-        this.isFavorite = false; // ★ الافتراضي: غير مفضل ★
     }
     
     public long getId() {
@@ -234,7 +222,7 @@ public class FontEntity {
     }
 
     // ════════════════════════════════════════════════════════════
-    // ★ getter/setter للحقل weight_width_label (v2) ★
+    // ★ getter/setter للحقل الجديد weight_width_label ★
     // ════════════════════════════════════════════════════════════
 
     @Nullable
@@ -244,24 +232,6 @@ public class FontEntity {
 
     public void setWeightWidthLabel(@Nullable String weightWidthLabel) {
         this.weightWidthLabel = weightWidthLabel;
-    }
-
-    // ════════════════════════════════════════════════════════════
-    // ★ getter/setter للحقل is_favorite (v3) ★
-    // ════════════════════════════════════════════════════════════
-
-    /**
-     * @return true إذا كان الخط مضافاً إلى المفضلة
-     */
-    public boolean isFavorite() {
-        return isFavorite;
-    }
-
-    /**
-     * @param favorite true لإضافة الخط إلى المفضلة، false لإزالته
-     */
-    public void setFavorite(boolean favorite) {
-        isFavorite = favorite;
     }
     
     public String getDisplayName() {
