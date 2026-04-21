@@ -29,6 +29,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="24dp"
         android:text="18"
+        android:textSize="18sp"
         app:tint="@color/oui_primary_text_color"
         android:visibility="gone"
         app:backgroundTint="@color/background_floating_material"
