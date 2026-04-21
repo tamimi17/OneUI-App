@@ -107,7 +107,7 @@
     <string name="font_viewer_adjust_size">Adjust font size</string>
     <string name="font_viewer_import_font">Import font</string>
     <string name="font_viewer_toggle_bold">Toggle bold</string>
-    <string name="font_size">Font Size</string>
+    <string name="font_size_and_style">Font Size &amp; Style</string>
 
     <!-- ═══════════════════════════════════════════════════════════════
          نصوص FontFragment - إدارة مجلد الخطوط
