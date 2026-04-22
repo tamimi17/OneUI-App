@@ -250,4 +250,67 @@ public interface FontDao {
      */
     @Query("SELECT * FROM fonts WHERE weight_width_label IS NULL LIMIT :limit")
     List<FontEntity> getFontsWithoutWeightWidth(int limit);
+
+    // ════════════════════════════════════════════════════════════
+    // ★ استعلامات المفضلة (Favorites) ★
+    // ════════════════════════════════════════════════════════════
+
+    /**
+     * تحديث حالة المفضلة لخط محدد بمساره.
+     * تُستدعى عند الضغط على زر "مفضلة" أو "غير مفضلة" في وضع التحديد المتعدد.
+     *
+     * @param path       مسار ملف الخط
+     * @param isFavorite true لإضافة المفضلة، false لإزالتها
+     * @param timestamp  وقت التحديث بالميلي ثانية
+     */
+    @Query("UPDATE fonts SET is_favorite = :isFavorite, updated_at = :timestamp WHERE path = :path")
+    int updateFavoriteStatus(String path, boolean isFavorite, long timestamp);
+
+    /**
+     * جلب جميع الخطوط المفضلة مرتبةً تصاعدياً حسب الاسم.
+     * يُستخدم كمصدر بيانات رئيسي لـ FavoriteFontListViewModel.
+     */
+    @Query("SELECT * FROM fonts WHERE is_favorite = 1 ORDER BY file_name ASC")
+    LiveData<List<FontEntity>> getFavoriteFonts();
+
+    /**
+     * جلب عدد الخطوط المفضلة.
+     * يُستخدم لعرض العداد في عنوان درج التنقل.
+     */
+    @Query("SELECT COUNT(*) FROM fonts WHERE is_favorite = 1")
+    LiveData<Integer> getFavoriteFontsCount();
+
+    /**
+     * البحث داخل الخطوط المفضلة بالاسم أو الاسم الحقيقي.
+     * يدعم ميزة البحث الخاصة بقائمة المفضلة.
+     *
+     * @param query نص البحث
+     */
+    @Query("SELECT * FROM fonts WHERE is_favorite = 1 " +
+           "AND (file_name LIKE '%' || :query || '%' " +
+           "OR real_name LIKE '%' || :query || '%') " +
+           "ORDER BY file_name ASC")
+    LiveData<List<FontEntity>> searchFavoriteFonts(String query);
+
+    // ════════════════════════════════════════════════════════════
+    // ★ استعلامات الفرز لقائمة المفضلة ★
+    // ════════════════════════════════════════════════════════════
+
+    @Query("SELECT * FROM fonts WHERE is_favorite = 1 ORDER BY file_name ASC")
+    LiveData<List<FontEntity>> getFavoriteFontsSortedByName();
+
+    @Query("SELECT * FROM fonts WHERE is_favorite = 1 ORDER BY file_name DESC")
+    LiveData<List<FontEntity>> getFavoriteFontsSortedByNameDesc();
+
+    @Query("SELECT * FROM fonts WHERE is_favorite = 1 ORDER BY last_modified ASC")
+    LiveData<List<FontEntity>> getFavoriteFontsSortedByDate();
+
+    @Query("SELECT * FROM fonts WHERE is_favorite = 1 ORDER BY last_modified DESC")
+    LiveData<List<FontEntity>> getFavoriteFontsSortedByDateDesc();
+
+    @Query("SELECT * FROM fonts WHERE is_favorite = 1 ORDER BY size ASC")
+    LiveData<List<FontEntity>> getFavoriteFontsSortedBySize();
+
+    @Query("SELECT * FROM fonts WHERE is_favorite = 1 ORDER BY size DESC")
+    LiveData<List<FontEntity>> getFavoriteFontsSortedBySizeDesc();
 }
