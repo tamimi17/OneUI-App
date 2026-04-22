@@ -33,6 +33,12 @@ import com.google.android.material.color.MaterialColors;
  *   تُستدعى من LocalFontListAdapter عند:
  *   - notifyFavoriteChanged(String path)   → تحديث عنصر واحد
  *   - notifyAllFavoritesChanged()          → تحديث جميع العناصر دفعةً
+ *
+ * ★ الإصلاح: إضافة overload بـ 9 معاملات (بدون isFavorite) ★
+ *   يُستدعى من LocalFontListAdapter.bindLocalFontViewHolder() التي تُعيِّن
+ *   أيقونة المفضلة بصمت عبر setFavoriteIndicator() بعد استدعاء bind().
+ *   بدون هذا الـ overload يحدث خطأ تجميعي لأن الـ Adapter يمرر 9 معاملات
+ *   ولا يوجد في الـ ViewHolder ما يطابقها (8 أو 10 فقط).
  */
 public class LocalFontViewHolder extends RecyclerView.ViewHolder {
     
@@ -72,6 +78,47 @@ public class LocalFontViewHolder extends RecyclerView.ViewHolder {
                      boolean isFavorite) {
         bind(displayName, path, isSearchActive, searchQuery, isLastOpened,
              highlighter, false, false, weightWidthLabel, isFavorite);
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // ★ الإصلاح: overload بـ 9 معاملات (بدون isFavorite) ★
+    // يُستدعى من LocalFontListAdapter.bindLocalFontViewHolder() التي:
+    //   1. تستدعي هذه الدالة بـ 9 معاملات (مع isSelectionMode/isSelected، بدون isFavorite)
+    //   2. ثم تستدعي setFavoriteIndicator() بشكل منفصل لتعيين حالة المفضلة
+    //
+    // بدون هذا الـ overload: خطأ تجميعي لأن Java لا يجد ما يطابق 9 معاملات.
+    // ════════════════════════════════════════════════════════════
+
+    /**
+     * ★ دالة bind بـ 9 معاملات (بدون isFavorite) ★
+     *
+     * تُستدعى من LocalFontListAdapter.bindLocalFontViewHolder() حيث يُعيَّن
+     * ظهور أيقونة المفضلة بصمت عبر setFavoriteIndicator() بعد الاستدعاء.
+     * تُحيل داخلياً إلى الدالة الكاملة بـ isFavorite = false ريثما يُعيَّن برمجياً.
+     *
+     * @param displayName      اسم العرض (بدون صيغة الملف)
+     * @param path             المسار الكامل للملف
+     * @param isSearchActive   هل البحث نشط
+     * @param searchQuery      نص البحث الحالي
+     * @param isLastOpened     هل آخر خط تم فتحه
+     * @param highlighter      أداة التمييز للبحث
+     * @param isSelectionMode  هل وضع التحديد مفعّل
+     * @param isSelected       هل العنصر محدد حالياً
+     * @param weightWidthLabel وصف الوزن والعرض ("Bold, Condensed" أو "غير معروف" إلخ)
+     */
+    public void bind(String displayName,
+                     String path,
+                     boolean isSearchActive,
+                     String searchQuery,
+                     boolean isLastOpened,
+                     FontTextHighlighter highlighter,
+                     boolean isSelectionMode,
+                     boolean isSelected,
+                     String weightWidthLabel) {
+        // ★ تُحيل للدالة الكاملة بـ isFavorite = false ★
+        // الـ Adapter سيستدعي setFavoriteIndicator() بعد هذه الدالة لتعيين القيمة الصحيحة
+        bind(displayName, path, isSearchActive, searchQuery, isLastOpened,
+             highlighter, isSelectionMode, isSelected, weightWidthLabel, false);
     }
 
     /**
@@ -159,7 +206,7 @@ public class LocalFontViewHolder extends RecyclerView.ViewHolder {
      * ★ تحديث ظهور أيقونة المفضلة (ic_favorite الصفراء) دون إعادة رسم العنصر كاملاً ★
      *
      * تُستدعى من LocalFontListAdapter في حالتين:
-     *   1. ضمن onBindViewHolder() العادي (عبر دالة bind)
+     *   1. ضمن onBindViewHolder() العادي بعد استدعاء bind() (نتيجة الـ overload بـ 9 معاملات)
      *   2. ضمن onBindViewHolder(payloads) عند استقبال PAYLOAD_UPDATE_FAVORITE
      *      لتحديث الأيقونة بكفاءة دون الحاجة لإعادة ربط كامل بيانات العنصر
      *
