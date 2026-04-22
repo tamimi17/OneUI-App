@@ -6,6 +6,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,11 +19,14 @@ import com.example.oneuiapp.metadata.FontWeightWidthExtractor;
 import com.google.android.material.color.MaterialColors;
 
 /**
- * LocalFontViewHolder - ViewHolder محدث بدعم التحديد المتعدد وعرض الوزن/العرض
+ * LocalFontViewHolder - ViewHolder محدث بدعم التحديد المتعدد وعرض الوزن/العرض وأيقونة المفضلة
  *
- * ★ التعديل: إضافة weightWidthTextView لعرض وصف الوزن والعرض
+ * ★ التعديل الأول: إضافة weightWidthTextView لعرض وصف الوزن والعرض
  *   في سطر ثانٍ بالنص الثانوي تحت اسم الخط مباشرةً.
  *   أمثلة: "Bold, Condensed" | "VF · Regular" | "غير معروف"
+ *
+ * ★ التعديل الثاني: إضافة favoriteIconView لعرض أيقونة النجمة الصفراء (ic_favorite)
+ *   بجانب العنصر عندما يكون مفضلاً، في كلٍّ من قائمة الخطوط المحلية وقائمة المفضلة.
  */
 public class LocalFontViewHolder extends RecyclerView.ViewHolder {
     
@@ -31,6 +35,8 @@ public class LocalFontViewHolder extends RecyclerView.ViewHolder {
     public final TextView weightWidthTextView;
     public final CheckBox checkBox;
     public final View dividerView; // ★ مرجع الخط الفاصل ★
+    // ★ أيقونة المفضلة الصفراء (ic_favorite)، تظهر فقط للعناصر المفضلة ★
+    public final ImageView favoriteIconView;
     private String currentPath;
 
     public LocalFontViewHolder(@NonNull View itemView) {
@@ -38,7 +44,8 @@ public class LocalFontViewHolder extends RecyclerView.ViewHolder {
         fontNameTextView    = itemView.findViewById(R.id.font_item_name);
         weightWidthTextView = itemView.findViewById(R.id.font_item_weight_width); // ★ جديد ★
         checkBox            = itemView.findViewById(R.id.checkbox);
-        dividerView         = itemView.findViewById(R.id.item_divider); // ★ ربط الخط الفاصل ★
+        dividerView         = itemView.findViewById(R.id.item_divider);           // ★ ربط الخط الفاصل ★
+        favoriteIconView    = itemView.findViewById(R.id.font_item_favorite_icon); // ★ جديد: أيقونة المفضلة ★
     }
 
     /**
@@ -51,13 +58,14 @@ public class LocalFontViewHolder extends RecyclerView.ViewHolder {
                      String searchQuery,
                      boolean isLastOpened,
                      FontTextHighlighter highlighter,
-                     String weightWidthLabel) {
+                     String weightWidthLabel,
+                     boolean isFavorite) {
         bind(displayName, path, isSearchActive, searchQuery, isLastOpened,
-             highlighter, false, false, weightWidthLabel);
+             highlighter, false, false, weightWidthLabel, isFavorite);
     }
 
     /**
-     * ربط البيانات مع العنصر (مع دعم وضع التحديد).
+     * ربط البيانات مع العنصر (مع دعم وضع التحديد وأيقونة المفضلة).
      *
      * @param displayName      اسم العرض (بدون صيغة الملف)
      * @param path             المسار الكامل للملف
@@ -68,6 +76,7 @@ public class LocalFontViewHolder extends RecyclerView.ViewHolder {
      * @param isSelectionMode  هل وضع التحديد مفعّل
      * @param isSelected       هل العنصر محدد حالياً
      * @param weightWidthLabel وصف الوزن والعرض ("Bold, Condensed" أو "غير معروف" إلخ)
+     * @param isFavorite       هل الخط مضاف إلى المفضلة (يتحكم في ظهور النجمة الصفراء)
      */
     public void bind(String displayName,
                      String path,
@@ -77,7 +86,8 @@ public class LocalFontViewHolder extends RecyclerView.ViewHolder {
                      FontTextHighlighter highlighter,
                      boolean isSelectionMode,
                      boolean isSelected,
-                     String weightWidthLabel) {
+                     String weightWidthLabel,
+                     boolean isFavorite) {
         
         this.currentPath = path;
         itemView.setTag(path);
@@ -89,6 +99,12 @@ public class LocalFontViewHolder extends RecyclerView.ViewHolder {
         } else {
             checkBox.setVisibility(View.GONE);
             checkBox.setChecked(false);
+        }
+
+        // ★ إظهار/إخفاء أيقونة النجمة الصفراء حسب حالة المفضلة ★
+        // تظهر النجمة في قائمة الخطوط المحلية وقائمة المفضلة على حدٍّ سواء
+        if (favoriteIconView != null) {
+            favoriteIconView.setVisibility(isFavorite ? View.VISIBLE : View.GONE);
         }
 
         // ★ تغيير لون النص لتمييز آخر خط تم فتحه ★
