@@ -27,6 +27,12 @@ import com.google.android.material.color.MaterialColors;
  *
  * ★ التعديل الثاني: إضافة favoriteIconView لعرض أيقونة النجمة الصفراء (ic_favorite)
  *   بجانب العنصر عندما يكون مفضلاً، في كلٍّ من قائمة الخطوط المحلية وقائمة المفضلة.
+ *
+ * ★ التعديل الثالث: إضافة دالة setFavoriteIndicator(boolean) لتحديث أيقونة المفضلة
+ *   بشكل مستقل عبر PAYLOAD_UPDATE_FAVORITE دون إعادة رسم العنصر كاملاً.
+ *   تُستدعى من LocalFontListAdapter عند:
+ *   - notifyFavoriteChanged(String path)   → تحديث عنصر واحد
+ *   - notifyAllFavoritesChanged()          → تحديث جميع العناصر دفعةً
  */
 public class LocalFontViewHolder extends RecyclerView.ViewHolder {
     
@@ -47,6 +53,10 @@ public class LocalFontViewHolder extends RecyclerView.ViewHolder {
         dividerView         = itemView.findViewById(R.id.item_divider);           // ★ ربط الخط الفاصل ★
         favoriteIconView    = itemView.findViewById(R.id.font_item_favorite_icon); // ★ جديد: أيقونة المفضلة ★
     }
+
+    // ════════════════════════════════════════════════════════════
+    // دوال الربط (bind)
+    // ════════════════════════════════════════════════════════════
 
     /**
      * ربط البيانات مع العنصر (بدون وضع التحديد).
@@ -103,9 +113,7 @@ public class LocalFontViewHolder extends RecyclerView.ViewHolder {
 
         // ★ إظهار/إخفاء أيقونة النجمة الصفراء حسب حالة المفضلة ★
         // تظهر النجمة في قائمة الخطوط المحلية وقائمة المفضلة على حدٍّ سواء
-        if (favoriteIconView != null) {
-            favoriteIconView.setVisibility(isFavorite ? View.VISIBLE : View.GONE);
-        }
+        setFavoriteIndicator(isFavorite);
 
         // ★ تغيير لون النص لتمييز آخر خط تم فتحه ★
         // يستخدم colorPrimary الديناميكي للتكيف مع لوحة الألوان الحالية للنظام،
@@ -142,6 +150,30 @@ public class LocalFontViewHolder extends RecyclerView.ViewHolder {
             weightWidthTextView.setText(label);
         }
     }
+
+    // ════════════════════════════════════════════════════════════
+    // ★ تحديث أيقونة المفضلة بشكل مستقل ★
+    // ════════════════════════════════════════════════════════════
+
+    /**
+     * ★ تحديث ظهور أيقونة المفضلة (ic_favorite الصفراء) دون إعادة رسم العنصر كاملاً ★
+     *
+     * تُستدعى من LocalFontListAdapter في حالتين:
+     *   1. ضمن onBindViewHolder() العادي (عبر دالة bind)
+     *   2. ضمن onBindViewHolder(payloads) عند استقبال PAYLOAD_UPDATE_FAVORITE
+     *      لتحديث الأيقونة بكفاءة دون الحاجة لإعادة ربط كامل بيانات العنصر
+     *
+     * @param isFavorite true لإظهار النجمة الصفراء، false لإخفائها
+     */
+    public void setFavoriteIndicator(boolean isFavorite) {
+        if (favoriteIconView != null) {
+            favoriteIconView.setVisibility(isFavorite ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // دوال Typeface والمساعدة
+    // ════════════════════════════════════════════════════════════
 
     /**
      * ★ تعيين Typeface للمعاينة مع معالجة null بشكل صحيح ★
