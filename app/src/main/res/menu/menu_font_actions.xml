@@ -1,17 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<!--
+    قائمة وضع التحديد المتعدد للخطوط المحلية والمفضلة.
 
-    <item
-        android:id="@+id/action_rename"
-        android:title="@string/action_rename"
-        android:icon="@drawable/ic_oui_edit_outline"
-        app:showAsAction="always" />
+    العناصر:
+    ─────────────────────────────────────────────────────────
+    action_delete        : حذف الملفات المحددة (يظهر دائماً)
+    action_rename        : إعادة التسمية (يظهر عند تحديد عنصر واحد فقط)
+    action_add_favorite  : إضافة إلى المفضلة — يظهر حين لا تكون كل العناصر المحددة مفضلة
+    action_remove_favorite: إزالة من المفضلة — يظهر حين تكون كل العناصر المحددة مفضلة
 
+    ★ منطق Samsung Notes ★
+    يُعالَج إظهار أحد زرَّي المفضلة وإخفاء الآخر في LocalFontSelectionManager.updateActionModeUI()
+    لذا تُضبَط قيمة android:visible هنا كحالة أولية فقط
+    (add_favorite مرئي، remove_favorite مخفي) ويُحدَّث تلقائياً عند كل تغيير في التحديد.
+    ─────────────────────────────────────────────────────────
+-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- ★ حذف — يظهر دائماً ★ -->
     <item
         android:id="@+id/action_delete"
         android:title="@string/action_delete"
         android:icon="@drawable/ic_oui_delete_outline"
-        app:showAsAction="always" />
+        android:visible="true" />
+
+    <!-- ★ إعادة التسمية — يظهر عند تحديد عنصر واحد فقط ★ -->
+    <item
+        android:id="@+id/action_rename"
+        android:title="@string/action_rename"
+        android:icon="@drawable/ic_oui_edit"
+        android:visible="false" />
+
+    <!-- ★ إضافة إلى المفضلة
+         الأيقونة: ic_oui_favorite_on
+         الاسم:    مفضلة / Favorite
+         يُخفى تلقائياً إذا كانت كل العناصر المحددة مفضلة بالفعل ★ -->
+    <item
+        android:id="@+id/action_add_favorite"
+        android:title="@string/action_add_favorite"
+        android:icon="@drawable/ic_oui_favorite_on"
+        android:visible="true" />
+
+    <!-- ★ إزالة من المفضلة
+         الأيقونة: ic_oui_favorite_off
+         الاسم:    غير مفضلة / Unfavorite
+         يُخفى تلقائياً إذا لم تكن كل العناصر المحددة مفضلة ★ -->
+    <item
+        android:id="@+id/action_remove_favorite"
+        android:title="@string/action_remove_favorite"
+        android:icon="@drawable/ic_oui_favorite_off"
+        android:visible="false" />
 
 </menu>
