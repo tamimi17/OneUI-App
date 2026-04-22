@@ -14,13 +14,17 @@ import androidx.annotation.Nullable;
  *
  * ★ الإصدار 2: إضافة حقل weight_width_label لتخزين وصف الوزن والعرض ★
  * مثال: "Bold, Condensed" أو "VF · Regular" أو "غير معروف"
+ *
+ * ★ الإصدار 3: إضافة حقل is_favorite لتخزين حالة المفضلة ★
+ * القيمة الافتراضية: false (الخط ليس في المفضلة)
  */
 @Entity(
     tableName = "fonts",
     indices = {
         @Index(value = "path", unique = true),
         @Index(value = "is_system_font"),
-        @Index(value = "last_modified")
+        @Index(value = "last_modified"),
+        @Index(value = "is_favorite") // ★ فهرس للمفضلة لتسريع الاستعلام ★
     }
 )
 public class FontEntity {
@@ -81,6 +85,14 @@ public class FontEntity {
     @Nullable
     @ColumnInfo(name = "weight_width_label")
     private String weightWidthLabel;
+
+    // ════════════════════════════════════════════════════════════
+    // ★ الإصدار 3: حقل المفضلة ★
+    // يُخزَّن في عمود is_favorite — القيمة الافتراضية 0 (false)
+    // يُحدَّث عبر FontDao.updateFavoriteStatus() في الخلفية
+    // ════════════════════════════════════════════════════════════
+    @ColumnInfo(name = "is_favorite", defaultValue = "0")
+    private boolean isFavorite;
     
     public FontEntity(@NonNull String path, @NonNull String fileName) {
         this.path = path;
@@ -95,6 +107,7 @@ public class FontEntity {
         this.accessCount = 0;
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
+        this.isFavorite = false; // ★ القيمة الافتراضية للمفضلة ★
     }
     
     public long getId() {
@@ -233,6 +246,18 @@ public class FontEntity {
     public void setWeightWidthLabel(@Nullable String weightWidthLabel) {
         this.weightWidthLabel = weightWidthLabel;
     }
+
+    // ════════════════════════════════════════════════════════════
+    // ★ getter/setter لحقل المفضلة is_favorite (الإصدار 3) ★
+    // ════════════════════════════════════════════════════════════
+
+    public boolean isFavorite() {
+        return isFavorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        isFavorite = favorite;
+    }
     
     public String getDisplayName() {
         if (realName != null && !realName.isEmpty()) {
@@ -253,4 +278,4 @@ public class FontEntity {
         this.accessCount++;
         this.updatedAt = System.currentTimeMillis();
     }
-}
+            }
