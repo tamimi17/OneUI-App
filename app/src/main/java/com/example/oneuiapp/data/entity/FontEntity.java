@@ -14,13 +14,16 @@ import androidx.annotation.Nullable;
  *
  * ★ الإصدار 2: إضافة حقل weight_width_label لتخزين وصف الوزن والعرض ★
  * مثال: "Bold, Condensed" أو "VF · Regular" أو "غير معروف"
+ *
+ * ★ الإصدار 3: إضافة حقل is_favorite لدعم قائمة المفضلة ★
  */
 @Entity(
     tableName = "fonts",
     indices = {
         @Index(value = "path", unique = true),
         @Index(value = "is_system_font"),
-        @Index(value = "last_modified")
+        @Index(value = "last_modified"),
+        @Index(value = "is_favorite")   // ★ index للمفضلة لأداء أفضل عند الاستعلام ★
     }
 )
 public class FontEntity {
@@ -81,6 +84,14 @@ public class FontEntity {
     @Nullable
     @ColumnInfo(name = "weight_width_label")
     private String weightWidthLabel;
+
+    // ════════════════════════════════════════════════════════════
+    // ★ حقل المفضلة — الإصدار 3 ★
+    // القيمة الافتراضية false: الخط غير مفضل عند الإضافة
+    // يُستخدم لبناء قائمة المفضلة وعرض أيقونة النجمة بجانب العنصر
+    // ════════════════════════════════════════════════════════════
+    @ColumnInfo(name = "is_favorite", defaultValue = "0")
+    private boolean isFavorite;
     
     public FontEntity(@NonNull String path, @NonNull String fileName) {
         this.path = path;
@@ -95,6 +106,7 @@ public class FontEntity {
         this.accessCount = 0;
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
+        this.isFavorite = false; // ★ القيمة الافتراضية للمفضلة ★
     }
     
     public long getId() {
@@ -232,6 +244,18 @@ public class FontEntity {
 
     public void setWeightWidthLabel(@Nullable String weightWidthLabel) {
         this.weightWidthLabel = weightWidthLabel;
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // ★ getter/setter لحقل المفضلة — الإصدار 3 ★
+    // ════════════════════════════════════════════════════════════
+
+    public boolean isFavorite() {
+        return isFavorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        isFavorite = favorite;
     }
     
     public String getDisplayName() {
