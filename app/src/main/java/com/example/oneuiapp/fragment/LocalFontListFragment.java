@@ -60,6 +60,11 @@ import com.example.oneuiapp.viewmodel.SettingsViewModel;
  * ★ التعديل: تحديث OnFontSelectedListener ليشمل weightWidthLabel كمعامل خامس ★
  *   لتمريره مباشرةً إلى NavManager ثم FontViewerFragment دون إعادة استخراجه،
  *   إذ أن الوزن مستخرج مسبقاً وموجود في بيانات القائمة.
+ *
+ * ★ الإضافة: دعم المفضلة بثلاثة عناصر:
+ *   1. setFavoriteStatusProvider → يُعرض أيقونة النجمة بجانب العناصر المفضلة
+ *   2. setFavoriteStatusChecker → يُطبَّق منطق Samsung Notes في وضع التحديد
+ *   3. onFavoriteRequested + handleFavoriteAction → تنفيذ الإضافة/الإزالة الفعلية ★
  */
 public class LocalFontListFragment extends Fragment implements AppBarLayout.OnOffsetChangedListener {
 
@@ -399,6 +404,19 @@ public class LocalFontListFragment extends Fragment implements AppBarLayout.OnOf
             mSortManager.setSortOptions(type, asc);
         });
 
+        // ★ FavoriteStatusProvider: يُزوّد الـ Adapter بحالة المفضلة لكل مسار خط ★
+        // يُستخدم لعرض أيقونة النجمة الصفراء (ic_favorite) بجانب العناصر المفضلة
+        // في قائمة الخطوط المحلية بجانب ظهورها في قائمة المفضلة.
+        // mCurrentFontsList تحتوي على isFavorite المُحدَّث من Room LiveData تلقائياً.
+        mAdapter.setFavoriteStatusProvider(fontPath -> {
+            for (LocalFontListViewModel.FontFileInfoWithMetadata font : mCurrentFontsList) {
+                if (font.getPath().equals(fontPath)) {
+                    return font.isFavorite();
+                }
+            }
+            return false;
+        });
+
         mRecyclerView.setAdapter(mAdapter);
 
         // ★★★ الإصلاح السحري: إخبار الـ Adapter بنوع الفرز المحفوظ قبل أن يستلم أي بيانات ★★★
@@ -448,6 +466,21 @@ public class LocalFontListFragment extends Fragment implements AppBarLayout.OnOf
             mSortBar
         );
 
+        // ★ FavoriteStatusChecker: يُزوّد SelectionManager بحالة المفضلة لكل موضع ★
+        // يُطبَّق منطق Samsung Notes بناءً على هذه القيم:
+        //   - كل العناصر المحددة مفضلة   → يُعرض "إزاله من المفضله"
+        //   - مختلطة أو كلها غير مفضلة  → يُعرض "إضافه إلى المفضله"
+        mSelectionManager.setFavoriteStatusChecker(position -> {
+            String path = mAdapter.getFilePath(position);
+            if (path == null) return false;
+            for (LocalFontListViewModel.FontFileInfoWithMetadata font : mCurrentFontsList) {
+                if (font.getPath().equals(path)) {
+                    return font.isFavorite();
+                }
+            }
+            return false;
+        });
+
         mAdapter.setSelectionListener(new LocalFontListAdapter.OnSelectionListener() {
             @Override
             public void onStartSelection(int position) {
@@ -470,6 +503,16 @@ public class LocalFontListFragment extends Fragment implements AppBarLayout.OnOf
             @Override
             public void onDeleteRequested(List<Integer> positions) {
                 handleDelete(positions);
+            }
+
+            /**
+             * ★ إجراء المفضلة — يُستدعى من SelectionManager بعد تحديد نوع العملية ★
+             * addToFavorites يأتي جاهزاً من resolveFavoriteAction() في SelectionManager
+             * وفق منطق Samsung Notes المُطبَّق هناك.
+             */
+            @Override
+            public void onFavoriteRequested(List<Integer> positions, boolean addToFavorites) {
+                handleFavoriteAction(positions, addToFavorites);
             }
         });
 
@@ -525,6 +568,44 @@ public class LocalFontListFragment extends Fragment implements AppBarLayout.OnOf
                     : getString(R.string.success_deleted_multiple, pathsToDelete.size());
                 Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
             });
+        });
+    }
+
+    /**
+     * ★ إجراء المفضلة في قائمة الخطوط المحلية ★
+     *
+     * يُطبّق الإضافة أو الإزالة من المفضلة على العناصر المحددة،
+     * ثم يُحدّث أيقونة النجمة الصفراء في الـ Adapter عبر notifyAllFavoritesChanged()
+     * التي تستخدم PAYLOAD_UPDATE_FAVORITE لتجنب إعادة رسم العناصر كاملاً.
+     *
+     * Room LiveData يُحدَّث تلقائياً → قائمة المفضلة (FavoriteFontListFragment)
+     * تعكس التغيير فوراً دون أي تدخل يدوي.
+     *
+     * @param positions     مواضع العناصر المحددة في الـ Adapter
+     * @param addToFavorites true = إضافة إلى المفضلة، false = إزالة منها
+     */
+    private void handleFavoriteAction(List<Integer> positions, boolean addToFavorites) {
+        if (positions == null || positions.isEmpty()) return;
+
+        // جمع مسارات العناصر المحددة
+        List<String> paths = new ArrayList<>();
+        for (int position : positions) {
+            String path = mAdapter.getFilePath(position);
+            if (path != null) paths.add(path);
+        }
+
+        if (paths.isEmpty()) return;
+
+        mSelectionManager.setSelecting(false);
+
+        // ★ تحديث قاعدة البيانات في الخلفية عبر ViewModel ★
+        // toggleFavoritesBatch يستدعي updateFavoriteStatusBatch في Repository
+        // الذي يُحدّث Room → LiveData يُحدَّث تلقائياً → mCurrentFontsList تتجدد
+        mViewModel.toggleFavoritesBatch(paths, addToFavorites, () -> {
+            // ★ تحديث أيقونات النجمة بصمت عبر Payload دون إعادة رسم العناصر ★
+            if (mAdapter != null) {
+                mAdapter.notifyAllFavoritesChanged();
+            }
         });
     }
 
@@ -758,4 +839,4 @@ public class LocalFontListFragment extends Fragment implements AppBarLayout.OnOf
         if (mMainHandler != null) mMainHandler.removeCallbacksAndMessages(null);
         if (mExecutor != null)    mExecutor.shutdown();
     }
-            }
+                                        }
