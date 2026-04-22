@@ -24,6 +24,17 @@ import dev.oneuiproject.oneui.layout.DrawerLayout;
 
 /**
  * LocalFontSelectionManager - إدارة التحديد المتعدد للخطوط
+ *
+ * ★ التعديل: إضافة دعم المفضلة بمنطق Samsung Notes:
+ *   - إذا كانت كل العناصر المحددة مفضلة  → عرض "إزاله من المفضله" فقط
+ *   - إذا كانت كل العناصر المحددة غير مفضلة → عرض "إضافه إلى المفضله" فقط
+ *   - إذا كانت العناصر مختلطة             → عرض "إضافه إلى المفضله" فقط
+ *
+ * ★ التعديل: يمكن استخدام هذا الملف مع قائمة المفضلة دون إنشاء ملف تحديد جديد،
+ *   فقط يكفي تمرير FavoriteStatusChecker المناسب عبر setFavoriteStatusChecker() ★
+ *
+ * ملاحظة للمطوّر: يجب إضافة R.id.action_favorite إلى R.menu.menu_font_actions
+ * مع الأيقونة الافتراضية ic_oui_favorite_on، ليتمكن هذا المدير من إدارتها ديناميكياً.
  */
 public class LocalFontSelectionManager {
 
@@ -41,9 +52,30 @@ public class LocalFontSelectionManager {
     private OnBackPressedCallback onBackPressedCallback;
     private OnBackInvokedCallback onBackInvokedCallback;
 
+    // ★ فاحص حالة المفضلة — يُستدعى لتحديد الإجراء المناسب (إضافة أو إزالة)
+    //   يجب على Fragment تطبيق هذه الواجهة وتمريرها عبر setFavoriteStatusChecker()
+    //   في قائمة المفضلة: كل العناصر مفضلة دائماً، فيُعرض "إزاله من المفضله" دائماً ★
+    private FavoriteStatusChecker favoriteStatusChecker;
+
+    /**
+     * ★ واجهة فاحص حالة المفضلة ★
+     * يُنفّذها Fragment لتزويد المدير بحالة المفضلة لكل موضع محدد،
+     * مما يُتيح تطبيق منطق Samsung Notes في تحديد الإجراء المعروض.
+     */
+    public interface FavoriteStatusChecker {
+        boolean isFavorited(int position);
+    }
+
     public interface SelectionActionListener {
         void onRenameRequested(int position);
         void onDeleteRequested(List<Integer> positions);
+
+        /**
+         * ★ إجراء المفضلة — يُستدعى عند اختيار المستخدم إضافة أو إزالة العناصر من المفضلة ★
+         * @param positions     مواضع العناصر المحددة
+         * @param addToFavorites true = إضافة إلى المفضلة، false = إزالة من المفضلة
+         */
+        void onFavoriteRequested(List<Integer> positions, boolean addToFavorites);
     }
 
     public LocalFontSelectionManager(FragmentActivity activity,
@@ -63,6 +95,11 @@ public class LocalFontSelectionManager {
 
     public void setActionListener(SelectionActionListener listener) {
         this.actionListener = listener;
+    }
+
+    // ★ يُستدعى من Fragment لتزويد المدير بفاحص حالة المفضلة ★
+    public void setFavoriteStatusChecker(FavoriteStatusChecker checker) {
+        this.favoriteStatusChecker = checker;
     }
 
     private void setupRecyclerViewListener() {
@@ -121,6 +158,10 @@ public class LocalFontSelectionManager {
                 return true;
             } else if (id == R.id.action_rename) {
                 handleRenameAction();
+                return true;
+            } else if (id == R.id.action_favorite) {
+                // ★ معالجة إجراء المفضلة — يُحدّد تلقائياً هل يُضيف أم يُزيل ★
+                handleFavoriteAction();
                 return true;
             }
             return false;
@@ -202,10 +243,12 @@ public class LocalFontSelectionManager {
             Menu bottomMenu  = drawerLayout.getActionModeBottomMenu();
             Menu toolbarMenu = drawerLayout.getActionModeToolbarMenu();
 
-            MenuItem renameItemBottom  = bottomMenu  != null ? bottomMenu.findItem(R.id.action_rename)  : null;
-            MenuItem renameItemToolbar = toolbarMenu != null ? toolbarMenu.findItem(R.id.action_rename) : null;
-            MenuItem deleteItemBottom  = bottomMenu  != null ? bottomMenu.findItem(R.id.action_delete)  : null;
-            MenuItem deleteItemToolbar = toolbarMenu != null ? toolbarMenu.findItem(R.id.action_delete) : null;
+            MenuItem renameItemBottom  = bottomMenu  != null ? bottomMenu.findItem(R.id.action_rename)   : null;
+            MenuItem renameItemToolbar = toolbarMenu != null ? toolbarMenu.findItem(R.id.action_rename)  : null;
+            MenuItem deleteItemBottom  = bottomMenu  != null ? bottomMenu.findItem(R.id.action_delete)   : null;
+            MenuItem deleteItemToolbar = toolbarMenu != null ? toolbarMenu.findItem(R.id.action_delete)  : null;
+            MenuItem favoriteItemBottom  = bottomMenu  != null ? bottomMenu.findItem(R.id.action_favorite)  : null;
+            MenuItem favoriteItemToolbar = toolbarMenu != null ? toolbarMenu.findItem(R.id.action_favorite) : null;
 
             boolean isSingleSelection = (selectedCount == 1);
 
@@ -223,9 +266,49 @@ public class LocalFontSelectionManager {
 
             if (deleteItemBottom  != null) deleteItemBottom.setTitle(deleteText);
             if (deleteItemToolbar != null) deleteItemToolbar.setTitle(deleteText);
+
+            // ★ منطق المفضلة بأسلوب Samsung Notes ★
+            // - إذا كانت كل العناصر المحددة مفضلة  → عرض "إزاله من المفضله" (ic_oui_favorite_off)
+            // - إذا كانت مختلطة أو كلها غير مفضلة  → عرض "إضافه إلى المفضله" (ic_oui_favorite_on)
+            boolean allFavorited = resolveFavoriteAction();
+
+            String favoriteText = allFavorited
+                    ? activity.getString(R.string.action_unfavorite)
+                    : activity.getString(R.string.action_favorite);
+            int favoriteIcon = allFavorited
+                    ? R.drawable.ic_oui_favorite_off
+                    : R.drawable.ic_oui_favorite_on;
+
+            if (favoriteItemBottom != null) {
+                favoriteItemBottom.setTitle(favoriteText);
+                favoriteItemBottom.setIcon(favoriteIcon);
+            }
+            if (favoriteItemToolbar != null) {
+                favoriteItemToolbar.setTitle(favoriteText);
+                favoriteItemToolbar.setIcon(favoriteIcon);
+            }
         }
 
         checkAllListening = true;
+    }
+
+    /**
+     * ★ يحدد هل يجب عرض "إزاله من المفضله" أم "إضافه إلى المفضله" ★
+     *
+     * المنطق: تُعيد true (أي كل محدد مفضل) فقط إذا كانت جميع العناصر المحددة
+     * مفضلة بالفعل. أي عنصر غير مفضل ضمن التحديد يكفي لعرض "إضافه إلى المفضله".
+     *
+     * @return true  إذا كانت كل العناصر المحددة مفضلة → نعرض "إزاله من المفضله"
+     *         false إذا كانت مختلطة أو كلها غير مفضلة → نعرض "إضافه إلى المفضله"
+     */
+    private boolean resolveFavoriteAction() {
+        if (favoriteStatusChecker == null || selectedItems.size() == 0) return false;
+        for (int i = 0; i < selectedItems.size(); i++) {
+            if (!favoriteStatusChecker.isFavorited(selectedItems.keyAt(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public void refreshActionMode() {
@@ -246,6 +329,23 @@ public class LocalFontSelectionManager {
         List<Integer> positions = new ArrayList<>();
         for (int i = 0; i < selectedItems.size(); i++) positions.add(selectedItems.keyAt(i));
         actionListener.onDeleteRequested(positions);
+    }
+
+    /**
+     * ★ معالجة إجراء المفضلة ★
+     * يُحدّد تلقائياً هل العملية إضافة أم إزالة عبر resolveFavoriteAction()،
+     * ثم يُخطر الـ Fragment بالمواضع المحددة ونوع العملية.
+     */
+    private void handleFavoriteAction() {
+        if (selectedItems.size() == 0 || actionListener == null) return;
+
+        // ★ true = كل المحدد مفضل → نُزيل | false = مختلط أو غير مفضل → نُضيف ★
+        boolean allFavorited = resolveFavoriteAction();
+        boolean addToFavorites = !allFavorited;
+
+        List<Integer> positions = new ArrayList<>();
+        for (int i = 0; i < selectedItems.size(); i++) positions.add(selectedItems.keyAt(i));
+        actionListener.onFavoriteRequested(positions, addToFavorites);
     }
 
     private void disableSortBar() {
@@ -288,5 +388,6 @@ public class LocalFontSelectionManager {
         onBackPressedCallback = null;
         onBackInvokedCallback = null;
         actionListener = null;
+        favoriteStatusChecker = null;
     }
-                                 }
+        }
