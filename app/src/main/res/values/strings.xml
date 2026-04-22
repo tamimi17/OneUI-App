@@ -239,5 +239,9 @@
 <string name="settings_theme_transparent_description">Black menu background in dark mode, and light gray in light mode.</string>
 
 <string name="exit_on_double_back">Press again to exit</string>
+
+<string name="action_favorite">Favorite</string>
+<string name="action_unfavorite">Unfavorite</string>
+<string name="drawer_favorites">Favorites</string>
     
 </resources>
