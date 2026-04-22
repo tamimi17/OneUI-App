@@ -276,8 +276,8 @@ public class LocalFontSelectionManager {
                     ? activity.getString(R.string.action_unfavorite)
                     : activity.getString(R.string.action_favorite);
             int favoriteIcon = allFavorited
-                    ? R.drawable.ic_oui_favorite_off
-                    : R.drawable.ic_oui_favorite_on;
+                    ? dev.oneuiproject.oneui.R.drawable.ic_oui_favorite_off
+                    : dev.oneuiproject.oneui.R.drawable.ic_oui_favorite_on;
 
             if (favoriteItemBottom != null) {
                 favoriteItemBottom.setTitle(favoriteText);
