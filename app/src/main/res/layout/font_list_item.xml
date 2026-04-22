@@ -4,6 +4,7 @@
     - الارتفاع: من 70dp ثابت إلى wrap_content مع minHeight="70dp"
     - تم تضمين paddingVertical="12dp" لمنح الفراغ الكافي للسطرَين
     - اسم الخط ووصف الوزن/العرض داخل LinearLayout عمودي موزون
+    ★ التعديل الثاني: إضافة أيقونة المفضلة (ic_favorite) على يمين العنصر ★
 -->
 <dev.oneuiproject.oneui.widget.RoundLinearLayout 
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -35,10 +36,12 @@
             android:focusable="false"
             android:visibility="gone" />
 
-        <!-- ★ LinearLayout عمودي يحتوي اسم الخط + وصف الوزن/العرض ★ -->
+        <!-- ★ LinearLayout عمودي يحتوي اسم الخط + وصف الوزن/العرض ★
+             layout_weight="1" لدفع أيقونة المفضلة إلى أقصى اليمين -->
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:orientation="vertical">
 
             <!-- اسم الخط — يدعم تظليل نص البحث -->
@@ -72,6 +75,19 @@
                 tools:text="Bold, Condensed" />
 
         </LinearLayout>
+
+        <!-- ★ أيقونة المفضلة الصفراء (ic_favorite) ★
+             - تظهر فقط عندما يكون الخط مضافاً للمفضلة
+             - يتحكم في ظهورها LocalFontViewHolder بناءً على حالة isFavorite
+             - مخفية افتراضياً، ولا تؤثر على ارتفاع العنصر -->
+        <ImageView
+            android:id="@+id/font_item_favorite_icon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="10dp"
+            android:src="@drawable/ic_favorite"
+            android:visibility="gone"
+            tools:visibility="visible" />
 
     </LinearLayout>
 
