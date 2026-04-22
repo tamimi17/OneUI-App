@@ -32,6 +32,7 @@ import com.example.oneuiapp.dialog.FontInfoDialog;
 import com.example.oneuiapp.fragment.FontViewerFragment;
 import com.example.oneuiapp.fragment.LocalFontListFragment;
 import com.example.oneuiapp.fragment.SystemFontListFragment;
+import com.example.oneuiapp.fragment.FavoriteFontListFragment;
 import com.example.oneuiapp.fragment.HomeFragment;
 import com.example.oneuiapp.ui.drawer.DrawerListAdapter;
 import com.example.oneuiapp.R;
@@ -73,21 +74,27 @@ public class MainActivity extends BaseActivity
     private DrawerListAdapter mDrawerAdapter;
     private List<Fragment> mFragments = new ArrayList<>();
     private int mCurrentFragmentIndex = 1;
-    private static final String KEY_CURRENT_FRAGMENT    = "current_fragment_index";
-    private static final String KEY_LOCAL_FONTS_COUNT   = "local_fonts_count";
-    private static final String KEY_SYSTEM_FONTS_COUNT  = "system_fonts_count";
-    private static final String TAG_HOME                = "fragment_home";
-    private static final String TAG_FONT_VIEWER         = "fragment_font_viewer";
-    private static final String TAG_LOCAL_FONT_LIST     = "fragment_font_list";
-    private static final String TAG_SYSTEM_FONT_LIST    = "fragment_system_font_list";
+    private static final String KEY_CURRENT_FRAGMENT      = "current_fragment_index";
+    private static final String KEY_LOCAL_FONTS_COUNT     = "local_fonts_count";
+    private static final String KEY_SYSTEM_FONTS_COUNT    = "system_fonts_count";
+    // ★ مفتاح حفظ عداد المفضلة المستقل عند إعادة البناء ★
+    private static final String KEY_FAVORITE_FONTS_COUNT  = "favorite_fonts_count";
+    private static final String TAG_HOME                  = "fragment_home";
+    private static final String TAG_FONT_VIEWER           = "fragment_font_viewer";
+    private static final String TAG_LOCAL_FONT_LIST       = "fragment_font_list";
+    private static final String TAG_SYSTEM_FONT_LIST      = "fragment_system_font_list";
+    // ★ تاغ قائمة المفضلة في مدير الفراغمنتات ★
+    private static final String TAG_FAVORITE_FONT_LIST    = "fragment_favorite_font_list";
 
     private String currentFontRealName;
     private String currentFontFileName;
 
     // ★ الإصلاح الجوهري: فصل عداد المجلد المحلي عن عداد خطوط النظام ★
     // هذا يمنع أي فراجمنت من الكتابة فوق عدد الفراجمنت الآخر عند إعادة البناء
-    private int mLocalFontsCount  = 0;
-    private int mSystemFontsCount = 0;
+    private int mLocalFontsCount    = 0;
+    private int mSystemFontsCount   = 0;
+    // ★ عداد مستقل لخطوط المفضلة لمنع التداخل مع عدادات القوائم الأخرى ★
+    private int mFavoriteFontsCount = 0;
 
     // ★ مدير التنقل المركزي — يتولى جميع عمليات التنقل بين الشاشات ★
     // يتواصل مع هذا النشاط عبر واجهة NavManager.Host المُنفَّذة أدناه
@@ -124,9 +131,10 @@ public class MainActivity extends BaseActivity
         setupSearchCoordinator();
 
         if (savedInstanceState != null) {
-            // ★ استعادة العدادين المستقلين عند إعادة البناء ★
-            mLocalFontsCount  = savedInstanceState.getInt(KEY_LOCAL_FONTS_COUNT, 0);
-            mSystemFontsCount = savedInstanceState.getInt(KEY_SYSTEM_FONTS_COUNT, 0);
+            // ★ استعادة العدادات المستقلة عند إعادة البناء ★
+            mLocalFontsCount    = savedInstanceState.getInt(KEY_LOCAL_FONTS_COUNT, 0);
+            mSystemFontsCount   = savedInstanceState.getInt(KEY_SYSTEM_FONTS_COUNT, 0);
+            mFavoriteFontsCount = savedInstanceState.getInt(KEY_FAVORITE_FONTS_COUNT, 0);
             // ★ استعادة مكدس التنقل عند إعادة البناء — مُفوَّضة لـ NavManager ★
             mNavManager.restoreNavBackStack(savedInstanceState);
             restoreFragmentsState(savedInstanceState);
@@ -164,10 +172,11 @@ public class MainActivity extends BaseActivity
 
     private void initFragmentsList() {
         if (mFragments.isEmpty()) {
-            mFragments.add(new HomeFragment());
-            mFragments.add(new FontViewerFragment());
-            mFragments.add(new LocalFontListFragment());
-            mFragments.add(new SystemFontListFragment());
+            mFragments.add(new HomeFragment());               // index 0
+            mFragments.add(new FontViewerFragment());         // index 1
+            mFragments.add(new LocalFontListFragment());      // index 2
+            mFragments.add(new SystemFontListFragment());     // index 3
+            mFragments.add(new FavoriteFontListFragment());   // index 4 ★ قائمة المفضلة ★
         }
     }
 
@@ -256,18 +265,22 @@ public class MainActivity extends BaseActivity
         }
 
         FragmentManager fm = getSupportFragmentManager();
-        Fragment homeFragment           = fm.findFragmentByTag(TAG_HOME);
-        Fragment fontViewerFragment     = fm.findFragmentByTag(TAG_FONT_VIEWER);
-        Fragment localFontListFragment  = fm.findFragmentByTag(TAG_LOCAL_FONT_LIST);
-        Fragment systemFontListFragment = fm.findFragmentByTag(TAG_SYSTEM_FONT_LIST);
+        Fragment homeFragment             = fm.findFragmentByTag(TAG_HOME);
+        Fragment fontViewerFragment       = fm.findFragmentByTag(TAG_FONT_VIEWER);
+        Fragment localFontListFragment    = fm.findFragmentByTag(TAG_LOCAL_FONT_LIST);
+        Fragment systemFontListFragment   = fm.findFragmentByTag(TAG_SYSTEM_FONT_LIST);
+        // ★ استعادة فراغمنت المفضلة من مدير الفراغمنتات ★
+        Fragment favoriteFontListFragment = fm.findFragmentByTag(TAG_FAVORITE_FONT_LIST);
 
         if (homeFragment != null && fontViewerFragment != null
-                && localFontListFragment != null && systemFontListFragment != null) {
+                && localFontListFragment != null && systemFontListFragment != null
+                && favoriteFontListFragment != null) {
             mFragments.clear();
             mFragments.add(homeFragment);
             mFragments.add(fontViewerFragment);
             mFragments.add(localFontListFragment);
             mFragments.add(systemFontListFragment);
+            mFragments.add(favoriteFontListFragment);
         }
 
         mNavManager.showFragmentFast(mCurrentFragmentIndex);
@@ -291,6 +304,10 @@ public class MainActivity extends BaseActivity
 
         transaction.add(R.id.main_content, mFragments.get(3), TAG_SYSTEM_FONT_LIST);
         transaction.hide(mFragments.get(3));
+
+        // ★ إضافة فراغمنت المفضلة (index 4) مخفياً عند البداية ★
+        transaction.add(R.id.main_content, mFragments.get(4), TAG_FAVORITE_FONT_LIST);
+        transaction.hide(mFragments.get(4));
 
         transaction.commit();
     }
@@ -359,7 +376,7 @@ public class MainActivity extends BaseActivity
      * العنوان الرئيسي = الاسم الحقيقي
      * العنوان الفرعي = اسم الملف بدون صيغة
      *
-     * كل فراجمنت يستخدم عداده المستقل (mLocalFontsCount أو mSystemFontsCount)
+     * كل فراجمنت يستخدم عداده المستقل (mLocalFontsCount أو mSystemFontsCount أو mFavoriteFontsCount)
      */
     @Override
     public void updateDrawerTitle(int fragmentIndex) {
@@ -401,6 +418,11 @@ public class MainActivity extends BaseActivity
             // ★ يستخدم العداد المخصص لخطوط النظام فقط ★
             subtitle = getFontsCountString(mSystemFontsCount);
 
+        } else if (fragmentIndex == 4) {
+            // ★ عنوان قائمة المفضلة بعداد مستقل لا يتداخل مع القوائم الأخرى ★
+            title    = getString(R.string.drawer_favorites);
+            subtitle = getFontsCountString(mFavoriteFontsCount);
+
         } else {
             title    = getString(R.string.app_name);
             subtitle = getString(R.string.app_subtitle);
@@ -426,8 +448,9 @@ public class MainActivity extends BaseActivity
             mFontMetaMenuItem.setVisible(position == 1);
         }
 
+        // ★ البحث متاح في قائمة الخطوط المحلية وخطوط النظام وقائمة المفضلة ★
         if (mSearchMenuItem != null) {
-            mSearchMenuItem.setVisible(position == 2 || position == 3);
+            mSearchMenuItem.setVisible(position == 2 || position == 3 || position == 4);
         }
     }
 
@@ -444,7 +467,7 @@ public class MainActivity extends BaseActivity
      * تحديث الواجهة يحدث فقط إذا كان الطلب قادماً من الفراجمنت الظاهر حالياً،
      * مما يمنع أي فراجمنت مخفي من الكتابة فوق العنوان الفرعي الصحيح.
      *
-     * @param fromFragmentIndex فهرس الفراجمنت المُرسِل (2 = محلي، 3 = نظام)
+     * @param fromFragmentIndex فهرس الفراجمنت المُرسِل (2 = محلي، 3 = نظام، 4 = مفضلة)
      * @param count             العدد الجديد للخطوط
      */
     public void updateFontsCount(int fromFragmentIndex, int count) {
@@ -453,6 +476,9 @@ public class MainActivity extends BaseActivity
             mLocalFontsCount = count;
         } else if (fromFragmentIndex == 3) {
             mSystemFontsCount = count;
+        } else if (fromFragmentIndex == 4) {
+            // ★ تخزين عدد المفضلة في عداده المستقل ★
+            mFavoriteFontsCount = count;
         }
 
         // ★ تحديث الواجهة فقط إذا كان المُرسِل هو الفراجمنت الظاهر حالياً ★
@@ -689,9 +715,10 @@ public class MainActivity extends BaseActivity
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_CURRENT_FRAGMENT, mCurrentFragmentIndex);
-        // ★ حفظ كلا العدادين بشكل مستقل لاستعادتهما بدقة عند إعادة البناء ★
-        outState.putInt(KEY_LOCAL_FONTS_COUNT,  mLocalFontsCount);
-        outState.putInt(KEY_SYSTEM_FONTS_COUNT, mSystemFontsCount);
+        // ★ حفظ جميع العدادات بشكل مستقل لاستعادتها بدقة عند إعادة البناء ★
+        outState.putInt(KEY_LOCAL_FONTS_COUNT,    mLocalFontsCount);
+        outState.putInt(KEY_SYSTEM_FONTS_COUNT,   mSystemFontsCount);
+        outState.putInt(KEY_FAVORITE_FONTS_COUNT, mFavoriteFontsCount);
         // ★ حفظ مكدس التنقل — مُفوَّض لـ NavManager ★
         mNavManager.saveState(outState);
         mSearchCoordinator.saveState(outState);
@@ -724,4 +751,4 @@ public class MainActivity extends BaseActivity
             updateDrawerTitle(position);
         }
     }
-                }
+    }
