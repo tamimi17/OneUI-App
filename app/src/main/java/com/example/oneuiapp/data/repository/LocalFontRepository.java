@@ -28,6 +28,10 @@ import java.util.concurrent.ExecutorService;
  * 4. دعم إعادة التسمية والحذف للتحديد المتعدد
  * ★ الإضافة: استخراج فوري وخلفي لوصف الوزن والعرض (weight_width_label) ★
  * ★ الإضافة: دعم كامل لقائمة المفضلة (إضافة، إزالة، استعلام، بحث، ترتيب) ★
+ *
+ * ★ الإصلاح: توحيد أسماء دوال الفرز للمفضلة لتتطابق مع تعريفاتها في FontDao ★
+ *   كانت: getFavoritesSortedByName() → الصحيح: getFavoriteFontsSortedByName()
+ *   (نفس الإصلاح مُطبَّق على جميع دوال الفرز الست للمفضلة)
  */
 public class LocalFontRepository {
 
@@ -129,34 +133,43 @@ public class LocalFontRepository {
 
     /**
      * الخطوط المفضلة مرتبة حسب الاسم
+     *
+     * ★ الإصلاح: استخدام الاسم الصحيح للدالة في FontDao ★
+     * getFavoriteFontsSortedByName() بدلاً من getFavoritesSortedByName()
      */
     public LiveData<List<FontEntity>> getFavoritesSortedByName(boolean ascending) {
         if (ascending) {
-            return fontDao.getFavoritesSortedByName();
+            return fontDao.getFavoriteFontsSortedByName();
         } else {
-            return fontDao.getFavoritesSortedByNameDesc();
+            return fontDao.getFavoriteFontsSortedByNameDesc();
         }
     }
 
     /**
      * الخطوط المفضلة مرتبة حسب التاريخ
+     *
+     * ★ الإصلاح: استخدام الاسم الصحيح للدالة في FontDao ★
+     * getFavoriteFontsSortedByDate() بدلاً من getFavoritesSortedByDate()
      */
     public LiveData<List<FontEntity>> getFavoritesSortedByDate(boolean ascending) {
         if (ascending) {
-            return fontDao.getFavoritesSortedByDate();
+            return fontDao.getFavoriteFontsSortedByDate();
         } else {
-            return fontDao.getFavoritesSortedByDateDesc();
+            return fontDao.getFavoriteFontsSortedByDateDesc();
         }
     }
 
     /**
      * الخطوط المفضلة مرتبة حسب الحجم
+     *
+     * ★ الإصلاح: استخدام الاسم الصحيح للدالة في FontDao ★
+     * getFavoriteFontsSortedBySize() بدلاً من getFavoritesSortedBySize()
      */
     public LiveData<List<FontEntity>> getFavoritesSortedBySize(boolean ascending) {
         if (ascending) {
-            return fontDao.getFavoritesSortedBySize();
+            return fontDao.getFavoriteFontsSortedBySize();
         } else {
-            return fontDao.getFavoritesSortedBySizeDesc();
+            return fontDao.getFavoriteFontsSortedBySizeDesc();
         }
     }
 
@@ -604,4 +617,4 @@ public class LocalFontRepository {
     public interface OnSyncCompleteListener {
         void onSyncComplete(int added, int updated, int deleted);
     }
-                    }
+                     }
