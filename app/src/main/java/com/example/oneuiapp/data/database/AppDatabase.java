@@ -20,13 +20,17 @@ import java.util.concurrent.Executors;
  *
  * ★ الإصدار 2: إضافة عمود weight_width_label في جدول fonts ★
  * يُخزّن وصف الوزن والعرض المُستخرج من جدول OS/2 لكل خط.
+ *
+ * ★ الإصدار 3: إضافة عمود is_favorite في جدول fonts ★
+ * يُخزّن حالة المفضلة لكل خط (0 = غير مفضل، 1 = مفضل).
+ *
  * بما أن fallbackToDestructiveMigration() مُفعَّل، تُعاد إنشاء
  * قاعدة البيانات تلقائياً عند ترقية التطبيق دون الحاجة لكتابة
  * Migration يدوي.
  */
 @Database(
     entities = {FontEntity.class},
-    version = 2,          // ★ رُفع من 1 إلى 2 بسبب إضافة weight_width_label ★
+    version = 3,          // ★ رُفع من 2 إلى 3 بسبب إضافة is_favorite ★
     exportSchema = false
 )
 public abstract class AppDatabase extends RoomDatabase {
