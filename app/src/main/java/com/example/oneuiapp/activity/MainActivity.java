@@ -61,11 +61,19 @@ import com.example.oneuiapp.fontlist.search.SearchCoordinator;
  * يجب تحديث واجهتَي LocalFontListFragment.OnFontSelectedListener
  * و SystemFontListFragment.OnFontSelectedListener في ملفي الفراغمنتات المقابلين
  * ليتضمنا المعامل الجديد String weightWidthLabel.
+ *
+ * ★ الإضافة: تنفيذ FavoriteFontListFragment.OnFontSelectedListener ★
+ * يتيح لـ FavoriteFontListFragment استدعاء onFontSelected عبر
+ * mFontSelectedListener = (OnFontSelectedListener) context
+ * كما تفعل LocalFontListFragment و SystemFontListFragment.
+ * لا يُضاف تنفيذ جديد لـ onFontSelected لأن التوقيع مطابق
+ * للتنفيذ الموجود من LocalFontListFragment.OnFontSelectedListener.
  */
 public class MainActivity extends BaseActivity
         implements FontViewerFragment.OnFontChangedListener,
         LocalFontListFragment.OnFontSelectedListener,
         SystemFontListFragment.OnFontSelectedListener,
+        FavoriteFontListFragment.OnFontSelectedListener, // ★ الإضافة: دعم قائمة المفضلة ★
         NavManager.Host {
 
     private boolean isUIReady = false;
@@ -583,15 +591,15 @@ public class MainActivity extends BaseActivity
     // ════════════════════════════════════════════════════════
 
     /**
-     * ★ التعديل: استقبال weightWidthLabel وتمريره لـ NavManager ★
+     * ★ تنفيذ موحّد لجميع واجهات OnFontSelectedListener ★
      *
-     * يتطلب هذا التعديل تحديث واجهتَي:
+     * هذا التنفيذ الواحد يخدم ثلاث واجهات في آنٍ واحد:
      *   - LocalFontListFragment.OnFontSelectedListener
      *   - SystemFontListFragment.OnFontSelectedListener
-     * بإضافة المعامل الخامس: String weightWidthLabel
+     *   - FavoriteFontListFragment.OnFontSelectedListener  ← الإضافة الجديدة
      *
-     * كما يتطلب تحديث التنفيذ في كلا الفراغمنتَين ليمرروا weightWidthLabel
-     * عند استدعاء listener.onFontSelected(..., weightWidthLabel).
+     * الثلاثة يشتركون في نفس توقيع onFontSelected، لذا يكفي تنفيذ واحد.
+     * weightWidthLabel يُمرَّر مباشرةً لـ NavManager دون إعادة استخراجه.
      */
     @Override
     public void onFontSelected(String fontPath, String realName, String fileName,
@@ -751,4 +759,4 @@ public class MainActivity extends BaseActivity
             updateDrawerTitle(position);
         }
     }
-    }
+                    }
