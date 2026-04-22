@@ -14,6 +14,7 @@ import java.util.List;
 import com.example.oneuiapp.fragment.FontViewerFragment;
 import com.example.oneuiapp.fragment.LocalFontListFragment;
 import com.example.oneuiapp.fragment.SystemFontListFragment;
+import com.example.oneuiapp.fragment.FavoriteFontListFragment; // ★ جديد ★
 import com.example.oneuiapp.fragment.HomeFragment;
 import com.example.oneuiapp.R;
 
@@ -23,6 +24,9 @@ import com.example.oneuiapp.R;
  * التعديلات المطبقة:
  * 1. إضافة SystemFontListFragment إلى القائمة
  * 2. تحديث الأيقونات والعناوين المناسبة للـ Fragments (الآن 4 fragments)
+ * 3. ★ إضافة FavoriteFontListFragment إلى القائمة (الآن 5 fragments) ★
+ *    - الأيقونة: ic_oui_favorite_off
+ *    - العنوان: drawer_favorites
  */
 public class DrawerListAdapter extends RecyclerView.Adapter<DrawerListViewHolder> {
 
@@ -91,7 +95,7 @@ public class DrawerListAdapter extends RecyclerView.Adapter<DrawerListViewHolder
 
     /**
      * تحديد الأيقونة المناسبة لكل Fragment
-     * الآن هناك 4 fragments: Home, FontViewer, FontList, SystemFontList
+     * الآن هناك 5 fragments: Home, FontViewer, LocalFontList, SystemFontList, FavoriteFontList
      */
     private int getIconForFragment(Fragment fragment) {
         if (fragment instanceof HomeFragment) {
@@ -102,13 +106,16 @@ public class DrawerListAdapter extends RecyclerView.Adapter<DrawerListViewHolder
             return dev.oneuiproject.oneui.R.drawable.ic_oui_device_outline;
         } else if (fragment instanceof SystemFontListFragment) {
             return R.drawable.ic_android;
+        } else if (fragment instanceof FavoriteFontListFragment) {
+            // ★ أيقونة قائمة المفضلة في الدرج ★
+            return dev.oneuiproject.oneui.R.drawable.ic_oui_favorite_off;
         }
         return 0;
     }
 
     /**
      * تحديد العنوان المناسب لكل Fragment
-     * الآن هناك 4 fragments: Home, FontViewer, FontList, SystemFontList
+     * الآن هناك 5 fragments: Home, FontViewer, LocalFontList, SystemFontList, FavoriteFontList
      */
     private String getTitleForFragment(Fragment fragment) {
         if (fragment instanceof HomeFragment) {
@@ -119,6 +126,9 @@ public class DrawerListAdapter extends RecyclerView.Adapter<DrawerListViewHolder
             return mContext.getString(R.string.drawer_local_fonts);
         } else if (fragment instanceof SystemFontListFragment) {
             return mContext.getString(R.string.drawer_system_fonts);
+        } else if (fragment instanceof FavoriteFontListFragment) {
+            // ★ عنوان قائمة المفضلة في الدرج ★
+            return mContext.getString(R.string.drawer_favorites);
         }
         return "";
     }
@@ -143,4 +153,4 @@ public class DrawerListAdapter extends RecyclerView.Adapter<DrawerListViewHolder
     public int getSelectedPosition() {
         return mSelectedPos;
     }
-            }
+}
