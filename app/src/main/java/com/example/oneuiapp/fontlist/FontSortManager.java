@@ -27,6 +27,11 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
  * ★ isSystemFont يضمن أن خطوط النظام والمجلد المحلي لا يتشاركان نفس مفاتيح DataStore
  *   وهذا هو الحل الجذري لمشكلة التجمد عند التنقل بين الـ Fragments ★
  *
+ * ★ الإضافة: دعم معرّف نصي "FAVORITES" عبر مُنشئ ثانٍ (String listType) ★
+ *   يتيح لـ FavoriteFontListFragment استخدام مفاتيح DataStore المستقلة:
+ *   KEY_FAVORITES_SORT_TYPE و KEY_FAVORITES_SORT_ASCENDING
+ *   دون المساس بمفاتيح القائمتين الأخريين.
+ *
  * الدالة sortFontsList() محتفظ بها لأغراض التوافق مع الإصدارات السابقة،
  * لكنها لم تعد تُستدعى من الـ Fragments.
  */
@@ -34,9 +39,23 @@ public class FontSortManager {
 
     private static final String TAG = "FontSortManager";
 
+    // ════════════════════════════════════════════════════════════
+    // ★ أنواع القوائم المدعومة ★
+    // ════════════════════════════════════════════════════════════
+
+    /** معرّف قائمة الخطوط المحلية (المجلد) */
+    private static final String LIST_TYPE_LOCAL     = "LOCAL";
+    /** معرّف قائمة خطوط النظام */
+    private static final String LIST_TYPE_SYSTEM    = "SYSTEM";
+    /** معرّف قائمة المفضلة */
+    private static final String LIST_TYPE_FAVORITES = "FAVORITES";
+
     private final SettingsDataStore dataStore;
 
-    // ★ يحدد ما إذا كانت هذه النسخة لخطوط النظام أم للمجلد المحلي ★
+    // ★ نوع القائمة — يحدد مجموعة مفاتيح DataStore التي تُستخدم للقراءة والكتابة ★
+    private final String listType;
+
+    // ★ isSystemFont محتفظ به للتوافق مع المُنشئ الأصلي (boolean) ★
     private final boolean isSystemFont;
 
     private SortByItemLayout.SortType currentSortType;
@@ -47,7 +66,13 @@ public class FontSortManager {
         void onSortChanged(SortByItemLayout.SortType sortType, boolean ascending);
     }
 
+    // ════════════════════════════════════════════════════════════
+    // المُنشئون
+    // ════════════════════════════════════════════════════════════
+
     /**
+     * ★ المُنشئ الأصلي (للتوافق مع الإصدارات السابقة) ★
+     *
      * @param context     السياق المطلوب للوصول إلى DataStore
      * @param isSystemFont true لخطوط النظام، false للمجلد المحلي
      *                     يضمن قراءة/كتابة المفتاح الصحيح ومنع التداخل بين القائمتين
@@ -55,6 +80,28 @@ public class FontSortManager {
     public FontSortManager(Context context, boolean isSystemFont) {
         this.dataStore    = SettingsDataStore.getInstance(context);
         this.isSystemFont = isSystemFont;
+        this.listType     = isSystemFont ? LIST_TYPE_SYSTEM : LIST_TYPE_LOCAL;
+        loadSortPreferences();
+    }
+
+    /**
+     * ★ المُنشئ الجديد للدعم الموسّع (قائمة المفضلة وما قد يُضاف مستقبلاً) ★
+     *
+     * الاستخدام في FavoriteFontListFragment:
+     *   mSortManager = new FontSortManager(mContext, "FAVORITES");
+     *
+     * القيم المقبولة لـ listType:
+     *   "LOCAL"     → مفاتيح المجلد المحلي  (KEY_SORT_TYPE / KEY_SORT_ASCENDING)
+     *   "SYSTEM"    → مفاتيح خطوط النظام   (KEY_SYSTEM_SORT_TYPE / KEY_SYSTEM_SORT_ASCENDING)
+     *   "FAVORITES" → مفاتيح قائمة المفضلة (KEY_FAVORITES_SORT_TYPE / KEY_FAVORITES_SORT_ASCENDING)
+     *
+     * @param context  السياق المطلوب للوصول إلى DataStore
+     * @param listType معرّف نوع القائمة ("LOCAL" | "SYSTEM" | "FAVORITES")
+     */
+    public FontSortManager(Context context, String listType) {
+        this.dataStore    = SettingsDataStore.getInstance(context);
+        this.listType     = (listType != null) ? listType.toUpperCase() : LIST_TYPE_LOCAL;
+        this.isSystemFont = LIST_TYPE_SYSTEM.equals(this.listType);
         loadSortPreferences();
     }
 
@@ -62,16 +109,32 @@ public class FontSortManager {
         this.listener = listener;
     }
 
+    // ════════════════════════════════════════════════════════════
+    // قراءة وحفظ التفضيلات
+    // ════════════════════════════════════════════════════════════
+
     /**
      * يقرأ تفضيلات الفرز من المفتاح الصحيح بناءً على نوع القائمة.
-     * خطوط النظام → KEY_SYSTEM_SORT_TYPE / KEY_SYSTEM_SORT_ASCENDING
-     * المجلد المحلي → KEY_SORT_TYPE / KEY_SORT_ASCENDING
+     *
+     * LOCAL     → KEY_SORT_TYPE / KEY_SORT_ASCENDING
+     * SYSTEM    → KEY_SYSTEM_SORT_TYPE / KEY_SYSTEM_SORT_ASCENDING
+     * FAVORITES → KEY_FAVORITES_SORT_TYPE / KEY_FAVORITES_SORT_ASCENDING
      */
     private void loadSortPreferences() {
         try {
-            String sortTypeName = isSystemFont
-                    ? dataStore.getSystemSortType().blockingFirst()
-                    : dataStore.getSortType().blockingFirst();
+            String sortTypeName;
+            switch (listType) {
+                case LIST_TYPE_SYSTEM:
+                    sortTypeName = dataStore.getSystemSortType().blockingFirst();
+                    break;
+                case LIST_TYPE_FAVORITES:
+                    sortTypeName = dataStore.getFavoritesSortType().blockingFirst();
+                    break;
+                case LIST_TYPE_LOCAL:
+                default:
+                    sortTypeName = dataStore.getSortType().blockingFirst();
+                    break;
+            }
             currentSortType = SortByItemLayout.SortType.valueOf(sortTypeName);
         } catch (Exception e) {
             Log.w(TAG, "Invalid or missing sort type, using default", e);
@@ -79,51 +142,88 @@ public class FontSortManager {
         }
 
         try {
-            isSortAscending = isSystemFont
-                    ? dataStore.getSystemSortAscending().blockingFirst()
-                    : dataStore.getSortAscending().blockingFirst();
+            switch (listType) {
+                case LIST_TYPE_SYSTEM:
+                    isSortAscending = dataStore.getSystemSortAscending().blockingFirst();
+                    break;
+                case LIST_TYPE_FAVORITES:
+                    isSortAscending = dataStore.getFavoritesSortAscending().blockingFirst();
+                    break;
+                case LIST_TYPE_LOCAL:
+                default:
+                    isSortAscending = dataStore.getSortAscending().blockingFirst();
+                    break;
+            }
         } catch (Exception e) {
             Log.w(TAG, "Missing sort ascending value, using default", e);
             isSortAscending = true;
         }
 
-        Log.d(TAG, "Loaded sort preferences [" + (isSystemFont ? "SYSTEM" : "LOCAL") + "]: "
+        Log.d(TAG, "Loaded sort preferences [" + listType + "]: "
                 + "type=" + currentSortType + ", ascending=" + isSortAscending);
     }
 
     /**
      * يحفظ في المفتاح الصحيح بناءً على نوع القائمة.
-     * هذا هو الحل الجذري: تغيير فرز المجلد لا يلمس مفاتيح خطوط النظام أبداً.
+     *
+     * هذا هو الحل الجذري لمنع التداخل:
+     * تغيير فرز أي قائمة لا يلمس مفاتيح القوائم الأخرى أبداً.
      */
     private void saveSortPreferences() {
-        if (isSystemFont) {
-            dataStore.setSystemSortType(currentSortType.name())
-                    .subscribeOn(Schedulers.io())
-                    .subscribe(
-                        prefs -> Log.d(TAG, "[SYSTEM] Saved sort type: " + currentSortType),
-                        error -> Log.e(TAG, "[SYSTEM] Error saving sort type", error)
-                    );
-            dataStore.setSystemSortAscending(isSortAscending)
-                    .subscribeOn(Schedulers.io())
-                    .subscribe(
-                        prefs -> Log.d(TAG, "[SYSTEM] Saved sort ascending: " + isSortAscending),
-                        error -> Log.e(TAG, "[SYSTEM] Error saving sort ascending", error)
-                    );
-        } else {
-            dataStore.setSortType(currentSortType.name())
-                    .subscribeOn(Schedulers.io())
-                    .subscribe(
-                        prefs -> Log.d(TAG, "[LOCAL] Saved sort type: " + currentSortType),
-                        error -> Log.e(TAG, "[LOCAL] Error saving sort type", error)
-                    );
-            dataStore.setSortAscending(isSortAscending)
-                    .subscribeOn(Schedulers.io())
-                    .subscribe(
-                        prefs -> Log.d(TAG, "[LOCAL] Saved sort ascending: " + isSortAscending),
-                        error -> Log.e(TAG, "[LOCAL] Error saving sort ascending", error)
-                    );
+        switch (listType) {
+
+            case LIST_TYPE_SYSTEM:
+                dataStore.setSystemSortType(currentSortType.name())
+                        .subscribeOn(Schedulers.io())
+                        .subscribe(
+                            prefs -> Log.d(TAG, "[SYSTEM] Saved sort type: " + currentSortType),
+                            error -> Log.e(TAG, "[SYSTEM] Error saving sort type", error)
+                        );
+                dataStore.setSystemSortAscending(isSortAscending)
+                        .subscribeOn(Schedulers.io())
+                        .subscribe(
+                            prefs -> Log.d(TAG, "[SYSTEM] Saved sort ascending: " + isSortAscending),
+                            error -> Log.e(TAG, "[SYSTEM] Error saving sort ascending", error)
+                        );
+                break;
+
+            case LIST_TYPE_FAVORITES:
+                // ★ مفاتيح قائمة المفضلة المستقلة — لا تؤثر على أي قائمة أخرى ★
+                dataStore.setFavoritesSortType(currentSortType.name())
+                        .subscribeOn(Schedulers.io())
+                        .subscribe(
+                            prefs -> Log.d(TAG, "[FAVORITES] Saved sort type: " + currentSortType),
+                            error -> Log.e(TAG, "[FAVORITES] Error saving sort type", error)
+                        );
+                dataStore.setFavoritesSortAscending(isSortAscending)
+                        .subscribeOn(Schedulers.io())
+                        .subscribe(
+                            prefs -> Log.d(TAG, "[FAVORITES] Saved sort ascending: " + isSortAscending),
+                            error -> Log.e(TAG, "[FAVORITES] Error saving sort ascending", error)
+                        );
+                break;
+
+            case LIST_TYPE_LOCAL:
+            default:
+                dataStore.setSortType(currentSortType.name())
+                        .subscribeOn(Schedulers.io())
+                        .subscribe(
+                            prefs -> Log.d(TAG, "[LOCAL] Saved sort type: " + currentSortType),
+                            error -> Log.e(TAG, "[LOCAL] Error saving sort type", error)
+                        );
+                dataStore.setSortAscending(isSortAscending)
+                        .subscribeOn(Schedulers.io())
+                        .subscribe(
+                            prefs -> Log.d(TAG, "[LOCAL] Saved sort ascending: " + isSortAscending),
+                            error -> Log.e(TAG, "[LOCAL] Error saving sort ascending", error)
+                        );
+                break;
         }
     }
+
+    // ════════════════════════════════════════════════════════════
+    // واجهة عامة
+    // ════════════════════════════════════════════════════════════
 
     /**
      * يحفظ خيارات الفرز ويُشعر المستمع بالتغيير.
@@ -220,6 +320,6 @@ public class FontSortManager {
             default:    typeName = "Name";  break;
         }
         return typeName + " (" + (isSortAscending ? "Ascending" : "Descending") + ")"
-                + " [" + (isSystemFont ? "SYSTEM" : "LOCAL") + "]";
+                + " [" + listType + "]";
     }
-    }
+}
