@@ -20,13 +20,15 @@ import java.util.concurrent.Executors;
  *
  * ★ الإصدار 2: إضافة عمود weight_width_label في جدول fonts ★
  * يُخزّن وصف الوزن والعرض المُستخرج من جدول OS/2 لكل خط.
- * بما أن fallbackToDestructiveMigration() مُفعَّل، تُعاد إنشاء
- * قاعدة البيانات تلقائياً عند ترقية التطبيق دون الحاجة لكتابة
- * Migration يدوي.
+ *
+ * ★ الإصدار 3: إضافة عمود is_favorite في جدول fonts ★
+ * يُخزّن حالة المفضلة (0 = عادي، 1 = مفضل).
+ * تُستخدم Migration 2→3 للحفاظ على البيانات الموجودة بدلاً من
+ * إعادة بناء قاعدة البيانات (fallbackToDestructiveMigration).
  */
 @Database(
     entities = {FontEntity.class},
-    version = 2,          // ★ رُفع من 1 إلى 2 بسبب إضافة weight_width_label ★
+    version = 3,          // ★ رُفع من 2 إلى 3 بسبب إضافة is_favorite ★
     exportSchema = false
 )
 public abstract class AppDatabase extends RoomDatabase {
@@ -37,6 +39,26 @@ public abstract class AppDatabase extends RoomDatabase {
     
     public static final ExecutorService databaseWriteExecutor =
             Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+
+    // ════════════════════════════════════════════════════════════
+    // ★ Migration 2 → 3: إضافة عمود is_favorite ★
+    // يضيف العمود بقيمة افتراضية 0 (false) لجميع السجلات الموجودة،
+    // مما يُحافظ على بيانات الخطوط (الأسماء الحقيقية والوزن/العرض إلخ)
+    // دون الحاجة لإعادة مسح المجلد من الصفر.
+    // ════════════════════════════════════════════════════════════
+    static final Migration MIGRATION_2_3 = new Migration(2, 3) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            // إضافة عمود is_favorite بقيمة افتراضية 0 (ليس في المفضلة)
+            database.execSQL(
+                "ALTER TABLE fonts ADD COLUMN is_favorite INTEGER NOT NULL DEFAULT 0"
+            );
+            // إضافة فهرس على is_favorite لتسريع استعلام getFavoriteFonts()
+            database.execSQL(
+                "CREATE INDEX IF NOT EXISTS index_fonts_is_favorite ON fonts (is_favorite)"
+            );
+        }
+    };
     
     public abstract FontDao fontDao();
     
@@ -49,7 +71,11 @@ public abstract class AppDatabase extends RoomDatabase {
                             AppDatabase.class,
                             DATABASE_NAME
                     )
-                    .fallbackToDestructiveMigration() // يُعيد بناء قاعدة البيانات عند اختلاف الإصدار
+                    // ★ استخدام Migration بدلاً من fallbackToDestructiveMigration ★
+                    // للحفاظ على البيانات الموجودة عند الترقية من الإصدار 2 إلى 3
+                    .addMigrations(MIGRATION_2_3)
+                    // ★ احتياطي: في حال وُجد إصدار غير متوقع ★
+                    .fallbackToDestructiveMigration()
                     .build();
                 }
             }
