@@ -2,6 +2,19 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <!--
+        ★ action_favorite: أيقونة وعنوان ديناميكيان، يتغيران برمجياً
+          بناءً على حالة العناصر المحددة (منطق Samsung Notes):
+          - كل العناصر مفضلة   → ic_oui_favorite_off + "غير مفضله"
+          - مختلطة أو غير مفضلة → ic_oui_favorite_on  + "مفضله"
+        القيم الافتراضية هنا هي حالة "إضافة إلى المفضلة".
+    -->
+    <item
+        android:id="@+id/action_favorite"
+        android:title="@string/action_favorite"
+        android:icon="@drawable/ic_oui_favorite_on"
+        app:showAsAction="always" />
+
     <item
         android:id="@+id/action_rename"
         android:title="@string/action_rename"
