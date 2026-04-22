@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    ★ التعديل: نفس إعادة الهيكلة المطبّقة على font_list_item.xml ★
-    - الارتفاع: من 70dp ثابت إلى wrap_content مع minHeight="70dp"
-    - اسم الخط ووصف الوزن/العرض داخل LinearLayout عمودي موزون
-    - الثيم الشفاف: MaterialCardView يتولى الزوايا الدائرية تلقائياً
+    نسخة MaterialCardView من عنصر الخط — تُستخدم مع الثيم الشفاف.
+    MaterialCardView يتولى الزوايا الدائرية تلقائياً دون حسابات OneUI.
+
+    ★ التعديل: إضافة أيقونة المفضلة (ic_favorite) مطابقة لـ font_list_item.xml ★
 -->
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -11,70 +11,99 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginVertical="5dp"
     android:layout_marginHorizontal="5dp"
+    android:layout_marginVertical="5dp"
     android:orientation="vertical"
-    app:cardBackgroundColor="@android:color/transparent"
-    app:cardCornerRadius="15dp"
+    android:cardBackgroundColor="@android:color/transparent"
+    app:cardCornerRadius="14dp"
+    app:cardPreventCornerOverlap="false"
     app:cardElevation="0dp"
-    app:cardPreventCornerOverlap="false">
+    app:strokeWidth="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:animateLayoutChanges="true"
-        android:background="@drawable/font_list_ripple"
-        android:paddingVertical="19dp"
-        android:paddingHorizontal="28dp">
+        android:orientation="vertical">
 
-        <!-- ★ CheckBox للتحديد المتعدد — يظهر فقط في وضع الاختيار ★ -->
-        <CheckBox
-            android:id="@+id/checkbox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="?android:listPreferredItemPaddingStart"
-            android:background="@null"
-            android:clickable="false"
-            android:focusable="false"
-            android:visibility="gone" />
-
-        <!-- ★ LinearLayout عمودي يحتوي اسم الخط + وصف الوزن/العرض ★ -->
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/font_list_ripple"
+            android:animateLayoutChanges="true"
+            android:paddingHorizontal="18dp"
+            android:paddingVertical="19dp">
 
-            <!-- ★ اسم الخط — يدعم تظليل نص البحث ★ -->
-            <TextView
-                android:id="@+id/font_item_name"
+            <!-- CheckBox للتحديد المتعدد -->
+            <CheckBox
+                android:id="@+id/checkbox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:includeFontPadding="false"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:layout_marginBottom="7sp"
-                android:textSize="16sp"
-                android:textColor="?android:attr/textColorPrimary"
-                android:fontFamily="sans-serif"
-                android:textStyle="bold"
-                tools:text="Font Name Example" />
+                android:layout_marginEnd="?android:listPreferredItemPaddingStart"
+                android:background="@null"
+                android:clickable="false"
+                android:focusable="false"
+                android:visibility="gone" />
 
-            <!-- ★ وصف الوزن والعرض — باللون الثانوي ★
-                 أمثلة: "Bold, Condensed" | "VF · Regular" | "غير معروف" -->
-            <TextView
-                android:id="@+id/font_item_weight_width"
-                android:layout_width="wrap_content"
+            <!-- ★ LinearLayout عمودي مع layout_weight="1" لدفع أيقونة المفضلة لليمين ★ -->
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:includeFontPadding="false"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:textSize="13sp"
-                android:textColor="@color/sesl_secondary_text_color"
-                tools:text="Bold, Condensed" />
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <!-- اسم الخط -->
+                <TextView
+                    android:id="@+id/font_item_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:includeFontPadding="false"
+                    android:padding="-10dp"
+                    android:layout_marginBottom="7sp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textSize="16sp"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:fontFamily="sec-bold"
+                    tools:text="Font Name Example" />
+
+                <!-- وصف الوزن والعرض -->
+                <TextView
+                    android:id="@+id/font_item_weight_width"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:ellipsize="end"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:textSize="13sp"
+                    android:textColor="@color/sesl_secondary_text_color"
+                    tools:text="Bold, Condensed" />
+
+            </LinearLayout>
+
+            <!-- ★ أيقونة المفضلة — نفس بنية font_list_item.xml ★ -->
+            <ImageView
+                android:id="@+id/font_item_favorite_icon"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_marginStart="12dp"
+                android:contentDescription="@string/action_add_favorite"
+                android:src="@drawable/ic_favorite"
+                android:visibility="gone"
+                tools:visibility="visible" />
 
         </LinearLayout>
+
+        <!-- الفاصل — في الثيم الشفاف يُستخدم بين العناصر داخل البطاقة إذا لزم الأمر
+             يُخفى على العنصر الأخير من خلال LocalFontListAdapter (لا زوايا دائرية OneUI هنا) -->
+        <View
+            android:id="@+id/item_divider"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@color/oui_list_divider_color" />
 
     </LinearLayout>
 
