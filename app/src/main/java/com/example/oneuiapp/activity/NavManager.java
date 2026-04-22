@@ -14,6 +14,7 @@ import com.example.oneuiapp.R;
 import com.example.oneuiapp.fragment.LocalFontListFragment;
 import com.example.oneuiapp.fragment.FontViewerFragment;
 import com.example.oneuiapp.fragment.SystemFontListFragment;
+import com.example.oneuiapp.fragment.FavoriteFontListFragment;
 import com.example.oneuiapp.ui.drawer.DrawerListAdapter;
 import com.example.oneuiapp.fontlist.search.SearchCoordinator;
 
@@ -380,17 +381,17 @@ public class NavManager {
      *    الأزرق يظهر فقط بعد اكتمال الانتقال بصرياً، لا خلاله.
      *
      * ★ الأنيميشن ★
-     * يُطبَّق أنيميشن الانتقال الأفقي عند الانتقال من أي قائمة خطوط (index 2 أو 3)
+     * يُطبَّق أنيميشن الانتقال الأفقي عند الانتقال من أي قائمة خطوط (index 2 أو 3 أو 4)
      * إلى شاشة عارض الخطوط (index 1) فقط، دون أي حالة تنقل أخرى.
      *
      * ★ التعديل: إضافة معامل weightWidthLabel ★
      * يُمرَّر مباشرةً إلى FontViewerFragment.loadFontFromPath بدلاً من إعادة استخراجه،
      * إذ أن الوزن مستخرج مسبقاً وموجود في بيانات القائمة.
      *
-     * @param fontPath        مسار ملف الخط أو content URI
-     * @param realName        الاسم الحقيقي للخط
-     * @param fileName        اسم ملف الخط
-     * @param ttcIndex        فهرس الخط داخل ملف TTC
+     * @param fontPath         مسار ملف الخط أو content URI
+     * @param realName         الاسم الحقيقي للخط
+     * @param fileName         اسم ملف الخط
+     * @param ttcIndex         فهرس الخط داخل ملف TTC
      * @param weightWidthLabel وصف الوزن والعرض الجاهز من القائمة (قد يكون null)
      */
     public void handleFontSelected(String fontPath, String realName, String fileName,
@@ -407,7 +408,9 @@ public class NavManager {
         for (int i = 0; i < fragments.size(); i++) {
             Fragment f = fragments.get(i);
             if (!f.isHidden()
-                    && (f instanceof LocalFontListFragment || f instanceof SystemFontListFragment)) {
+                    && (f instanceof LocalFontListFragment
+                        || f instanceof SystemFontListFragment
+                        || f instanceof FavoriteFontListFragment)) { // ★ إضافة قائمة المفضلة ★
                 detectedSourceIndex = i;
                 break;
             }
@@ -426,6 +429,8 @@ public class NavManager {
             ((LocalFontListFragment) sourceFragment).blockTouch();
         else if (sourceFragment instanceof SystemFontListFragment)
             ((SystemFontListFragment) sourceFragment).blockTouch();
+        else if (sourceFragment instanceof FavoriteFontListFragment) // ★ إضافة قائمة المفضلة ★
+            ((FavoriteFontListFragment) sourceFragment).blockTouch();
 
         // الإجراء الثاني: تفعيل شاشة عارض الخطوط فوراً قبل بدء الأنيميشن ★
         // استدعاؤه هنا يضمن أن root view العارض يملك clickable=true
@@ -466,6 +471,7 @@ public class NavManager {
             if (frag instanceof FontViewerFragment) {
                 FontViewerFragment fontViewerFragment = (FontViewerFragment) frag;
                 fontViewerFragment.originalFontPath = fontPath;
+                // ★ خطوط المفضلة هي خطوط محلية دائماً (isSystemFont = false) ★
                 boolean isSystemFont = (sourceFragmentIndex == 3);
                 if (fontPath != null && fontPath.startsWith("content://")) {
                     // ★ خطوط URI: لا يوجد weightWidthLabel من القائمة — يُستخرج التنوع تلقائياً ★
@@ -485,6 +491,8 @@ public class NavManager {
                     ((LocalFontListFragment) sourceFragment).saveAndHighlight(fontPath);
                 else if (sourceFragment instanceof SystemFontListFragment)
                     ((SystemFontListFragment) sourceFragment).saveAndHighlight(fontPath);
+                else if (sourceFragment instanceof FavoriteFontListFragment) // ★ إضافة قائمة المفضلة ★
+                    ((FavoriteFontListFragment) sourceFragment).saveAndHighlight(fontPath);
             }, FRAGMENT_ANIMATION_DURATION_MS);
         };
         drawerLayout.postDelayed(mPendingNavigation, RIPPLE_DELAY_MS);
@@ -535,6 +543,8 @@ public class NavManager {
                 ((LocalFontListFragment) sourceFrag).unblockTouch();
             else if (sourceFrag instanceof SystemFontListFragment)
                 ((SystemFontListFragment) sourceFrag).unblockTouch();
+            else if (sourceFrag instanceof FavoriteFontListFragment) // ★ إضافة قائمة المفضلة ★
+                ((FavoriteFontListFragment) sourceFrag).unblockTouch();
             return;
         }
 
@@ -546,6 +556,11 @@ public class NavManager {
             if (((LocalFontListFragment) currentFragment).handleBackPressed()) {
                 return;
             }
+        } else if (currentFragment instanceof FavoriteFontListFragment) {
+            // ★ دعم إلغاء وضع التحديد المتعدد في قائمة المفضلة ★
+            if (((FavoriteFontListFragment) currentFragment).handleBackPressed()) {
+                return;
+            }
         }
 
         // 4. ★ الأولوية الثالثة: إغلاق البحث إذا كان مفتوحاً ★
@@ -555,8 +570,8 @@ public class NavManager {
         }
 
         // 5. ★ الأولوية الرابعة: العودة لمصدر اختيار الخط مع أنيميشن أفقي ★
-        // المكدس يحتوي فقط على مصادر اختيار الخطوط (قائمة محلية أو قائمة نظام)
-        // الأنيميشن يُطبَّق هنا فقط لأن المصدر دائماً قائمة خطوط (index 2 أو 3)
+        // المكدس يحتوي فقط على مصادر اختيار الخطوط (قائمة محلية أو نظام أو مفضلة)
+        // الأنيميشن يُطبَّق هنا فقط لأن المصدر دائماً قائمة خطوط (index 2 أو 3 أو 4)
         if (!mNavBackStack.isEmpty()) {
             int previousIndex = mNavBackStack.removeLast();
             mHost.setCurrentIndex(previousIndex);
@@ -567,6 +582,8 @@ public class NavManager {
                 ((LocalFontListFragment) prevFrag).unblockTouch();
             else if (prevFrag instanceof SystemFontListFragment)
                 ((SystemFontListFragment) prevFrag).unblockTouch();
+            else if (prevFrag instanceof FavoriteFontListFragment) // ★ إضافة قائمة المفضلة ★
+                ((FavoriteFontListFragment) prevFrag).unblockTouch();
             else if (prevFrag instanceof FontViewerFragment)
                 ((FontViewerFragment) prevFrag).enableTouch();
             mHost.getDrawerAdapter().setSelectedItem(previousIndex);
@@ -587,6 +604,8 @@ public class NavManager {
                 ((LocalFontListFragment) prevFrag).blockTouch();
             else if (prevFrag instanceof SystemFontListFragment)
                 ((SystemFontListFragment) prevFrag).blockTouch();
+            else if (prevFrag instanceof FavoriteFontListFragment) // ★ إضافة قائمة المفضلة ★
+                ((FavoriteFontListFragment) prevFrag).blockTouch();
             Fragment viewer = fragments.get(1);
             if (viewer instanceof FontViewerFragment)
                 ((FontViewerFragment) viewer).enableTouch();
