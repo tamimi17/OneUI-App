@@ -45,6 +45,9 @@ import java.util.concurrent.ExecutorService;
  * ★ التعديل: إضافة weightWidthLabel كمعامل خامس في OnFontClickListener
  *   لتمريره إلى NavManager ثم FontViewerFragment دون إعادة استخراجه ★
  *
+ * ★ التعديل: إضافة FavoriteStatusProvider لفحص حالة المفضلة وعرض أيقونة ic_favorite
+ *   بجانب العناصر المفضلة في قائمة الخطوط المحلية ★
+ *
  * ملاحظة للمطوّر: بعد تحديث هذه الواجهة، يجب تحديث LocalFontListFragment ليعكس
  * التغيير في تنفيذه لـ onFontClick وليمرر weightWidthLabel إلى onFontSelected.
  */
@@ -56,6 +59,9 @@ public class LocalFontListAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     private static final String PAYLOAD_UPDATE_CORNERS   = "UPDATE_CORNERS";
     private static final String PAYLOAD_UPDATE_HIGHLIGHT = "UPDATE_HIGHLIGHT";
+
+    // ★ Payload خاص بتحديث أيقونة المفضلة فقط دون إعادة رسم العنصر كاملاً ★
+    private static final String PAYLOAD_UPDATE_FAVORITE  = "UPDATE_FAVORITE";
 
     private final Context context;
     private final LocalFontPreferenceManager preferenceManager;
@@ -90,6 +96,10 @@ public class LocalFontListAdapter extends RecyclerView.Adapter<RecyclerView.View
     private OnFontClickListener fontClickListener;
     private SortByItemLayout.OnSortChangeListener sortChangeListener;
     private OnSelectionListener selectionListener;
+
+    // ★ مزوّد حالة المفضلة — يُستدعى عند ربط كل عنصر لتحديد ظهور أيقونة ic_favorite ★
+    // يجب على Fragment تطبيق هذه الواجهة وتمريرها عبر setFavoriteStatusProvider()
+    private FavoriteStatusProvider favoriteStatusProvider;
 
     // ─────────────────────────────────────────────────────────
     // ★ SortedList.Callback — يُترجم أحداث SortedList إلى إشعارات الـ Adapter ★
@@ -189,6 +199,18 @@ public class LocalFontListAdapter extends RecyclerView.Adapter<RecyclerView.View
         void onToggleSelection(int position);
     }
 
+    /**
+     * ★ واجهة مزوّد حالة المفضلة ★
+     * يُنفّذها Fragment لتزويد الـ Adapter بحالة المفضلة لكل مسار خط،
+     * مما يُتيح عرض أيقونة ic_favorite بجانب العناصر المفضلة.
+     *
+     * ملاحظة للمطوّر: يجب على LocalFontListFragment تطبيق هذه الواجهة
+     * واستدعاء setFavoriteStatusProvider(this) بعد إنشاء الـ Adapter.
+     */
+    public interface FavoriteStatusProvider {
+        boolean isFavorited(String fontPath);
+    }
+
     public LocalFontListAdapter(Context context, ExecutorService executor) {
         this.context = context;
         this.preferenceManager = new LocalFontPreferenceManager(context);
@@ -277,6 +299,11 @@ public class LocalFontListAdapter extends RecyclerView.Adapter<RecyclerView.View
     public void setSortChangeListener(SortByItemLayout.OnSortChangeListener l) { this.sortChangeListener = l; }
     public void setSelectionListener(OnSelectionListener listener)             { this.selectionListener = listener; }
 
+    // ★ يُستدعى من Fragment لتزويد الـ Adapter بمزوّد حالة المفضلة ★
+    public void setFavoriteStatusProvider(FavoriteStatusProvider provider) {
+        this.favoriteStatusProvider = provider;
+    }
+
     // ★ يُستدعى من saveLastOpenedAndUpdate (انتقال مؤكد) أو من unblockTouch (إلغاء) ★
     public void resetClickGuard() { mClickGuard = false; }
 
@@ -317,6 +344,24 @@ public class LocalFontListAdapter extends RecyclerView.Adapter<RecyclerView.View
         for (int i = 0; i < mSortedList.size(); i++)
             if (path.equals(mSortedList.get(i).getPath())) return i + 1;
         return -1;
+    }
+
+    /**
+     * ★ تحديث أيقونة المفضلة لعنصر محدد عبر Payload لتفادي إعادة رسم العنصر كاملاً ★
+     * يُستدعى من Fragment بعد تغيير حالة مفضلة خط معين.
+     */
+    public void notifyFavoriteChanged(String path) {
+        int position = findPositionByPath(path);
+        if (position != -1) notifyItemChanged(position, PAYLOAD_UPDATE_FAVORITE);
+    }
+
+    /**
+     * ★ تحديث أيقونة المفضلة لجميع العناصر دفعةً واحدة عبر Payload ★
+     * يُستدعى من Fragment بعد عمليات المفضلة الجماعية (مثل حذف متعدد).
+     */
+    public void notifyAllFavoritesChanged() {
+        int size = mSortedList.size();
+        if (size > 0) notifyItemRangeChanged(1, size, PAYLOAD_UPDATE_FAVORITE);
     }
 
     // ─────────────────────────────────────────────────────────
@@ -501,6 +546,14 @@ public class LocalFontListAdapter extends RecyclerView.Adapter<RecyclerView.View
                 android.text.Spannable highlighted = highlighter.highlightText(displayName, currentSearchQuery);
                 ((LocalFontViewHolder) holder).fontNameTextView.setText(isSearchActive ? highlighted : displayName);
             }
+            // ★ تحديث أيقونة المفضلة بصمت دون إعادة رسم العنصر كاملاً ★
+            // يُستدعى من notifyFavoriteChanged() أو notifyAllFavoritesChanged()
+            if (payloads.contains(PAYLOAD_UPDATE_FAVORITE) && holder instanceof LocalFontViewHolder) {
+                FontFileInfo fontInfo = mSortedList.get(position - 1);
+                boolean isFavorited = favoriteStatusProvider != null
+                        && favoriteStatusProvider.isFavorited(fontInfo.getPath());
+                ((LocalFontViewHolder) holder).setFavoriteIndicator(isFavorited);
+            }
         } else {
             super.onBindViewHolder(holder, position, payloads);
         }
@@ -567,6 +620,12 @@ public class LocalFontListAdapter extends RecyclerView.Adapter<RecyclerView.View
         holder.bind(displayName, path, isSearchActive, currentSearchQuery,
                     isLastOpened, highlighter, isSelectionMode, isItemSelected(position),
                     weightWidthLabel);
+
+        // ★ عرض أيقونة ic_favorite بجانب العناصر المفضلة في قائمة الخطوط المحلية ★
+        // الأيقونة صفراء اللون وتظهر فقط للعناصر التي أضافها المستخدم إلى المفضلة
+        // ملاحظة للمطوّر: يجب أن يحتوي LocalFontViewHolder على setFavoriteIndicator(boolean)
+        boolean isFavorited = favoriteStatusProvider != null && favoriteStatusProvider.isFavorited(path);
+        holder.setFavoriteIndicator(isFavorited);
 
         if (SettingsHelper.isFontPreviewEnabled(context)) loadFontPreview(holder, path);
         else holder.setDefaultTypeface(SettingsHelper.getTypeface(context));
