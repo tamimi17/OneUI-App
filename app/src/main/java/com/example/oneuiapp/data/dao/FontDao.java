@@ -14,8 +14,6 @@ import java.util.List;
 
 /**
  * FontDao - محسّن مع دوال فعّالة لإدارة الكاش
- *
- * ★ الإصدار 3: إضافة استعلامات المفضلة ★
  */
 @Dao
 public interface FontDao {
@@ -252,65 +250,4 @@ public interface FontDao {
      */
     @Query("SELECT * FROM fonts WHERE weight_width_label IS NULL LIMIT :limit")
     List<FontEntity> getFontsWithoutWeightWidth(int limit);
-
-    // ════════════════════════════════════════════════════════════
-    // ★ استعلامات المفضلة (الإصدار 3) ★
-    // ════════════════════════════════════════════════════════════
-
-    /**
-     * جلب جميع الخطوط المفضلة (المحلية فقط) مرتبةً أبجدياً.
-     * تُستخدم في FavoriteFontListFragment عبر FavoriteFontListViewModel.
-     * Room يُحدِّث النتيجة تلقائياً عند تغيير is_favorite في قاعدة البيانات.
-     */
-    @Query("SELECT * FROM fonts WHERE is_favorite = 1 AND is_system_font = 0 ORDER BY file_name ASC")
-    LiveData<List<FontEntity>> getFavoriteFonts();
-
-    /**
-     * جلب الخطوط المفضلة بشكل متزامن (للاستخدام في خيوط الخلفية)
-     */
-    @Query("SELECT * FROM fonts WHERE is_favorite = 1 AND is_system_font = 0 ORDER BY file_name ASC")
-    List<FontEntity> getFavoriteFontsSync();
-
-    /**
-     * تحديث حالة المفضلة لخط محدد بمساره.
-     * تُستدعى من LocalFontRepository.updateFavoriteStatus() على خيط خلفي.
-     *
-     * @param path      مسار ملف الخط
-     * @param isFavorite true لإضافة للمفضلة، false للإزالة
-     * @param timestamp  وقت التحديث بالميلي ثانية
-     */
-    @Query("UPDATE fonts SET is_favorite = :isFavorite, updated_at = :timestamp WHERE path = :path")
-    int updateFavoriteStatus(String path, boolean isFavorite, long timestamp);
-
-    /**
-     * البحث في الخطوط المفضلة بالاسم.
-     * تُستخدم لدعم ميزة البحث في قائمة المفضلة.
-     *
-     * @param query نص البحث
-     */
-    @Query("SELECT * FROM fonts WHERE is_favorite = 1 AND is_system_font = 0 " +
-           "AND (file_name LIKE '%' || :query || '%' " +
-           "OR real_name LIKE '%' || :query || '%') " +
-           "ORDER BY file_name ASC")
-    LiveData<List<FontEntity>> searchFavoriteFonts(String query);
-
-    /**
-     * عدد الخطوط المفضلة — يُستخدم لتحديث العنوان الفرعي في الدرج.
-     */
-    @Query("SELECT COUNT(*) FROM fonts WHERE is_favorite = 1")
-    LiveData<Integer> getFavoriteFontsCount();
-
-    /**
-     * عدد الخطوط المفضلة بشكل متزامن
-     */
-    @Query("SELECT COUNT(*) FROM fonts WHERE is_favorite = 1")
-    int getFavoriteFontsCountSync();
-
-    /**
-     * التحقق من كون خط مفضلاً بمساره
-     *
-     * @param path مسار ملف الخط
-     */
-    @Query("SELECT is_favorite FROM fonts WHERE path = :path LIMIT 1")
-    boolean isFontFavorite(String path);
 }

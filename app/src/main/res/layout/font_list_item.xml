@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    ★ التعديل: إضافة أيقونة المفضلة (ic_favorite) ★
-    - تُضاف ImageView بمعرّف font_item_favorite_icon في نهاية الـ LinearLayout الأفقي
-    - الأيقونة: ic_favorite (أيقونة قلب صفراء تُشير إلى كون الخط مفضلاً)
-    - تُخفى بالكامل (GONE) للخطوط غير المفضلة لكي لا تشغل مساحة
-    - تُظهَر (VISIBLE) تلقائياً للخطوط المفضلة عبر LocalFontViewHolder.bind()
+    ★ التعديل: إعادة هيكلة الـ LinearLayout الداخلي لدعم سطرَين ★
+    - الارتفاع: من 70dp ثابت إلى wrap_content مع minHeight="70dp"
+    - تم تضمين paddingVertical="12dp" لمنح الفراغ الكافي للسطرَين
+    - اسم الخط ووصف الوزن/العرض داخل LinearLayout عمودي موزون
 -->
-<dev.oneuiproject.oneui.widget.RoundLinearLayout
+<dev.oneuiproject.oneui.widget.RoundLinearLayout 
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -36,12 +35,10 @@
             android:focusable="false"
             android:visibility="gone" />
 
-        <!-- ★ LinearLayout عمودي يحتوي اسم الخط + وصف الوزن/العرض
-             layout_weight="1" يملأ المساحة المتبقية ويدفع أيقونة المفضلة لليمين ★ -->
+        <!-- ★ LinearLayout عمودي يحتوي اسم الخط + وصف الوزن/العرض ★ -->
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:orientation="vertical">
 
             <!-- اسم الخط — يدعم تظليل نص البحث -->
@@ -75,20 +72,6 @@
                 tools:text="Bold, Condensed" />
 
         </LinearLayout>
-
-        <!-- ★ أيقونة المفضلة — تُظهر للخطوط المفضلة فقط ★
-             الأيقونة: ic_favorite (قلب صفراء)
-             القيمة الافتراضية: GONE (مخفية لتوفير المساحة)
-             يُظهرها LocalFontViewHolder.bind() عند isFavorite = true -->
-        <ImageView
-            android:id="@+id/font_item_favorite_icon"
-            android:layout_width="22dp"
-            android:layout_height="22dp"
-            android:layout_marginStart="12dp"
-            android:contentDescription="@string/action_add_favorite"
-            android:src="@drawable/ic_favorite"
-            android:visibility="gone"
-            tools:visibility="visible" />
 
     </LinearLayout>
 
