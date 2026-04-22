@@ -27,6 +27,7 @@ import java.util.concurrent.ExecutorService;
  * 3. ضمان وجود البيانات جاهزة قبل العرض
  * 4. دعم إعادة التسمية والحذف للتحديد المتعدد
  * ★ الإضافة: استخراج فوري وخلفي لوصف الوزن والعرض (weight_width_label) ★
+ * ★ الإضافة: دعم كامل لقائمة المفضلة (إضافة، إزالة، استعلام، بحث، ترتيب) ★
  */
 public class LocalFontRepository {
 
@@ -106,6 +107,131 @@ public class LocalFontRepository {
     public LiveData<List<FontEntity>> searchFonts(boolean isSystem, String query) {
         return fontDao.searchFonts(isSystem, query);
     }
+
+    // ════════════════════════════════════════════════════════════
+    // ★ Favorites — قائمة المفضلة ★
+    // جميع الدوال الخاصة بالمفضلة مجمّعة في قسم واحد
+    // ════════════════════════════════════════════════════════════
+
+    /**
+     * إرجاع جميع الخطوط المفضلة كـ LiveData لمراقبة التغييرات تلقائياً
+     */
+    public LiveData<List<FontEntity>> getFavoriteFonts() {
+        return fontDao.getFavoriteFonts();
+    }
+
+    /**
+     * إرجاع عدد الخطوط المفضلة كـ LiveData
+     */
+    public LiveData<Integer> getFavoriteFontsCount() {
+        return fontDao.getFavoriteFontsCount();
+    }
+
+    /**
+     * الخطوط المفضلة مرتبة حسب الاسم
+     */
+    public LiveData<List<FontEntity>> getFavoritesSortedByName(boolean ascending) {
+        if (ascending) {
+            return fontDao.getFavoritesSortedByName();
+        } else {
+            return fontDao.getFavoritesSortedByNameDesc();
+        }
+    }
+
+    /**
+     * الخطوط المفضلة مرتبة حسب التاريخ
+     */
+    public LiveData<List<FontEntity>> getFavoritesSortedByDate(boolean ascending) {
+        if (ascending) {
+            return fontDao.getFavoritesSortedByDate();
+        } else {
+            return fontDao.getFavoritesSortedByDateDesc();
+        }
+    }
+
+    /**
+     * الخطوط المفضلة مرتبة حسب الحجم
+     */
+    public LiveData<List<FontEntity>> getFavoritesSortedBySize(boolean ascending) {
+        if (ascending) {
+            return fontDao.getFavoritesSortedBySize();
+        } else {
+            return fontDao.getFavoritesSortedBySizeDesc();
+        }
+    }
+
+    /**
+     * البحث في الخطوط المفضلة
+     */
+    public LiveData<List<FontEntity>> searchFavoriteFonts(String query) {
+        return fontDao.searchFavoriteFonts(query);
+    }
+
+    /**
+     * ★ تحديث حالة المفضلة لخط واحد ★
+     *
+     * تُستخدم عند الضغط على أيقونة المفضلة في القائمة أو
+     * عند تحديد عنصر واحد فقط في وضع التحديد المتعدد
+     *
+     * @param path       مسار الخط المراد تعديل حالته
+     * @param isFavorite true للإضافة إلى المفضلة، false للإزالة
+     * @param listener   مستمع النتيجة (يعمل على خيط الخلفية)
+     */
+    public void updateFavoriteStatus(String path, boolean isFavorite, OnCompleteListener listener) {
+        executorService.execute(() -> {
+            try {
+                int rows = fontDao.updateFavoriteStatus(path, isFavorite, System.currentTimeMillis());
+                Log.d(TAG, "★ Favorite status updated: " + path + " → " + isFavorite);
+                if (listener != null) {
+                    listener.onComplete(rows > 0);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to update favorite status", e);
+                if (listener != null) {
+                    listener.onComplete(false);
+                }
+            }
+        });
+    }
+
+    /**
+     * ★ تحديث حالة المفضلة لمجموعة خطوط (التحديد المتعدد) ★
+     *
+     * المنطق المتبع (مطابق لـ Samsung Notes):
+     * - إذا كانت العناصر المحددة مزيجاً من مفضلة وغير مفضلة → إضافة الجميع
+     * - إذا كانت جميعها مفضلة → إزالة الجميع
+     * - إذا كانت جميعها غير مفضلة → إضافة الجميع
+     *
+     * @param paths      قائمة مسارات الخطوط المراد تعديلها
+     * @param isFavorite true للإضافة إلى المفضلة، false للإزالة
+     * @param listener   مستمع النتيجة
+     */
+    public void updateFavoriteStatusBatch(List<String> paths, boolean isFavorite,
+                                          OnCompleteListener listener) {
+        executorService.execute(() -> {
+            try {
+                long now = System.currentTimeMillis();
+                int totalRows = 0;
+                for (String path : paths) {
+                    totalRows += fontDao.updateFavoriteStatus(path, isFavorite, now);
+                }
+                Log.d(TAG, "★ Batch favorite status updated: " + paths.size()
+                    + " fonts → " + isFavorite);
+                if (listener != null) {
+                    listener.onComplete(totalRows > 0);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to batch update favorite status", e);
+                if (listener != null) {
+                    listener.onComplete(false);
+                }
+            }
+        });
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // CRUD Operations
+    // ════════════════════════════════════════════════════════════
 
     public void insert(FontEntity font, OnCompleteListener listener) {
         executorService.execute(() -> {
@@ -478,4 +604,4 @@ public class LocalFontRepository {
     public interface OnSyncCompleteListener {
         void onSyncComplete(int added, int updated, int deleted);
     }
-                        }
+                    }
