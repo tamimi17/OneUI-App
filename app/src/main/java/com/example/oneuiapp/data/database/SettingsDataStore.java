@@ -45,6 +45,10 @@ public class SettingsDataStore {
     // ★ System Font sort keys — منفصلة تماماً عن مفاتيح المجلد المحلي ★
     private final Preferences.Key<String> KEY_SYSTEM_SORT_TYPE;
     private final Preferences.Key<Boolean> KEY_SYSTEM_SORT_ASCENDING;
+
+    // ★ Favorites sort keys — منفصلة تماماً لتجنب أي تعارض مع القوائم الأخرى ★
+    private final Preferences.Key<String> KEY_FAVORITES_SORT_TYPE;
+    private final Preferences.Key<Boolean> KEY_FAVORITES_SORT_ASCENDING;
     
     // Font Viewer keys
     private final Preferences.Key<String> KEY_VIEWER_FONT_PATH;
@@ -103,6 +107,10 @@ public class SettingsDataStore {
         // ★ Initialize System Font sort keys ★
         KEY_SYSTEM_SORT_TYPE = PreferencesKeys.stringKey("system_sort_type");
         KEY_SYSTEM_SORT_ASCENDING = PreferencesKeys.booleanKey("system_sort_ascending");
+
+        // ★ Initialize Favorites sort keys ★
+        KEY_FAVORITES_SORT_TYPE = PreferencesKeys.stringKey("favorites_sort_type");
+        KEY_FAVORITES_SORT_ASCENDING = PreferencesKeys.booleanKey("favorites_sort_ascending");
         
         // Initialize Font Viewer keys
         KEY_VIEWER_FONT_PATH = PreferencesKeys.stringKey("viewer_font_path");
@@ -400,6 +408,38 @@ public class SettingsDataStore {
             return Single.just(mutablePrefs);
         });
     }
+
+    // ════════════════════════════════════════════════════════════
+    // Sort Options (Favorites) ★ منفصلة تماماً لتجنب أي تعارض ★
+    // ════════════════════════════════════════════════════════════
+
+    public Flowable<String> getFavoritesSortType() {
+        return dataStore.data().map(prefs ->
+            prefs.get(KEY_FAVORITES_SORT_TYPE) != null ? prefs.get(KEY_FAVORITES_SORT_TYPE) : "NAME"
+        );
+    }
+
+    public Single<Preferences> setFavoritesSortType(String type) {
+        return dataStore.updateDataAsync(prefs -> {
+            MutablePreferences mutablePrefs = prefs.toMutablePreferences();
+            mutablePrefs.set(KEY_FAVORITES_SORT_TYPE, type);
+            return Single.just(mutablePrefs);
+        });
+    }
+
+    public Flowable<Boolean> getFavoritesSortAscending() {
+        return dataStore.data().map(prefs ->
+            prefs.get(KEY_FAVORITES_SORT_ASCENDING) != null ? prefs.get(KEY_FAVORITES_SORT_ASCENDING) : true
+        );
+    }
+
+    public Single<Preferences> setFavoritesSortAscending(boolean ascending) {
+        return dataStore.updateDataAsync(prefs -> {
+            MutablePreferences mutablePrefs = prefs.toMutablePreferences();
+            mutablePrefs.set(KEY_FAVORITES_SORT_ASCENDING, ascending);
+            return Single.just(mutablePrefs);
+        });
+    }
     
     // ════════════════════════════════════════════════════════════
     // Last Opened System Font
@@ -508,4 +548,4 @@ public class SettingsDataStore {
             return Single.just(mutablePrefs);
         });
     }
-                }
+                                                          }
