@@ -25,6 +25,8 @@
     <string name="drawer_settings">Settings</string>
     <string name="drawer_font_viewer">Font Viewer</string>
     <string name="drawer_local_fonts">Local Fonts</string>
+    <!-- ★ المفضلة ★ -->
+    <string name="drawer_favorites">Favorites</string>
     
     <!-- الإعدادات -->
     <string name="settings_info">You can control app settings from here</string>
@@ -63,6 +65,11 @@
     <string name="settings_theme_system">System default</string>
     <string name="settings_theme_light">Light</string>
     <string name="settings_theme_dark">Dark</string>
+
+    <!-- إعدادات الثيم الشفاف -->
+    <!-- ★ تعديل: تحديث وصف الثيم الشفاف ليكون أوضح ★ -->
+    <string name="settings_theme_transparent">Black</string>
+    <string name="settings_theme_transparent_description">Black menu background in dark mode, and light gray in light mode.</string>
 
     <!-- إعدادات الخط -->
     <string name="settings_font">Font Style</string>
@@ -146,9 +153,7 @@
     <string name="settings_translation">Translation font info</string>
     <string name="settings_translation_description">Translate font information automatically</string>
 
-    <!-- أضف هذه النصوص إلى ملف strings.xml الخاص بك -->
-
-<!-- نصوص البحث -->
+    <!-- نصوص البحث -->
     <string name="search_font">Search</string>
     <string name="no_results_found">No results found</string>
     
@@ -163,14 +168,12 @@
 
     <string name="font_fragment_import_failed">%d files failed to import</string>
 
-    <!-- أضف هذه النصوص إلى ملف res/values/strings.xml الخاص بك -->
-
-<!-- Sort Menu Strings -->
-<string name="sort_fonts">Sort Fonts</string>
-<string name="sort_name_ascending">Name (A to Z)</string>
-<string name="sort_name_descending">Name (Z to A)</string>
-<string name="sort_date_ascending">Date (Oldest First)</string>
-<string name="sort_date_descending">Date (Newest First)</string>
+    <!-- Sort Menu Strings -->
+    <string name="sort_fonts">Sort Fonts</string>
+    <string name="sort_name_ascending">Name (A to Z)</string>
+    <string name="sort_name_descending">Name (Z to A)</string>
+    <string name="sort_date_ascending">Date (Oldest First)</string>
+    <string name="sort_date_descending">Date (Newest First)</string>
 
     <string name="sort_size">Size</string>
     <string name="sort_date">Date</string>
@@ -194,50 +197,56 @@
     <string name="system_fonts_api_unavailable">System Fonts API is not available</string>
     <string name="system_fonts_requires_api_29">This feature requires Android 10 (API 29) or higher</string>
 
-    <!-- أضف هذه النصوص إلى ملف res/values/strings.xml -->
+    <!-- Font Selection and Actions -->
+    <string name="action_rename">Rename</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_delete_all">Delete all</string>
+    <string name="action_cancel">Cancel</string>
 
-<!-- Font Selection and Actions -->
-<string name="action_rename">Rename</string>
-<string name="action_delete">Delete</string>
-<string name="action_delete_all">Delete all</string>
-<string name="action_cancel">Cancel</string>
+    <!-- ★ أزرار المفضلة في وضع التحديد المتعدد ★
+         الأسماء كما طلبها المستخدم:
+           إضافة إلى المفضلة: Favorite
+           إزالة من المفضلة: Unfavorite -->
+    <string name="action_add_favorite">Favorite</string>
+    <string name="action_remove_favorite">Unfavorite</string>
 
-<!-- Selection Mode -->
-<string name="selected_count">%d محدد</string>
-<string name="selected_count_one">عنصر واحد محدد</string>
-<string name="all_selected">الكل محدد</string>
+    <!-- Selection Mode -->
+    <string name="selected_count">%d selected</string>
+    <string name="selected_count_one">1 item selected</string>
+    <string name="all_selected">All selected</string>
 
-<!-- Delete Confirmation -->
-<string name="delete_single_confirmation">Do you want to delete 1 file?</string>
-<string name="delete_multiple_confirmation">Do you want to delete %d files?</string>
-<string name="delete_all_confirmation">Do you want to delete all files?</string>
+    <!-- Delete Confirmation -->
+    <string name="delete_single_confirmation">Do you want to delete 1 file?</string>
+    <string name="delete_multiple_confirmation">Do you want to delete %d files?</string>
+    <string name="delete_all_confirmation">Do you want to delete all files?</string>
 
-<!-- Rename Dialog -->
-<string name="rename_dialog_title">Rename font</string>
-<string name="rename_dialog_hint">Enter new name</string>
-<string name="new_name_label">New name</string>
+    <!-- Rename Dialog -->
+    <string name="rename_dialog_title">Rename font</string>
+    <string name="rename_dialog_hint">Enter new name</string>
+    <string name="new_name_label">New name</string>
 
-<!-- Error Messages -->
-<string name="error_rename_failed">The renaming failed</string>
-<string name="error_delete_failed">Deletion failed</string>
-<string name="error_file_exists">The file name already in use</string>
-<string name="error_invalid_name">Invalid name</string>
-<string name="error_file_not_found">The file is not found</string>
-<string name="rename_error_text">The name already exists</string>
+    <!-- Error Messages -->
+    <string name="error_rename_failed">The renaming failed</string>
+    <string name="error_delete_failed">Deletion failed</string>
+    <string name="error_file_exists">The file name already in use</string>
+    <string name="error_invalid_name">Invalid name</string>
+    <string name="error_file_not_found">The file is not found</string>
+    <string name="rename_error_text">The name already exists</string>
 
-<!-- Success Messages -->
-<string name="success_renamed">Renamed successfully</string>
-<string name="success_deleted">Deleted successfully</string>
-<string name="success_deleted_multiple">%d Files deleted</string>
-    <!-- أضف هذا السطر إلى ملف res/values/strings.xml الموجود لديك -->
+    <!-- Success Messages -->
+    <string name="success_renamed">Renamed successfully</string>
+    <string name="success_deleted">Deleted successfully</string>
+    <string name="success_deleted_multiple">%d Files deleted</string>
 
-<string name="unknown_font">Unknown Font</string>
+    <string name="unknown_font">Unknown Font</string>
 
-<!-- يُستخدم عندما يكون الخط تالفاً أو لا يمكن قراءة اسمه الحقيقي -->
+    <!-- ★ نصوص المفضلة ★ -->
+    <string name="favorites_empty_message">No favorite fonts yet.\n\nLong press any font in the Local Fonts list, then tap the Favorite button.</string>
+    <string name="added_to_favorites">Added to favorites</string>
+    <string name="removed_from_favorites">Removed from favorites</string>
+    <string name="added_to_favorites_multiple">%d fonts added to favorites</string>
+    <string name="removed_from_favorites_multiple">%d fonts removed from favorites</string>
 
-<string name="settings_theme_transparent">Black</string>  
-<string name="settings_theme_transparent_description">Black menu background in dark mode, and light gray in light mode.</string>
-
-<string name="exit_on_double_back">Press again to exit</string>
+    <string name="exit_on_double_back">Press again to exit</string>
     
 </resources>
