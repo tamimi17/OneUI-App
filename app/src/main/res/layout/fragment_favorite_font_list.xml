@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    fragment_favorite_font_list.xml
+    Layout قائمة المفضلة — مطابق لـ fragment_local_font_list.xml
+    مع حذف select_folder_container لأن المفضلة لا تحتاج لاختيار مجلد.
+
+    يحتوي على:
+    - main_content_layout: يُعرض عند وجود خطوط مفضلة (RecyclerView + Empty View)
+    - الحالة الفارغة (empty_view): تظهر عند عدم وجود خطوط مفضلة بعد
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/main_content_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/font_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical" />
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/empty_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:visibility="gone"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="10dp"
+                android:minHeight="400dp"
+                android:layout_gravity="center">
+
+                <!-- أيقونة الحالة الفارغة: نجمة المفضلة بشفافية -->
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_gravity="center"
+                    android:layout_margin="10dp"
+                    android:src="@drawable/ic_oui_favorite_off"
+                    android:alpha="0.4" />
+
+                <!-- نص الحالة الفارغة: يُعيَّن برمجياً من الـ Fragment -->
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/empty_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:textSize="17sp"
+                    android:textColor="?android:attr/textColorSecondary" />
+
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+    </LinearLayout>
+
+</FrameLayout>
