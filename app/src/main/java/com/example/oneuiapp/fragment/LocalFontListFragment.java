@@ -65,6 +65,11 @@ import com.example.oneuiapp.viewmodel.SettingsViewModel;
  *   1. setFavoriteStatusProvider → يُعرض أيقونة النجمة بجانب العناصر المفضلة
  *   2. setFavoriteStatusChecker → يُطبَّق منطق Samsung Notes في وضع التحديد
  *   3. onFavoriteRequested + handleFavoriteAction → تنفيذ الإضافة/الإزالة الفعلية ★
+ *
+ * ★ الإصلاح (المشكلة 2): استدعاء notifyAllFavoritesChanged() داخل مراقب getFontsLiveData()
+ *   بعد تجديد mCurrentFontsList مباشرةً، لضمان قراءة FavoriteStatusProvider للقيم المحدّثة.
+ *   كان الاستدعاء في callback handleFavoriteAction يسبق وصول LiveData، فتظهر النجمة
+ *   فقط بعد Scroll بسبب قراءة القيم القديمة. ★
  */
 public class LocalFontListFragment extends Fragment implements AppBarLayout.OnOffsetChangedListener {
 
@@ -258,6 +263,19 @@ public class LocalFontListFragment extends Fragment implements AppBarLayout.OnOf
 
                 if (mAdapter != null) {
                     mAdapter.setAllFontsMetadata(fonts);
+
+                    // ★ الإصلاح (المشكلة 2): إجبار الـ Adapter على تحديث أيقونات النجمة
+                    //   بعد وصول البيانات المحدّثة من Room مباشرةً.
+                    //
+                    // السبب الجذري للمشكلة:
+                    //   عند إضافة خط للمفضلة، يُستدعى notifyAllFavoritesChanged() في
+                    //   callback handleFavoriteAction قبل أن تُحدِّث Room LiveData
+                    //   مCurrentFontsList. نتيجةً لذلك تقرأ FavoriteStatusProvider
+                    //   القيم القديمة (isFavorite = false) فلا تظهر النجمة.
+                    //
+                    // الحل: إعادة استدعاء notifyAllFavoritesChanged() هنا بعد أن
+                    //   تجدّد mCurrentFontsList بالبيانات الصحيحة من Room. ★
+                    mAdapter.notifyAllFavoritesChanged();
                 }
 
                 // ★ تحديث البيانات — SortedList يرتبها تلقائياً حسب معيار الفرز الحالي ★
@@ -574,12 +592,13 @@ public class LocalFontListFragment extends Fragment implements AppBarLayout.OnOf
     /**
      * ★ إجراء المفضلة في قائمة الخطوط المحلية ★
      *
-     * يُطبّق الإضافة أو الإزالة من المفضلة على العناصر المحددة،
-     * ثم يُحدّث أيقونة النجمة الصفراء في الـ Adapter عبر notifyAllFavoritesChanged()
-     * التي تستخدم PAYLOAD_UPDATE_FAVORITE لتجنب إعادة رسم العناصر كاملاً.
+     * يُطبّق الإضافة أو الإزالة من المفضلة على العناصر المحددة.
+     * Room LiveData يُحدَّث تلقائياً → مراقب getFontsLiveData() يُجدّد mCurrentFontsList
+     * → notifyAllFavoritesChanged() يُحدّث أيقونات النجمة بالبيانات الصحيحة.
      *
-     * Room LiveData يُحدَّث تلقائياً → قائمة المفضلة (FavoriteFontListFragment)
-     * تعكس التغيير فوراً دون أي تدخل يدوي.
+     * ملاحظة للمطوّر: الاستدعاء الاحترازي لـ notifyAllFavoritesChanged() في callback
+     * هذه الدالة يُحدِّث الأيقونات بسرعة، لكنه قد يقرأ قيماً قديمة إذا سبق وصول LiveData.
+     * الاستدعاء الثاني في مراقب getFontsLiveData() هو الضمان النهائي للصحة.
      *
      * @param positions     مواضع العناصر المحددة في الـ Adapter
      * @param addToFavorites true = إضافة إلى المفضلة، false = إزالة منها
@@ -600,9 +619,11 @@ public class LocalFontListFragment extends Fragment implements AppBarLayout.OnOf
 
         // ★ تحديث قاعدة البيانات في الخلفية عبر ViewModel ★
         // toggleFavoritesBatch يستدعي updateFavoriteStatusBatch في Repository
-        // الذي يُحدّث Room → LiveData يُحدَّث تلقائياً → mCurrentFontsList تتجدد
+        // الذي يُحدّث Room → LiveData يُحدَّث تلقائياً → مراقب getFontsLiveData()
+        // يُجدّد mCurrentFontsList → notifyAllFavoritesChanged() يُحدّث الأيقونات بصحة تامة.
         mViewModel.toggleFavoritesBatch(paths, addToFavorites, () -> {
-            // ★ تحديث أيقونات النجمة بصمت عبر Payload دون إعادة رسم العناصر ★
+            // ★ استدعاء احترازي: يُحدّث الأيقونات فوراً إن كانت LiveData قد وصلت ★
+            // في حالة تأخر LiveData، سيُكمل المراقب في setupViewModelObservers() العمل.
             if (mAdapter != null) {
                 mAdapter.notifyAllFavoritesChanged();
             }
@@ -839,4 +860,4 @@ public class LocalFontListFragment extends Fragment implements AppBarLayout.OnOf
         if (mMainHandler != null) mMainHandler.removeCallbacksAndMessages(null);
         if (mExecutor != null)    mExecutor.shutdown();
     }
-                                        }
+                }
