@@ -83,6 +83,16 @@
                     android:textSize="14sp"
                     android:textColor="?android:attr/textColorSecondary" />
 
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/no_results_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/no_results_found"
+                    android:textSize="17sp"
+                    android:textColor="@color/sesl_description_text_color"
+                    android:visibility="gone" />
+
             </LinearLayout>
 
         </androidx.core.widget.NestedScrollView>
