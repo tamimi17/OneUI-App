@@ -373,8 +373,16 @@ public class LocalFontListFragment extends Fragment implements AppBarLayout.OnOf
             view.findViewById(R.id.empty_text),
             mRecyclerView
         );
+
         // ★ ربط عنوان الحالة الفارغة — يُخفى تلقائياً عند البحث بلا نتائج ★
         mUIManager.setEmptyTitleView(view.findViewById(R.id.empty_title));
+
+        // ★ الإضافة (تمييز الحالتين): ربط رسالة البحث بلا نتائج المستقلة ★
+        // يُتيح تخصيص لون no_results_text وحجمه من الـ layout بشكل مستقل تماماً
+        // عن empty_text، لأن كلًّا منهما يخدم سياقاً مختلفاً من منظور تجربة المستخدم.
+        // - empty_text   → رسالة الفراغ الحقيقي (لا توجد خطوط في المجلد)
+        // - no_results_text → رسالة البحث بلا نتائج (توجد خطوط لكن لا نتائج للبحث)
+        mUIManager.setNoResultsTextView(view.findViewById(R.id.no_results_text));
 
         mUIManager.updateUIVisibility(mViewModel.hasSavedFolder());
     }
@@ -863,4 +871,4 @@ public class LocalFontListFragment extends Fragment implements AppBarLayout.OnOf
         if (mMainHandler != null) mMainHandler.removeCallbacksAndMessages(null);
         if (mExecutor != null)    mExecutor.shutdown();
     }
-            }
+    }
