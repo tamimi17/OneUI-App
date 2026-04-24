@@ -68,6 +68,11 @@ import com.example.oneuiapp.fontlist.search.SearchCoordinator;
  * كما تفعل LocalFontListFragment و SystemFontListFragment.
  * لا يُضاف تنفيذ جديد لـ onFontSelected لأن التوقيع مطابق
  * للتنفيذ الموجود من LocalFontListFragment.OnFontSelectedListener.
+ *
+ * ★ الإصلاح (المشكلة 5): تحديث getFontsCountString() لاستخدام getQuantityString() ★
+ * استبدال المنطق البدائي (if/else) بنظام <plurals> الرسمي من Android،
+ * مما يُطبّق قواعد الجمع العربية الكاملة (مفرد/مثنى/جمع قلة/جمع كثرة)
+ * والإنجليزية تلقائياً دون أي كود إضافي.
  */
 public class MainActivity extends BaseActivity
         implements FontViewerFragment.OnFontChangedListener,
@@ -440,14 +445,30 @@ public class MainActivity extends BaseActivity
         mDrawerLayout.setExpandedSubtitle(subtitle);
     }
 
+    /**
+     * ★ الإصلاح (المشكلة 5): استبدال المنطق البدائي بـ getQuantityString() ★
+     *
+     * المنطق القديم كان يستخدم if/else ثلاثية لا تُميّز إلا بين:
+     *   - صفر (font_list_count_none)
+     *   - واحد (font_list_count_single)
+     *   - أكثر من واحد (font_list_count_multiple)
+     *
+     * المشكلة: لا يدعم قواعد الجمع العربي (مثنى / جمع قلة / جمع كثرة).
+     * النتيجة: "2 خط" بدلاً من "خطين"، و"5 خط" بدلاً من "5 خطوط".
+     *
+     * الحل: getQuantityString() يقرأ الـ <plurals> المُعرَّفة في:
+     *   - values/strings.xml      → قواعد الإنجليزية (one / other)
+     *   - values-ar/strings.xml   → قواعد العربية    (one / two / few / many / other)
+     * ويختار الصيغة الصحيحة تلقائياً بناءً على لغة الجهاز والعدد المُمرَّر.
+     *
+     * @param count عدد الخطوط في القائمة الحالية
+     * @return نص العدد المُنسَّق وفق قواعد لغة الجهاز
+     */
     private String getFontsCountString(int count) {
-        if (count == 0) {
-            return getString(R.string.font_list_count_none);
-        } else if (count == 1) {
-            return getString(R.string.font_list_count_single, count);
-        } else {
-            return getString(R.string.font_list_count_multiple, count);
-        }
+        // ★ الإصلاح (المشكلة 5): getQuantityString يُطبّق قواعد الجمع تلقائياً ★
+        // المعامل الثاني (count) يُحدّد الصيغة المختارة من <plurals>
+        // المعامل الثالث (count) يُمرَّر كـ %d داخل نص الصيغة
+        return getResources().getQuantityString(R.plurals.font_list_count, count, count);
     }
 
     @Override
@@ -759,4 +780,4 @@ public class MainActivity extends BaseActivity
             updateDrawerTitle(position);
         }
     }
-                    }
+    }
