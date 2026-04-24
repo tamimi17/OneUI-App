@@ -132,7 +132,7 @@
     <string name="font_fragment_select_folder_description">Grant access to your \'FontViewer+\' folder</string>
     
     <!-- رسالة القائمة الفارغة - الخطوط المحلية -->
-    <string name="font_fragment_empty_message">No fonts in FontViewer+ folder yet.\n\nTap \"Import Fonts from Device\" above to get started, or manually copy font files to:\nDocuments/FontViewer+</string>
+    <string name="font_fragment_empty_message">No fonts in this folder.\n\nCopy the fonts to this folder to display them here.</string>
 
     <!-- ★ الإصلاح (المشكلة 3): رسالة الشاشة الفارغة الخاصة بقائمة المفضلة ★
          تُستخدم بدلاً من font_fragment_empty_message عند فراغ قائمة المفضلة.
