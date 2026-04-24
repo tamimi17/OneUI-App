@@ -64,6 +64,10 @@ import com.example.oneuiapp.viewmodel.SettingsViewModel;
  *   مباشرةً بعد إنشاء FontUIStateManager في onAttach()، لضمان عرض رسالة المفضلة الصحيحة
  *   بدلاً من رسالة المجلد المحلي (font_fragment_empty_message) عند فراغ القائمة. ★
  *
+ * ★ الإصلاح (مشكلة البحث): استدعاء mUIManager.setEmptyTitleView(empty_title) في initializeViews()
+ *   لإخبار FontUIStateManager بوجود العنوان، مما يُتيح له إخفاءه تلقائياً عند البحث بلا نتائج.
+ *   بدون هذا السطر، كان العنوان يظهر مع رسالة "لا توجد نتائج" معاً بدلاً من الرسالة وحدها. ★
+ *
  * ★ ملاحظات للمطوّر:
  *   - يجب أن تُنفّذ MainActivity واجهة FavoriteFontListFragment.OnFontSelectedListener
  *     وإضافتها إلى قائمة implements في تعريف الكلاس.
@@ -303,6 +307,12 @@ public class FavoriteFontListFragment extends Fragment implements AppBarLayout.O
             view.findViewById(R.id.empty_text),
             mRecyclerView
         );
+
+        // ★ الإصلاح (مشكلة البحث): ربط عنوان الحالة الفارغة بـ FontUIStateManager ★
+        // بدون هذا السطر، لا تعلم FontUIStateManager بوجود empty_title فلا تُخفيه
+        // عند البحث بلا نتائج، فيظهر العنوان مع رسالة "لا توجد نتائج" معاً.
+        // بعد هذا السطر، يُخفى العنوان تلقائياً عند البحث ويظهر فقط رسالة "لا توجد نتائج". ★
+        mUIManager.setEmptyTitleView(view.findViewById(R.id.empty_title));
 
         // ★ قائمة المفضلة دائماً في وضع العرض (لا يوجد وضع "اختيار مجلد") ★
         mUIManager.updateUIVisibility(true);
@@ -725,4 +735,4 @@ public class FavoriteFontListFragment extends Fragment implements AppBarLayout.O
         if (mMainHandler != null) mMainHandler.removeCallbacksAndMessages(null);
         if (mExecutor != null)    mExecutor.shutdown();
     }
-                             }
+            }
