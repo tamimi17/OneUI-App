@@ -7,6 +7,12 @@
     يحتوي على:
     - main_content_layout: يُعرض عند وجود خطوط مفضلة (RecyclerView + Empty View)
     - الحالة الفارغة (empty_view): تظهر عند عدم وجود خطوط مفضلة بعد
+
+    ★ التحكم في الشاشة الفارغة من هنا مباشرةً:
+      - empty_title  → عنوان الحالة الفارغة  (غيّر textSize أو textColor هنا)
+      - empty_text   → وصف الحالة الفارغة   (غيّر textSize أو textColor هنا)
+        ملاحظة: نص empty_text يُعيَّن برمجياً من FontUIStateManager
+        (يتغير تلقائياً إلى "لا توجد نتائج" عند البحث)
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -51,14 +57,29 @@
                     android:src="@drawable/ic_favorite"
                     android:alpha="0.4" />
 
-                <!-- نص الحالة الفارغة: يُعيَّن برمجياً من الـ Fragment -->
+                <!-- عنوان الحالة الفارغة: يُعيَّن مباشرةً من XML
+                     ★ للتخصيص: غيّر textSize أو textColor في هذا الملف مباشرةً ★ -->
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/empty_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:layout_margin="10dp"
+                    android:text="@string/favorites_empty_title"
+                    android:textSize="17sp"
+                    android:textColor="?android:attr/textColorPrimary" />
+
+                <!-- وصف الحالة الفارغة: يُعيَّن برمجياً من FontUIStateManager
+                     (يتغير إلى "لا توجد نتائج" عند تفعيل البحث)
+                     ★ للتخصيص: غيّر textSize أو textColor في هذا الملف مباشرةً ★ -->
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/empty_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:layout_margin="10dp"
-                    android:textSize="17sp"
+                    android:text="@string/favorites_empty_message"
+                    android:textSize="15sp"
                     android:textColor="?android:attr/textColorSecondary" />
 
             </LinearLayout>
