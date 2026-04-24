@@ -21,7 +21,6 @@
             android:id="@+id/empty_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginHorizontal="10dp"
             android:visibility="gone"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
@@ -29,6 +28,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
+                android:padding="20dp"
                 android:gravity="center"
                 android:layout_gravity="center">
 
@@ -36,7 +36,8 @@
                     android:layout_width="80dp"
                     android:layout_height="80dp"
                     android:layout_gravity="center"
-                    android:layout_margin="10dp"
+                    android:layout_marginBottom="20dp"
+                    android:antialias="true"
                     android:src="@drawable/ic_file_type_etc"
                     android:alpha="0.4" />
 
@@ -44,7 +45,7 @@
                     android:id="@+id/empty_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
+                    android:gravity="center"
                     android:textSize="17sp"
                     android:textColor="@color/sesl_description_text_color" />
 
@@ -66,7 +67,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center"
-            android:padding="32dp"
+            android:padding="20dp"
             android:minHeight="400dp">
 
             <androidx.appcompat.widget.AppCompatImageView
@@ -74,13 +75,14 @@
                 android:layout_height="80dp"
                 android:src="@drawable/ic_oui_android"
                 android:alpha="0.4"
+                android:antialias="true"
                 android:layout_marginBottom="24dp"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="System Fonts API is not available"
-                android:textSize="18sp"
+                android:textSize="17sp"
                 android:textColor="?android:attr/textColorPrimary"
                 android:gravity="center"
                 android:layout_marginBottom="8dp"/>
