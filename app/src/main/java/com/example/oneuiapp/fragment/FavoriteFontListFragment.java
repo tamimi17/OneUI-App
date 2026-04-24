@@ -60,6 +60,10 @@ import com.example.oneuiapp.viewmodel.SettingsViewModel;
  *   7. العناصر تختفي تلقائياً من القائمة عند إزالتها من المفضلة (Room LiveData reactive)
  *   8. فهرس الـ Fragment في MainActivity هو 4
  *
+ * ★ الإصلاح (المشكلة 3): استدعاء mUIManager.setDefaultEmptyMessage(R.string.favorites_empty_message)
+ *   مباشرةً بعد إنشاء FontUIStateManager في onAttach()، لضمان عرض رسالة المفضلة الصحيحة
+ *   بدلاً من رسالة المجلد المحلي (font_fragment_empty_message) عند فراغ القائمة. ★
+ *
  * ★ ملاحظات للمطوّر:
  *   - يجب أن تُنفّذ MainActivity واجهة FavoriteFontListFragment.OnFontSelectedListener
  *     وإضافتها إلى قائمة implements في تعريف الكلاس.
@@ -188,6 +192,12 @@ public class FavoriteFontListFragment extends Fragment implements AppBarLayout.O
         mSortManager = new FontSortManager(mContext, "FAVORITES");
 
         mUIManager = new FontUIStateManager(mContext);
+
+        // ★ الإصلاح (المشكلة 3): تخصيص رسالة الشاشة الفارغة لقائمة المفضلة ★
+        // بدون هذا السطر، كانت FontUIStateManager تعرض font_fragment_empty_message
+        // (رسالة المجلد المحلي) عند فراغ قائمة المفضلة — وهي رسالة غير صحيحة السياق.
+        // setDefaultEmptyMessage() يُغيّر defaultEmptyMessageResId المُستخدَم في showEmptyView().
+        mUIManager.setDefaultEmptyMessage(R.string.favorites_empty_message);
 
         setupSearchListener();
         setupSortListener();
@@ -715,4 +725,4 @@ public class FavoriteFontListFragment extends Fragment implements AppBarLayout.O
         if (mMainHandler != null) mMainHandler.removeCallbacksAndMessages(null);
         if (mExecutor != null)    mExecutor.shutdown();
     }
-}
+                             }
