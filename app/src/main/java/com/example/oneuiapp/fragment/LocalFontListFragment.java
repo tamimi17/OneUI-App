@@ -270,7 +270,7 @@ public class LocalFontListFragment extends Fragment implements AppBarLayout.OnOf
                     // السبب الجذري للمشكلة:
                     //   عند إضافة خط للمفضلة، يُستدعى notifyAllFavoritesChanged() في
                     //   callback handleFavoriteAction قبل أن تُحدِّث Room LiveData
-                    //   مCurrentFontsList. نتيجةً لذلك تقرأ FavoriteStatusProvider
+                    //   mCurrentFontsList. نتيجةً لذلك تقرأ FavoriteStatusProvider
                     //   القيم القديمة (isFavorite = false) فلا تظهر النجمة.
                     //
                     // الحل: إعادة استدعاء notifyAllFavoritesChanged() هنا بعد أن
@@ -373,6 +373,9 @@ public class LocalFontListFragment extends Fragment implements AppBarLayout.OnOf
             view.findViewById(R.id.empty_text),
             mRecyclerView
         );
+        // ★ ربط عنوان الحالة الفارغة — يُخفى تلقائياً عند البحث بلا نتائج ★
+        mUIManager.setEmptyTitleView(view.findViewById(R.id.empty_title));
+
         mUIManager.updateUIVisibility(mViewModel.hasSavedFolder());
     }
 
@@ -860,4 +863,4 @@ public class LocalFontListFragment extends Fragment implements AppBarLayout.OnOf
         if (mMainHandler != null) mMainHandler.removeCallbacksAndMessages(null);
         if (mExecutor != null)    mExecutor.shutdown();
     }
-                }
+            }
