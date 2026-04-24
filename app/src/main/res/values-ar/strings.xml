@@ -114,6 +114,7 @@
     <string name="font_fragment_import_button">استيراد خطوط من الجهاز</string>
     <string name="font_fragment_import_description">نسخ جميع ملفات الخطوط الموجودة في جهازك إلى مجلد FontViewer+</string>
     <string name="font_fragment_select_folder_button">إختر مجلد</string>
+    <string name="font_fragment_select_folder_description">إختر مجلد الخطوط</string>
     
     <!-- رسائل حوار الاستيراد -->
     <string name="font_fragment_import_title">استيراد الخطوط</string>
@@ -127,9 +128,9 @@
     <string name="font_fragment_import_no_fonts">لم يتم العثور على ملفات خطوط في جهازك</string>
     
     <!-- رسالة القائمة الفارغة - الخطوط المحلية -->
-    <string name="favorites_empty_title">لا توجد خطوط في المفضلة بعد.</string>
+    <string name="favorites_empty_title">لا توجد خطوط في المفضلة بعد</string>
     <string name="favorites_empty_message">اضغط ضغطةً مطولةً على أي خط في قائمة الخطوط المحلية لإضافته هنا.</string>
-    <string name="local_fonts_empty_title">لا توجد خطوط في هذا المجلد.</string>
+    <string name="local_fonts_empty_title">لا توجد خطوط في هذا المجلد</string>
     <string name="font_fragment_empty_message">انسخ الخطوط إلى هذا المجلد لعرضها هنا.</string>
     
     <!-- رسالة رفض الصلاحية -->
