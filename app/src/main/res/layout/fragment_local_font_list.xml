@@ -46,7 +46,7 @@
                 <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="80dp"
                     android:layout_height="80dp"
-                    android:layout_margin="10dp"
+                    android:layout_marginBottom="20dp"
                     android:src="@drawable/ic_file_type_etc"
                     android:alpha="0.4" />
 
@@ -57,7 +57,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:layout_margin="10dp"
+                    android:layout_marginBottom="15dp"
                     android:text="@string/local_fonts_empty_title"
                     android:textSize="17sp"
                     android:textColor="?android:attr/textColorPrimary" />
@@ -70,10 +70,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:layout_margin="10dp"
                     android:lineSpacingExtra="5dp"
                     android:text="@string/font_fragment_empty_message"
-                    android:textSize="15sp"
+                    android:textSize="14sp"
                     android:textColor="?android:attr/textColorSecondary" />
 
             </LinearLayout>
@@ -103,7 +102,7 @@
                 android:layout_height="80dp"
                 android:src="@drawable/ic_oui_folder"
                 android:alpha="0.4"
-                android:layout_marginBottom="24dp"/>
+                android:layout_marginBottom="20dp"/>
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="wrap_content"
@@ -112,7 +111,7 @@
                 android:textSize="14sp"
                 android:textColor="?android:attr/textColorSecondary"
                 android:gravity="center"
-                android:layout_marginBottom="24dp"/>
+                android:layout_marginBottom="20dp"/>
             
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/select_folder_button"
