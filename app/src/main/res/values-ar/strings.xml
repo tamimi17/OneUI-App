@@ -127,7 +127,7 @@
     <string name="font_fragment_import_no_fonts">لم يتم العثور على ملفات خطوط في جهازك</string>
     
     <!-- رسالة القائمة الفارغة - الخطوط المحلية -->
-    <string name="font_fragment_empty_message">لا توجد خطوط في مجلد FontViewer+ بعد.\n\nانقر على \"استيراد خطوط من الجهاز\" أعلاه للبدء، أو انسخ ملفات الخطوط يدوياً إلى:\nالمستندات/FontViewer+</string>
+    <string name="font_fragment_empty_message">لا توجد خطوط في المجلد.\n\nانسخ الخطوط الى هذا المجلد لعرضها هنا.</string>
 
     <!-- ★ الإصلاح (المشكلة 3): رسالة الشاشة الفارغة الخاصة بقائمة المفضلة ★
          تُستخدم بدلاً من font_fragment_empty_message عند فراغ قائمة المفضلة.
