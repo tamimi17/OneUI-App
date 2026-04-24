@@ -24,6 +24,11 @@ import com.example.oneuiapp.ui.widget.SortByItemLayout;
  * يتيح لكل Fragment تخصيص رسالة الشاشة الفارغة بدلاً من استخدام
  * R.string.font_fragment_empty_message المثبتة لجميع القوائم.
  * يُستدعى setDefaultEmptyMessage() مباشرةً بعد إنشاء FontUIStateManager في كل Fragment.
+ *
+ * ★ الإصلاح (مشكلة العنوان): إضافة emptyTitleView مع setEmptyTitleView() ★
+ * يُخفى عنوان الحالة الفارغة تلقائياً عند تفعيل البحث بلا نتائج،
+ * لأن جملة "لا توجد نتائج" تكفي وحدها دون الحاجة لعرض العنوان معها.
+ * يُستدعى setEmptyTitleView() بعد setViews() مباشرةً في كل Fragment يحتوي على empty_title.
  */
 public class FontUIStateManager {
     
@@ -34,6 +39,10 @@ public class FontUIStateManager {
     private View mainContentLayout;
     private View emptyView;
     private TextView emptyTextView;
+
+    // ★ عنوان الحالة الفارغة — يُخفى تلقائياً عند تفعيل البحث بلا نتائج ★
+    private TextView emptyTitleView;
+
     private RecyclerView recyclerView;
     private AppBarLayout appBarLayout;
     
@@ -60,7 +69,7 @@ public class FontUIStateManager {
      * @param selectFolderContainer حاوية زر اختيار المجلد
      * @param mainContentLayout المحتوى الرئيسي
      * @param emptyView عرض الحالة الفارغة
-     * @param emptyTextView نص الحالة الفارغة
+     * @param emptyTextView نص وصف الحالة الفارغة
      * @param recyclerView قائمة الخطوط
      */
     public void setViews(View selectFolderContainer, View mainContentLayout, 
@@ -70,6 +79,22 @@ public class FontUIStateManager {
         this.emptyView = emptyView;
         this.emptyTextView = emptyTextView;
         this.recyclerView = recyclerView;
+    }
+
+    /**
+     * تعيين عنوان الحالة الفارغة (empty_title).
+     *
+     * مُصمَّمة كدالة منفصلة عن setViews() للحفاظ على توافق الاستدعاءات الموجودة.
+     * تُستدعى مباشرةً بعد setViews() في كل Fragment يحتوي على empty_title.
+     *
+     * ★ السلوك:
+     *   - عند البحث بلا نتائج  → يُخفى العنوان، يبقى الوصف فقط ("لا توجد نتائج")
+     *   - عند فراغ القائمة     → يُعرض العنوان والوصف معاً ★
+     *
+     * @param emptyTitleView الـ TextView المعرَّف بـ id/empty_title في الـ layout
+     */
+    public void setEmptyTitleView(TextView emptyTitleView) {
+        this.emptyTitleView = emptyTitleView;
     }
     
     /**
@@ -139,6 +164,13 @@ public class FontUIStateManager {
             if (appBarLayout != null) {
                 updateEmptyViewPosition(Math.abs(appBarLayout.getTop()));
             }
+        }
+
+        // ★ الإصلاح (مشكلة العنوان): إظهار/إخفاء العنوان حسب حالة البحث ★
+        // عند البحث: يُخفى العنوان لأن "لا توجد نتائج" تكفي وحدها
+        // عند الفراغ الحقيقي: يُعرض العنوان مع الوصف
+        if (emptyTitleView != null) {
+            emptyTitleView.setVisibility(isSearchActive ? View.GONE : View.VISIBLE);
         }
         
         if (emptyTextView != null) {
@@ -342,4 +374,4 @@ public class FontUIStateManager {
             recyclerView.smoothScrollToPosition(position);
         }
     }
-                                       }
+            }
