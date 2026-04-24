@@ -64,7 +64,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:layout_margin="10dp"
+                    android:layout_margin="15dp"
                     android:text="@string/favorites_empty_title"
                     android:textSize="17sp"
                     android:textColor="?android:attr/textColorPrimary" />
@@ -77,10 +77,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:layout_margin="10dp"
                     android:lineSpacingExtra="5dp"
                     android:text="@string/favorites_empty_message"
-                    android:textSize="15sp"
+                    android:textSize="14sp"
                     android:textColor="?android:attr/textColorSecondary" />
 
             </LinearLayout>
