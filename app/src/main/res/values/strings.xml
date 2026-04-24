@@ -131,8 +131,13 @@
     <string name="font_fragment_select_folder_button">Select Folder</string>
     <string name="font_fragment_select_folder_description">Grant access to your \'FontViewer+\' folder</string>
     
-    <!-- رسالة القائمة الفارغة -->
+    <!-- رسالة القائمة الفارغة - الخطوط المحلية -->
     <string name="font_fragment_empty_message">No fonts in FontViewer+ folder yet.\n\nTap \"Import Fonts from Device\" above to get started, or manually copy font files to:\nDocuments/FontViewer+</string>
+
+    <!-- ★ الإصلاح (المشكلة 3): رسالة الشاشة الفارغة الخاصة بقائمة المفضلة ★
+         تُستخدم بدلاً من font_fragment_empty_message عند فراغ قائمة المفضلة.
+         يُعيّنها FavoriteFontListFragment عبر mUIManager.setDefaultEmptyMessage() في onAttach(). -->
+    <string name="favorites_empty_message">No fonts in Favorites yet.\n\nLong-press any font in the other lists to add it here.</string>
     
     <!-- رسالة رفض الصلاحية -->
     <string name="font_fragment_permission_denied">Storage permission is required to search for font files on your device.\n\nYou can grant this permission in Settings, or manually copy font files to Documents/FontViewer+ folder.</string>
@@ -145,8 +150,6 @@
 
     <string name="settings_translation">Translation font info</string>
     <string name="settings_translation_description">Translate font information automatically</string>
-
-    <!-- أضف هذه النصوص إلى ملف strings.xml الخاص بك -->
 
 <!-- نصوص البحث -->
     <string name="search_font">Search</string>
@@ -163,8 +166,6 @@
 
     <string name="font_fragment_import_failed">%d files failed to import</string>
 
-    <!-- أضف هذه النصوص إلى ملف res/values/strings.xml الخاص بك -->
-
 <!-- Sort Menu Strings -->
 <string name="sort_fonts">Sort Fonts</string>
 <string name="sort_name_ascending">Name (A to Z)</string>
@@ -180,7 +181,28 @@
 
     <string name="navigate_up">Navigate up</string>
 
-    <!-- Font List Count Strings -->
+    <!-- ═══════════════════════════════════════════════════════════════
+         Font List Count Strings — عدد الخطوط في عنوان CollapsingToolbar
+         ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- ★ الإصلاح (المشكلة 5): نظام الجمع الإنجليزي عبر <plurals> ★
+         يُستدعى من MainActivity.getFontsCountString() عبر:
+           getResources().getQuantityString(R.plurals.font_list_count, count, count)
+
+         قواعد الجمع الإنجليزي في Android:
+           zero  → 0       : No fonts
+           one   → 1       : 1 font
+           other → 2+      : %d fonts
+
+         ملاحظة: الـ strings القديمة (single/multiple/none) محتفظ بها مؤقتاً
+         للتوافق حتى يتم تحديث جميع نقاط الاستدعاء للانتقال إلى getQuantityString(). -->
+    <plurals name="font_list_count">
+        <item quantity="zero">No fonts</item>
+        <item quantity="one">1 font</item>
+        <item quantity="other">%d fonts</item>
+    </plurals>
+
+    <!-- النصوص القديمة — محتفظ بها للتوافق حتى تحديث MainActivity -->
     <string name="font_list_count_single">%1$d font file</string>
     <string name="font_list_count_multiple">%1$d font file</string>
     <string name="font_list_count_none">No font available</string>
@@ -193,8 +215,6 @@
     <string name="system_fonts_empty">No system fonts found</string>
     <string name="system_fonts_api_unavailable">System Fonts API is not available</string>
     <string name="system_fonts_requires_api_29">This feature requires Android 10 (API 29) or higher</string>
-
-    <!-- أضف هذه النصوص إلى ملف res/values/strings.xml -->
 
 <!-- Font Selection and Actions -->
 <string name="action_rename">Rename</string>
@@ -229,7 +249,6 @@
 <string name="success_renamed">Renamed successfully</string>
 <string name="success_deleted">Deleted successfully</string>
 <string name="success_deleted_multiple">%d Files deleted</string>
-    <!-- أضف هذا السطر إلى ملف res/values/strings.xml الموجود لديك -->
 
 <string name="unknown_font">Unknown Font</string>
 
