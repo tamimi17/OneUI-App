@@ -68,6 +68,10 @@ import com.example.oneuiapp.viewmodel.SettingsViewModel;
  *   لإخبار FontUIStateManager بوجود العنوان، مما يُتيح له إخفاءه تلقائياً عند البحث بلا نتائج.
  *   بدون هذا السطر، كان العنوان يظهر مع رسالة "لا توجد نتائج" معاً بدلاً من الرسالة وحدها. ★
  *
+ * ★ الإضافة (تمييز الحالتين): استدعاء mUIManager.setNoResultsTextView(no_results_text)
+ *   في initializeViews() لربط TextView مستقل برسالة "لا توجد نتائج"، مما يُتيح تخصيص
+ *   لونها وحجمها من الـ layout بشكل مستقل تماماً عن رسالة الحالة الفارغة الحقيقية. ★
+ *
  * ★ ملاحظات للمطوّر:
  *   - يجب أن تُنفّذ MainActivity واجهة FavoriteFontListFragment.OnFontSelectedListener
  *     وإضافتها إلى قائمة implements في تعريف الكلاس.
@@ -313,6 +317,11 @@ public class FavoriteFontListFragment extends Fragment implements AppBarLayout.O
         // عند البحث بلا نتائج، فيظهر العنوان مع رسالة "لا توجد نتائج" معاً.
         // بعد هذا السطر، يُخفى العنوان تلقائياً عند البحث ويظهر فقط رسالة "لا توجد نتائج". ★
         mUIManager.setEmptyTitleView(view.findViewById(R.id.empty_title));
+
+        // ★ الإضافة (تمييز الحالتين): ربط رسالة البحث بلا نتائج المستقلة ★
+        // يُتيح تخصيص لون no_results_text وحجمه من الـ layout بشكل مستقل تماماً
+        // عن empty_text، لأن كلًّا منهما يخدم سياقاً مختلفاً من منظور تجربة المستخدم.
+        mUIManager.setNoResultsTextView(view.findViewById(R.id.no_results_text));
 
         // ★ قائمة المفضلة دائماً في وضع العرض (لا يوجد وضع "اختيار مجلد") ★
         mUIManager.updateUIVisibility(true);
@@ -735,4 +744,4 @@ public class FavoriteFontListFragment extends Fragment implements AppBarLayout.O
         if (mMainHandler != null) mMainHandler.removeCallbacksAndMessages(null);
         if (mExecutor != null)    mExecutor.shutdown();
     }
-            }
+                    }
