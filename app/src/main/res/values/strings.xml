@@ -132,12 +132,10 @@
     <string name="font_fragment_select_folder_description">Grant access to your \'FontViewer+\' folder</string>
     
     <!-- رسالة القائمة الفارغة - الخطوط المحلية -->
-    <string name="font_fragment_empty_message">No fonts in this folder.\n\nCopy the fonts to this folder to display them here.</string>
-
-    <!-- ★ الإصلاح (المشكلة 3): رسالة الشاشة الفارغة الخاصة بقائمة المفضلة ★
-         تُستخدم بدلاً من font_fragment_empty_message عند فراغ قائمة المفضلة.
-         يُعيّنها FavoriteFontListFragment عبر mUIManager.setDefaultEmptyMessage() في onAttach(). -->
-    <string name="favorites_empty_message">No fonts in Favorites yet.\n\nLong-press any font in the other lists to add it here.</string>
+    <string name="favorites_empty_title">No fonts in Favorites yet.</string>
+    <string name="favorites_empty_message">Long-press on any font in the Local Fonts to add it here.</string>
+    <string name="local_fonts_empty_title">No fonts in this folder.</string>
+    <string name="font_fragment_empty_message">Copy the fonts to this folder to display them here.</string>
     
     <!-- رسالة رفض الصلاحية -->
     <string name="font_fragment_permission_denied">Storage permission is required to search for font files on your device.\n\nYou can grant this permission in Settings, or manually copy font files to Documents/FontViewer+ folder.</string>
