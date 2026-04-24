@@ -48,6 +48,9 @@ import java.util.concurrent.ExecutorService;
  * ★ التعديل: إضافة FavoriteStatusProvider لفحص حالة المفضلة وعرض أيقونة ic_favorite
  *   بجانب العناصر المفضلة في قائمة الخطوط المحلية ★
  *
+ * ★ الإصلاح (المشكلة 1 و 4): إضافة PAYLOAD_UPDATE_SELECTION لتحديث حالة الـ CheckBox
+ *   فقط دون إعادة رسم العنصر كاملاً، مما يمنع وميض النجمة ويُبقي أنيميشن RTL سليماً ★
+ *
  * ملاحظة للمطوّر: بعد تحديث هذه الواجهة، يجب تحديث LocalFontListFragment ليعكس
  * التغيير في تنفيذه لـ onFontClick وليمرر weightWidthLabel إلى onFontSelected.
  */
@@ -62,6 +65,11 @@ public class LocalFontListAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     // ★ Payload خاص بتحديث أيقونة المفضلة فقط دون إعادة رسم العنصر كاملاً ★
     private static final String PAYLOAD_UPDATE_FAVORITE  = "UPDATE_FAVORITE";
+
+    // ★ الإصلاح (المشكلة 1 و 4): Payload خاص بتحديث حالة الـ CheckBox فقط ★
+    // استخدامه بدلاً من notifyItemRangeChanged() العادية يمنع إعادة رسم العنصر كاملاً،
+    // مما يحفظ أنيميشن الانتقال في RTL ويمنع وميض أيقونة النجمة
+    private static final String PAYLOAD_UPDATE_SELECTION = "UPDATE_SELECTION";
 
     private final Context context;
     private final LocalFontPreferenceManager preferenceManager;
@@ -317,16 +325,28 @@ public class LocalFontListAdapter extends RecyclerView.Adapter<RecyclerView.View
     // دوال التحديد المتعدد
     // ─────────────────────────────────────────────────────────
 
+    /**
+     * ★ الإصلاح (المشكلة 1 و 4): استخدام PAYLOAD_UPDATE_SELECTION بدلاً من إعادة الرسم الكامل ★
+     * notifyItemRangeChanged() بدون Payload كانت تُعيد رسم كل عنصر من الصفر مما:
+     *   - يقتل أنيميشن الانتقال في RTL (العربية)
+     *   - يسبب وميض أيقونة النجمة للعناصر المفضلة
+     * مع PAYLOAD_UPDATE_SELECTION يُحدَّث الـ CheckBox فقط دون المساس بباقي العنصر.
+     */
     public void setSelectionMode(boolean enabled) {
         this.isSelectionMode = enabled;
         if (!enabled) selectedItems.clear();
-        notifyItemRangeChanged(0, getItemCount());
+        // ★ الإصلاح: Payload يُحدّث الـ CheckBox فقط دون إعادة رسم العنصر كاملاً ★
+        notifyItemRangeChanged(0, getItemCount(), PAYLOAD_UPDATE_SELECTION);
     }
 
+    /**
+     * ★ الإصلاح (المشكلة 1): استخدام PAYLOAD_UPDATE_SELECTION لتحديث عنصر واحد بصمت ★
+     */
     public void setItemSelected(int position, boolean selected) {
         if (selected) selectedItems.put(position, true);
         else selectedItems.delete(position);
-        notifyItemChanged(position);
+        // ★ الإصلاح: Payload يُحدّث الـ CheckBox فقط دون إعادة رسم العنصر كاملاً ★
+        notifyItemChanged(position, PAYLOAD_UPDATE_SELECTION);
     }
 
     public void clearSelection()                         { selectedItems.clear(); }
@@ -554,6 +574,25 @@ public class LocalFontListAdapter extends RecyclerView.Adapter<RecyclerView.View
                         && favoriteStatusProvider.isFavorited(fontInfo.getPath());
                 ((LocalFontViewHolder) holder).setFavoriteIndicator(isFavorited);
             }
+            // ★ الإصلاح (المشكلة 1 و 4): تحديث حالة الـ CheckBox فقط بصمت تام ★
+            // هذا يحفظ:
+            //   - أنيميشن انتقال العناصر في RTL (العربية) لأن العنصر لم يُعاد رسمه
+            //   - أيقونة النجمة من الوميض لأن setFavoriteIndicator() لم تُستدعَ
+            if (payloads.contains(PAYLOAD_UPDATE_SELECTION)) {
+                if (holder instanceof LocalFontViewHolder) {
+                    LocalFontViewHolder vh = (LocalFontViewHolder) holder;
+                    if (isSelectionMode) {
+                        vh.checkBox.setVisibility(View.VISIBLE);
+                        vh.checkBox.setChecked(isItemSelected(position));
+                    } else {
+                        vh.checkBox.setVisibility(View.GONE);
+                        vh.checkBox.setChecked(false);
+                    }
+                } else if (holder instanceof SortHeaderViewHolder) {
+                    // ★ تعطيل/تفعيل شريط الفرز حسب وضع التحديد ★
+                    ((SortHeaderViewHolder) holder).setSortEnabled(!isSelectionMode);
+                }
+            }
         } else {
             super.onBindViewHolder(holder, position, payloads);
         }
@@ -709,4 +748,4 @@ public class LocalFontListAdapter extends RecyclerView.Adapter<RecyclerView.View
         if (adj < 0 || adj >= positionSections.size()) return 0;
         return positionSections.get(adj);
     }
-    }
+        }
