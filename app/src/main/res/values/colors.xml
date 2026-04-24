@@ -54,6 +54,8 @@
 
     <color name="sesl_secondary_text_color">@color/sesl_secondary_text_color_light</color>
 
+    <color name="sesl_description_text_color">@color/sesl_description_text_color_light</color>
+
 
  <!--   <color name="primary_material_2">@color/primary_color_themed</color>
     <color name="primary_color_themed">#e4e4e7</color> -->
