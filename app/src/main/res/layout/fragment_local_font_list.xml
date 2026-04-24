@@ -109,6 +109,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/font_fragment_select_folder_description"
                 android:textSize="14sp"
+                android:lineSpacingExtra="5dp"
                 android:textColor="?android:attr/textColorSecondary"
                 android:gravity="center"
                 android:layout_marginBottom="20dp"/>
