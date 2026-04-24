@@ -78,6 +78,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:layout_margin="10dp"
+                    android:lineSpacingExtra="5dp"
                     android:text="@string/favorites_empty_message"
                     android:textSize="15sp"
                     android:textColor="?android:attr/textColorSecondary" />
