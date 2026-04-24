@@ -128,7 +128,7 @@
     
     <!-- رسالة القائمة الفارغة - الخطوط المحلية -->
     <string name="favorites_empty_title">لا توجد خطوط في المفضلة بعد.</string>
-    <string name="favorites_empty_message">اضغط ضغطةً مطولةً على أي خط في القوائم الأخرى لإضافته هنا.</string>
+    <string name="favorites_empty_message">اضغط ضغطةً مطولةً على أي خط في قائمة الخطوط المحلية لإضافته هنا.</string>
     <string name="local_fonts_empty_title">لا توجد خطوط في هذا المجلد.</string>
     <string name="font_fragment_empty_message">انسخ الخطوط إلى هذا المجلد لعرضها هنا.</string>
     
