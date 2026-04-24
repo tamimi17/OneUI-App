@@ -19,6 +19,11 @@ import com.example.oneuiapp.ui.widget.SortByItemLayout;
 /**
  * FontUIStateManager - فئة لإدارة حالات واجهة المستخدم المختلفة
  * تتولى التحكم في إظهار وإخفاء العناصر وحفظ واستعادة حالة المكونات
+ *
+ * ★ الإصلاح (المشكلة 3): إضافة defaultEmptyMessageResId مع setDefaultEmptyMessage() ★
+ * يتيح لكل Fragment تخصيص رسالة الشاشة الفارغة بدلاً من استخدام
+ * R.string.font_fragment_empty_message المثبتة لجميع القوائم.
+ * يُستدعى setDefaultEmptyMessage() مباشرةً بعد إنشاء FontUIStateManager في كل Fragment.
  */
 public class FontUIStateManager {
     
@@ -35,6 +40,12 @@ public class FontUIStateManager {
     private Parcelable recyclerViewState;
     private SortByItemLayout.SortType savedSortType;
     private boolean savedSortAscending;
+
+    // ★ الإصلاح (المشكلة 3): رسالة الشاشة الفارغة الافتراضية لكل Fragment ★
+    // القيمة الابتدائية هي رسالة المجلد المحلي للتوافق مع LocalFontListFragment.
+    // يستدعي FavoriteFontListFragment (وأي Fragment مستقبلي) setDefaultEmptyMessage()
+    // لتعيين رسالته الخاصة بعد إنشاء هذا الـ Manager مباشرةً.
+    private int defaultEmptyMessageResId = R.string.font_fragment_empty_message;
     
     /**
      * Constructor
@@ -67,6 +78,23 @@ public class FontUIStateManager {
      */
     public void setAppBarLayout(AppBarLayout appBarLayout) {
         this.appBarLayout = appBarLayout;
+    }
+
+    /**
+     * ★ الإصلاح (المشكلة 3): تعيين رسالة الشاشة الفارغة المخصصة لكل Fragment ★
+     *
+     * يُستدعى مباشرةً بعد إنشاء FontUIStateManager في أي Fragment يحتاج رسالة مختلفة.
+     * مثال في FavoriteFontListFragment.onAttach():
+     *   mUIManager = new FontUIStateManager(mContext);
+     *   mUIManager.setDefaultEmptyMessage(R.string.favorites_empty_message);
+     *
+     * إذا لم يُستدعَ، تُستخدم القيمة الافتراضية (font_fragment_empty_message)
+     * وهي مناسبة لـ LocalFontListFragment دون الحاجة لأي استدعاء.
+     *
+     * @param resId معرّف نص الرسالة المطلوبة من ملفات strings
+     */
+    public void setDefaultEmptyMessage(int resId) {
+        this.defaultEmptyMessageResId = resId;
     }
     
     /**
@@ -115,9 +143,12 @@ public class FontUIStateManager {
         
         if (emptyTextView != null) {
             if (isSearchActive) {
+                // رسالة البحث ثابتة لجميع القوائم
                 emptyTextView.setText(context.getString(R.string.no_results_found));
             } else {
-                emptyTextView.setText(context.getString(R.string.font_fragment_empty_message));
+                // ★ الإصلاح (المشكلة 3): استخدام الرسالة المخصصة بدلاً من الرسالة المثبتة ★
+                // كل Fragment يُعيّن رسالته عبر setDefaultEmptyMessage() في onAttach()
+                emptyTextView.setText(context.getString(defaultEmptyMessageResId));
             }
         }
     }
@@ -311,4 +342,4 @@ public class FontUIStateManager {
             recyclerView.smoothScrollToPosition(position);
         }
     }
-}
+                                       }
