@@ -29,6 +29,19 @@ import com.example.oneuiapp.ui.widget.SortByItemLayout;
  * يُخفى عنوان الحالة الفارغة تلقائياً عند تفعيل البحث بلا نتائج،
  * لأن جملة "لا توجد نتائج" تكفي وحدها دون الحاجة لعرض العنوان معها.
  * يُستدعى setEmptyTitleView() بعد setViews() مباشرةً في كل Fragment يحتوي على empty_title.
+ *
+ * ★ الإضافة (تمييز الحالتين): إضافة noResultsTextView مع setNoResultsTextView() ★
+ * يُتيح تمييز رسالة "لا توجد نتائج" (عند البحث) عن رسالة الحالة الفارغة الحقيقية
+ * بلون وحجم مختلفين، لأن كلًّا منهما يخدم سياقاً مختلفاً من منظور تجربة المستخدم.
+ *
+ * ★ آلية التمييز:
+ *   - عند البحث بلا نتائج : يُخفى empty_title + empty_text، يُعرض no_results_text
+ *   - عند الفراغ الحقيقي  : يُعرض empty_title + empty_text، يُخفى no_results_text
+ *
+ * ★ التوافق مع الوراء: إذا لم يُربط no_results_text (setNoResultsTextView لم تُستدعَ)،
+ *   يعود الـ Manager تلقائياً إلى السلوك القديم (empty_text للحالتين معاً). ★
+ *
+ * يُستدعى setNoResultsTextView() بعد setViews() وsetEmptyTitleView() في كل Fragment.
  */
 public class FontUIStateManager {
     
@@ -42,6 +55,11 @@ public class FontUIStateManager {
 
     // ★ عنوان الحالة الفارغة — يُخفى تلقائياً عند تفعيل البحث بلا نتائج ★
     private TextView emptyTitleView;
+
+    // ★ رسالة البحث بلا نتائج — مستقلة عن emptyTextView لتمكين تخصيص مظهرها من الـ layout ★
+    // نصها وأيقونتها ثابتان ("لا توجد نتائج") ويُعيَّنان في XML مباشرةً.
+    // الـ Manager يكتفي بإظهارها وإخفائها دون الحاجة لاستدعاء setText() عليها.
+    private TextView noResultsTextView;
 
     private RecyclerView recyclerView;
     private AppBarLayout appBarLayout;
@@ -69,7 +87,7 @@ public class FontUIStateManager {
      * @param selectFolderContainer حاوية زر اختيار المجلد
      * @param mainContentLayout المحتوى الرئيسي
      * @param emptyView عرض الحالة الفارغة
-     * @param emptyTextView نص وصف الحالة الفارغة
+     * @param emptyTextView نص وصف الحالة الفارغة الحقيقية
      * @param recyclerView قائمة الخطوط
      */
     public void setViews(View selectFolderContainer, View mainContentLayout, 
@@ -95,6 +113,29 @@ public class FontUIStateManager {
      */
     public void setEmptyTitleView(TextView emptyTitleView) {
         this.emptyTitleView = emptyTitleView;
+    }
+
+    /**
+     * ★ تعيين رسالة البحث بلا نتائج (no_results_text) المستقلة ★
+     *
+     * تُستدعى بعد setViews() وsetEmptyTitleView() في كل Fragment يريد تمييز
+     * مظهر رسالة "لا توجد نتائج" عن مظهر رسالة الحالة الفارغة الحقيقية.
+     *
+     * ★ الفرق عن emptyTextView:
+     *   - emptyTextView  → رسالة الحالة الفارغة الحقيقية (القائمة فارغة أصلاً)
+     *   - noResultsTextView → رسالة البحث بلا نتائج (توجد خطوط لكن لا نتائج للبحث)
+     *   كلٌّ منهما يُعيَّن لونه وحجمه بشكل مستقل تماماً من الـ layout. ★
+     *
+     * ★ ملاحظة: نص هذا الـ TextView يُعيَّن في XML مباشرةً (android:text="@string/no_results_found")
+     *   ولا يحتاج الـ Manager لاستدعاء setText() عليه. ★
+     *
+     * ★ التوافق مع الوراء: إذا لم تُستدعَ هذه الدالة، يعود الـ Manager تلقائياً
+     *   إلى السلوك القديم (empty_text يخدم الحالتين معاً). ★
+     *
+     * @param noResultsTextView الـ TextView المعرَّف بـ id/no_results_text في الـ layout
+     */
+    public void setNoResultsTextView(TextView noResultsTextView) {
+        this.noResultsTextView = noResultsTextView;
     }
     
     /**
@@ -150,7 +191,15 @@ public class FontUIStateManager {
     }
     
     /**
-     * إظهار عرض الحالة الفارغة
+     * إظهار عرض الحالة الفارغة مع التمييز بين الحالتين.
+     *
+     * ★ إذا كان noResultsTextView مُربوطاً (setNoResultsTextView استُدعيت):
+     *   - عند البحث : أخفِ empty_title + empty_text، أظهر no_results_text
+     *   - عند الفراغ: أظهر empty_title + empty_text، أخفِ no_results_text
+     *
+     * ★ إذا لم يكن noResultsTextView مُربوطاً (التوافق مع الوراء):
+     *   - يُستخدم empty_text للحالتين مع تغيير نصه برمجياً كما كان سابقاً ★
+     *
      * @param isSearchActive هل هناك بحث نشط
      */
     private void showEmptyView(boolean isSearchActive) {
@@ -166,27 +215,45 @@ public class FontUIStateManager {
             }
         }
 
-        // ★ الإصلاح (مشكلة العنوان): إظهار/إخفاء العنوان حسب حالة البحث ★
-        // عند البحث: يُخفى العنوان لأن "لا توجد نتائج" تكفي وحدها
-        // عند الفراغ الحقيقي: يُعرض العنوان مع الوصف
-        if (emptyTitleView != null) {
-            emptyTitleView.setVisibility(isSearchActive ? View.GONE : View.VISIBLE);
-        }
-        
-        if (emptyTextView != null) {
+        if (noResultsTextView != null) {
+            // ★ وضع التمييز: كل TextView مخصص لحالة واحدة فقط ★
+            // اللون والحجم يُعيَّنان بالكامل من الـ layout — الـ Manager لا يتدخل فيهما
             if (isSearchActive) {
-                // رسالة البحث ثابتة لجميع القوائم
-                emptyTextView.setText(context.getString(R.string.no_results_found));
+                // حالة البحث بلا نتائج: يظهر no_results_text وحده
+                if (emptyTitleView != null) emptyTitleView.setVisibility(View.GONE);
+                if (emptyTextView  != null) emptyTextView.setVisibility(View.GONE);
+                noResultsTextView.setVisibility(View.VISIBLE);
             } else {
-                // ★ الإصلاح (المشكلة 3): استخدام الرسالة المخصصة بدلاً من الرسالة المثبتة ★
-                // كل Fragment يُعيّن رسالته عبر setDefaultEmptyMessage() في onAttach()
-                emptyTextView.setText(context.getString(defaultEmptyMessageResId));
+                // حالة الفراغ الحقيقي: يظهر empty_title + empty_text
+                if (emptyTitleView != null) emptyTitleView.setVisibility(View.VISIBLE);
+                if (emptyTextView  != null) {
+                    emptyTextView.setVisibility(View.VISIBLE);
+                    // ★ الإصلاح (المشكلة 3): استخدام الرسالة المخصصة بدلاً من الرسالة المثبتة ★
+                    emptyTextView.setText(context.getString(defaultEmptyMessageResId));
+                }
+                noResultsTextView.setVisibility(View.GONE);
+            }
+        } else {
+            // ★ التوافق مع الوراء: noResultsTextView غير مُربوط → السلوك القديم ★
+            // empty_text يخدم الحالتين مع تغيير نصه برمجياً
+            if (emptyTitleView != null) {
+                emptyTitleView.setVisibility(isSearchActive ? View.GONE : View.VISIBLE);
+            }
+            if (emptyTextView != null) {
+                if (isSearchActive) {
+                    emptyTextView.setText(context.getString(R.string.no_results_found));
+                } else {
+                    // ★ الإصلاح (المشكلة 3): استخدام الرسالة المخصصة بدلاً من الرسالة المثبتة ★
+                    emptyTextView.setText(context.getString(defaultEmptyMessageResId));
+                }
             }
         }
     }
     
     /**
-     * إخفاء عرض الحالة الفارغة
+     * إخفاء عرض الحالة الفارغة وإعادة إظهار القائمة.
+     *
+     * ★ يُخفى noResultsTextView أيضاً لضمان عدم بقائه ظاهراً عند استعادة القائمة ★
      */
     private void hideEmptyView() {
         if (recyclerView != null) {
@@ -195,6 +262,13 @@ public class FontUIStateManager {
         
         if (emptyView != null) {
             emptyView.setVisibility(View.GONE);
+        }
+
+        // ★ إخفاء رسالة البحث بلا نتائج عند استعادة القائمة ★
+        // ضروري لتجنب ظهورها في الحالة التالية: كان المستخدم يبحث بلا نتائج،
+        // ثم حذف نص البحث، فأعادت القائمة نفسها → يجب أن يختفي no_results_text تماماً.
+        if (noResultsTextView != null) {
+            noResultsTextView.setVisibility(View.GONE);
         }
     }
     
@@ -374,4 +448,4 @@ public class FontUIStateManager {
             recyclerView.smoothScrollToPosition(position);
         }
     }
-            }
+    }
