@@ -43,6 +43,11 @@ import java.util.concurrent.ExecutorService;
  * ★ التعديل: إضافة weightWidthLabel كمعامل خامس في OnFontClickListener
  *   لتمريره إلى NavManager ثم FontViewerFragment دون إعادة استخراجه ★
  *
+ * ★ الإصلاح (ومضة اللون): إضافة PAYLOAD_UPDATE_LAST_OPENED وتعديل
+ *   saveLastOpenedAndUpdate() لتحديث العنصرين المتأثرين فقط (القديم والجديد)
+ *   بدلاً من استدعاء smartUpdate() الذي يُعيد رسم القائمة كاملةً
+ *   ويُسبب ومضة مرئية في لون اسم الخط المفتوح عند العودة من العارض. ★
+ *
  * ملاحظة للمطوّر: بعد تحديث هذه الواجهة، يجب تحديث SystemFontListFragment ليعكس
  * التغيير في تنفيذه لـ onFontClick وليمرر weightWidthLabel إلى onFontSelected.
  */
@@ -52,8 +57,11 @@ public class SystemFontListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private static final int VIEW_TYPE_FONT   = 1;
     private static final int VIEW_TYPE_SPACE  = 2;
 
-    private static final String PAYLOAD_UPDATE_CORNERS   = "UPDATE_CORNERS";
-    private static final String PAYLOAD_UPDATE_HIGHLIGHT = "UPDATE_HIGHLIGHT";
+    private static final String PAYLOAD_UPDATE_CORNERS    = "UPDATE_CORNERS";
+    private static final String PAYLOAD_UPDATE_HIGHLIGHT  = "UPDATE_HIGHLIGHT";
+    // ★ الإصلاح: Payload مستقل لتحديث لون اسم الخط المفتوح بصمت دون إعادة رسم العنصر كاملاً ★
+    // يُفعَّل في saveLastOpenedAndUpdate() لتجنب الومضة المرئية عند العودة من عارض الخطوط
+    private static final String PAYLOAD_UPDATE_LAST_OPENED = "UPDATE_LAST_OPENED";
 
     private final Context context;
     private final SystemFontPreferenceManager preferenceManager;
@@ -70,6 +78,10 @@ public class SystemFontListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     // ★ يمنع تشغيل نقرتين متزامنتين قبل اكتمال الانتقال الأول ★
     private boolean mClickGuard = false;
+
+    // ★ الإصلاح: حفظ مسار آخر خط مفتوح داخلياً لتحديد العنصرين المتأثرين فقط
+    //   عند استدعاء saveLastOpenedAndUpdate() دون الحاجة لقراءة إضافية من SharedPreferences ★
+    private String mCurrentLastOpenedPath = null;
 
     private final SortedList<FontFileInfo> mSortedList;
 
@@ -233,10 +245,53 @@ public class SystemFontListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     // ★ يُستدعى من saveLastOpenedAndUpdate (انتقال مؤكد) أو من unblockTouch (إلغاء) ★
     public void resetClickGuard() { mClickGuard = false; }
 
+    /**
+     * ★ الإصلاح (ومضة اللون): تحديث العنصرين المتأثرين فقط بدلاً من smartUpdate() الكامل. ★
+     *
+     * المنطق:
+     *   1. حفظ مسار الخط القديم قبل تحديث التفضيل.
+     *   2. تحديث التفضيل المحفوظ في SharedPreferences.
+     *   3. إرسال PAYLOAD_UPDATE_LAST_OPENED للعنصر القديم (يعود للون الأصلي)
+     *      وللعنصر الجديد (يُلوَّن بـ colorPrimary) دون المساس ببقية العناصر.
+     *
+     * بدون هذا الإصلاح، كانت smartUpdate() تستدعي notifyItemRangeChanged(1, size)
+     * مما يُعيد رسم جميع العناصر ويُسبب ومضة مرئية في لون اسم الخط المفتوح.
+     */
     public void saveLastOpenedAndUpdate(String path) {
         mClickGuard = false;
+
+        // ★ حفظ المسار القديم قبل التحديث لتحديد العنصر الذي يحتاج إعادة اللون الأصلي ★
+        String prevPath = mCurrentLastOpenedPath;
+        mCurrentLastOpenedPath = path;
         preferenceManager.saveLastOpenedFont(path);
-        smartUpdate();
+
+        // ★ تحديث العنصرين المتأثرين فقط عبر Payload مستقل ★
+        notifyLastOpenedChanged(prevPath, path);
+    }
+
+    /**
+     * ★ الإصلاح: البحث عن العنصرين المتأثرين وإرسال PAYLOAD_UPDATE_LAST_OPENED لهما فقط. ★
+     *
+     * يُؤجَّل التنفيذ عبر recyclerView.post() لضمان انتهاء أي عملية حساب جارية
+     * قبل إرسال الإشعار، وهو نفس نمط الحماية المُتَّبع في AdapterDataObserver.
+     *
+     * @param prevPath مسار الخط الذي كان مفتوحاً سابقاً (قد يكون null أول مرة)
+     * @param newPath  مسار الخط المفتوح الجديد
+     */
+    private void notifyLastOpenedChanged(String prevPath, String newPath) {
+        if (recyclerView == null) return;
+        recyclerView.post(() -> {
+            if (recyclerView == null || recyclerView.isComputingLayout()) return;
+            int size = mSortedList.size();
+            for (int i = 0; i < size; i++) {
+                String p = mSortedList.get(i).getPath();
+                // ★ تحديث العنصر الجديد (يُلوَّن بالأزرق) والقديم (يعود للون الأصلي) ★
+                if ((newPath != null && p.equals(newPath))
+                        || (prevPath != null && p.equals(prevPath))) {
+                    notifyItemChanged(i + 1, PAYLOAD_UPDATE_LAST_OPENED);
+                }
+            }
+        });
     }
 
     public void setAllFontsInfo(List<SystemFontInfo> fontsInfo) {
@@ -295,6 +350,10 @@ public class SystemFontListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         notifyItemChanged(0);
     }
 
+    /**
+     * تحديث شامل للقائمة يُستخدم في الحالات العامة كتغيير إعداد معاينة الخط.
+     * ★ لا يُستخدم عند العودة من عارض الخطوط — يُستخدم notifyLastOpenedChanged() بدلاً منه ★
+     */
     public void smartUpdate() {
         buildSections();
         int size = mSortedList.size();
@@ -407,6 +466,14 @@ public class SystemFontListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     currentSearchQuery, isLastOpened, highlighter, weightWidthLabel
                 );
             }
+            // ★ الإصلاح: تحديث لون اسم الخط فقط دون إعادة رسم العنصر بأكمله ★
+            // يُفعَّل من notifyLastOpenedChanged() التي تُستدعى من saveLastOpenedAndUpdate()
+            // عند العودة من عارض الخطوط، مما يُلغي الومضة المرئية في اللون.
+            if (payloads.contains(PAYLOAD_UPDATE_LAST_OPENED) && holder instanceof SystemFontViewHolder) {
+                FontFileInfo fontInfo = mSortedList.get(position - 1);
+                boolean isLastOpened  = preferenceManager.isLastOpenedFont(fontInfo.getPath());
+                ((SystemFontViewHolder) holder).bindLastOpened(isLastOpened);
+            }
         } else {
             super.onBindViewHolder(holder, position, payloads);
         }
@@ -477,10 +544,10 @@ public class SystemFontListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         if (SettingsHelper.isFontPreviewEnabled(context)) loadFontPreview(holder, path);
         else holder.setDefaultTypeface(SettingsHelper.getTypeface(context));
 
-        final String finalRealName      = realName;
-        final int    finalTtcIndex      = ttcIndex;
+        final String finalRealName    = realName;
+        final int    finalTtcIndex    = ttcIndex;
         // ★ حفظ weightWidthLabel كـ final لاستخدامه في مستمع النقر ★
-        final String finalWeightWidth   = weightWidthLabel;
+        final String finalWeightWidth = weightWidthLabel;
 
         holder.setOnClickListener(v -> {
             // ★ الحارس: يمنع تشغيل نقرتين متزامنتين ★
