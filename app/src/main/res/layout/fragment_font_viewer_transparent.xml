@@ -39,6 +39,7 @@
                 android:id="@+id/weight_label_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:gravity="left"
                 android:textColor="?android:attr/textColorSecondary"
                 android:textSize="17sp"
                 android:layout_marginBottom="16dp"
@@ -49,6 +50,7 @@
                 android:id="@+id/weight_spinner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:gravity="left" 
                 android:layout_marginBottom="16dp"
                 android:visibility="gone" />
 
