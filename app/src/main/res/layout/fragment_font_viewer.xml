@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:paddingBottom="120dp">
+        android:paddingBottom="104dp">
 
         <dev.oneuiproject.oneui.widget.RoundLinearLayout
             android:layout_width="match_parent"
