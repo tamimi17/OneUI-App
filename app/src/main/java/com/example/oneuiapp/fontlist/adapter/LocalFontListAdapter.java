@@ -51,6 +51,19 @@ import java.util.concurrent.ExecutorService;
  * ★ الإصلاح (المشكلة 1 و 4): إضافة PAYLOAD_UPDATE_SELECTION لتحديث حالة الـ CheckBox
  *   فقط دون إعادة رسم العنصر كاملاً، مما يمنع وميض النجمة ويُبقي أنيميشن RTL سليماً ★
  *
+ * ★ الإصلاح الجوهري (وميض النجمة عند العودة من عارض الخطوط):
+ *   إضافة PAYLOAD_UPDATE_LAST_OPENED واستخدامه في smartUpdate() و saveLastOpenedAndUpdate().
+ *
+ *   السبب الجذري للوميض: كانت smartUpdate() تستدعي notifyItemRangeChanged(1, size) بدون payload،
+ *   مما يُشغّل onBindViewHolder كاملاً. خلال هذا الربط، كانت bind() ذات 9 معاملات تُحيل
+ *   إلى bind() الكاملة بـ isFavorite=false → setFavoriteIndicator(false) → نجمة مخفية →
+ *   ثم setFavoriteIndicator(true) بعدها. إذا كان ItemAnimator نشطاً (قبل إبطاله في
+ *   onHiddenChanged أو بعد إعادة تفعيله بعد 100ms)، كان يلتقط الحالة الوسيطة → وميض.
+ *
+ *   الحل: PAYLOAD_UPDATE_LAST_OPENED يُحدِّث لون نص اسم الخط فقط عبر
+ *   updateLastOpenedHighlight() في LocalFontViewHolder، دون أي مساس بأيقونة النجمة.
+ *   لا حالة وسيطة → لا وميض. ★
+ *
  * ملاحظة للمطوّر: بعد تحديث هذه الواجهة، يجب تحديث LocalFontListFragment ليعكس
  * التغيير في تنفيذه لـ onFontClick وليمرر weightWidthLabel إلى onFontSelected.
  */
@@ -70,6 +83,12 @@ public class LocalFontListAdapter extends RecyclerView.Adapter<RecyclerView.View
     // استخدامه بدلاً من notifyItemRangeChanged() العادية يمنع إعادة رسم العنصر كاملاً،
     // مما يحفظ أنيميشن الانتقال في RTL ويمنع وميض أيقونة النجمة
     private static final String PAYLOAD_UPDATE_SELECTION = "UPDATE_SELECTION";
+
+    // ★ الإصلاح الجوهري (وميض النجمة): Payload خاص بتحديث لون اسم الخط فقط ★
+    // يُستخدم في smartUpdate() و saveLastOpenedAndUpdate() بدلاً من notifyItemRangeChanged()
+    // بدون payload. يُحدِّث isLastOpened عبر updateLastOpenedHighlight() في LocalFontViewHolder
+    // دون أي مساس بأيقونة النجمة → لا حالة وسيطة → لا وميض.
+    private static final String PAYLOAD_UPDATE_LAST_OPENED = "UPDATE_LAST_OPENED";
 
     private final Context context;
     private final LocalFontPreferenceManager preferenceManager;
@@ -318,6 +337,8 @@ public class LocalFontListAdapter extends RecyclerView.Adapter<RecyclerView.View
     public void saveLastOpenedAndUpdate(String path) {
         mClickGuard = false;
         preferenceManager.saveLastOpenedFont(path);
+        // ★ الإصلاح: smartUpdate() تستخدم الآن PAYLOAD_UPDATE_LAST_OPENED ★
+        // لذا يكفي استدعاؤها مباشرةً — لون نص اسم الخط يُحدَّث بصمت دون وميض النجمة
         smartUpdate();
     }
 
@@ -462,11 +483,28 @@ public class LocalFontListAdapter extends RecyclerView.Adapter<RecyclerView.View
         updateFilteredFonts(newFonts, currentSearchQuery);
     }
 
+    /**
+     * ★ الإصلاح الجوهري (وميض النجمة): تحديث لون اسم الخط فقط عبر PAYLOAD_UPDATE_LAST_OPENED ★
+     *
+     * المشكلة السابقة: كانت هذه الدالة تستدعي notifyItemRangeChanged(1, size) بدون payload،
+     * مما يُشغّل onBindViewHolder كاملاً لكل عنصر. خلال الربط الكامل:
+     *   - bind() ذات 9 معاملات تستدعي bind() الكاملة بـ isFavorite=false
+     *   - هذا يستدعي setFavoriteIndicator(false) → النجمة مخفية مؤقتاً
+     *   - ثم يستدعي الـ Adapter setFavoriteIndicator(true) → النجمة ظاهرة
+     *   إذا كان ItemAnimator نشطاً أثناء هذه العملية، يُنتج cross-fade يُظهر الحالة الوسيطة.
+     *
+     * الحل: PAYLOAD_UPDATE_LAST_OPENED يُحدِّث فقط لون نص اسم الخط عبر
+     * updateLastOpenedHighlight() في LocalFontViewHolder، دون أي مساس بأيقونة النجمة.
+     */
     public void smartUpdate() {
         buildSections();
         int size = mSortedList.size();
-        if (size > 0) notifyItemRangeChanged(1, size);
-        else notifyDataSetChanged();
+        if (size > 0) {
+            // ★ الإصلاح: payload يُحدّث لون اسم الخط فقط — النجمة لا تُلمس إطلاقاً ★
+            notifyItemRangeChanged(1, size, PAYLOAD_UPDATE_LAST_OPENED);
+        } else {
+            notifyDataSetChanged();
+        }
     }
 
     // ─────────────────────────────────────────────────────────
@@ -593,6 +631,16 @@ public class LocalFontListAdapter extends RecyclerView.Adapter<RecyclerView.View
                     ((SortHeaderViewHolder) holder).setSortEnabled(!isSelectionMode);
                 }
             }
+            // ★ الإصلاح الجوهري (وميض النجمة): تحديث لون اسم الخط فقط بصمت تام ★
+            // يُستدعى من smartUpdate() و saveLastOpenedAndUpdate() عبر PAYLOAD_UPDATE_LAST_OPENED.
+            // updateLastOpenedHighlight() في LocalFontViewHolder لا تلمس favoriteIconView إطلاقاً،
+            // مما يضمن عدم وجود أي حالة وسيطة يلتقطها الـ ItemAnimator → لا وميض.
+            if (payloads.contains(PAYLOAD_UPDATE_LAST_OPENED) && holder instanceof LocalFontViewHolder) {
+                FontFileInfo fontInfo = mSortedList.get(position - 1);
+                boolean isLastOpened = preferenceManager.isLastOpenedFont(fontInfo.getPath());
+                ((LocalFontViewHolder) holder).updateLastOpenedHighlight(isLastOpened);
+                // ★ لا setFavoriteIndicator — لا checkBox — لا وميض ★
+            }
         } else {
             super.onBindViewHolder(holder, position, payloads);
         }
@@ -655,7 +703,9 @@ public class LocalFontListAdapter extends RecyclerView.Adapter<RecyclerView.View
         boolean isSearchActive = currentSearchQuery != null && !currentSearchQuery.isEmpty();
         boolean isLastOpened   = preferenceManager.isLastOpenedFont(path);
 
-        // ★ تمرير weightWidthLabel إلى bind() ★
+        // ★ تمرير weightWidthLabel إلى bind() ذات 9 معاملات ★
+        // ★ bind() ذات 9 معاملات تستدعي bindCore() التي لا تلمس setFavoriteIndicator ★
+        // ★ بذلك لا توجد حالة وسيطة بين السطرين التاليين → لا وميض للنجمة ★
         holder.bind(displayName, path, isSearchActive, currentSearchQuery,
                     isLastOpened, highlighter, isSelectionMode, isItemSelected(position),
                     weightWidthLabel);
@@ -748,4 +798,4 @@ public class LocalFontListAdapter extends RecyclerView.Adapter<RecyclerView.View
         if (adj < 0 || adj >= positionSections.size()) return 0;
         return positionSections.get(adj);
     }
-        }
+                                                         }
