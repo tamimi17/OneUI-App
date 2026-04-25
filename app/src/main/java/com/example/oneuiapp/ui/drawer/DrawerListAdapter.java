@@ -105,7 +105,7 @@ public class DrawerListAdapter extends RecyclerView.Adapter<DrawerListViewHolder
         } else if (fragment instanceof LocalFontListFragment) {
             return dev.oneuiproject.oneui.R.drawable.ic_oui_device_outline;
         } else if (fragment instanceof SystemFontListFragment) {
-            return R.drawable.ic_android;
+            return R.drawable.ic_android_3;
         } else if (fragment instanceof FavoriteFontListFragment) {
             // ★ أيقونة قائمة المفضلة في الدرج ★
             return dev.oneuiproject.oneui.R.drawable.ic_oui_favorite_off;
