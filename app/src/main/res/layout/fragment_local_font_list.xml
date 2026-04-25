@@ -39,14 +39,14 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="20dp"
+                android:padding="23dp"
                 android:minHeight="400dp"
                 android:layout_gravity="center">
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="80dp"
                     android:layout_height="80dp"
-                    android:layout_marginBottom="17dp"
+                    android:layout_marginBottom="16dp"
                     android:src="@drawable/ic_device"
                     android:antialias="true"/>
 
