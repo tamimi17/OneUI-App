@@ -25,9 +25,10 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
+        android:layoutDirection="locale"
         android:animateLayoutChanges="true"
         android:background="@drawable/font_list_ripple"
-        android:paddingVertical="19dp"
+        android:paddingVertical="17dp"
         android:paddingHorizontal="28dp">
 
         <!-- ★ CheckBox للتحديد المتعدد — يظهر فقط في وضع الاختيار ★ -->
@@ -47,6 +48,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layoutDirection="locale"
             android:orientation="vertical">
 
             <!-- ★ اسم الخط — يدعم تظليل نص البحث ★ -->
@@ -57,7 +59,7 @@
                 android:includeFontPadding="false"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:layout_marginBottom="7sp"
+                android:layout_marginBottom="6sp"
                 android:textSize="16sp"
                 android:textColor="?android:attr/textColorPrimary"
                 android:fontFamily="sans-serif"
@@ -87,7 +89,6 @@
             android:id="@+id/font_item_favorite_icon"
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:layout_marginStart="10dp"
             android:src="@drawable/ic_favorite"
             android:visibility="gone"
             tools:visibility="visible" />
