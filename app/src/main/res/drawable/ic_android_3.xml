@@ -9,7 +9,7 @@
   <path
       android:fillColor="@android:color/transparent"
       android:strokeColor="@color/oui_primary_icon_color"
-      android:strokeWidth="80"
+      android:strokeWidth="1.5"
       android:strokeLineJoin="round"
       android:strokeLineCap="round"
       android:pathData="M40,720 Q49,613 105.5,523 Q162,433 256,380 L300,356 Q386,320 480,320 Q574,320 660,356 L704,380 Q798,433 854.5,523 Q911,613 920,720 Z"/>
@@ -18,7 +18,7 @@
   <path
       android:fillColor="@android:color/transparent"
       android:strokeColor="@color/oui_primary_icon_color"
-      android:strokeWidth="60"
+      android:strokeWidth="1.5"
       android:strokeLineCap="round"
       android:pathData="M278,368 L204,220"/>
 
@@ -26,7 +26,7 @@
   <path
       android:fillColor="@android:color/transparent"
       android:strokeColor="@color/oui_primary_icon_color"
-      android:strokeWidth="60"
+      android:strokeWidth="1.5"
       android:strokeLineCap="round"
       android:pathData="M682,368 L756,220"/>
 
