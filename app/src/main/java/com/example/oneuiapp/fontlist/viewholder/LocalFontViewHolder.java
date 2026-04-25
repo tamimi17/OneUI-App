@@ -34,11 +34,20 @@ import com.google.android.material.color.MaterialColors;
  *   - notifyFavoriteChanged(String path)   → تحديث عنصر واحد
  *   - notifyAllFavoritesChanged()          → تحديث جميع العناصر دفعةً
  *
- * ★ الإصلاح: إضافة overload بـ 9 معاملات (بدون isFavorite) ★
- *   يُستدعى من LocalFontListAdapter.bindLocalFontViewHolder() التي تُعيِّن
- *   أيقونة المفضلة بصمت عبر setFavoriteIndicator() بعد استدعاء bind().
- *   بدون هذا الـ overload يحدث خطأ تجميعي لأن الـ Adapter يمرر 9 معاملات
- *   ولا يوجد في الـ ViewHolder ما يطابقها (8 أو 10 فقط).
+ * ★ الإصلاح الجوهري (وميض النجمة): استبدال الإحالة المباشرة في الـ overload ذي 9 معاملات
+ *   بـ bindCore() الخاص الذي يُنفِّذ جميع خطوات الربط ما عدا setFavoriteIndicator().
+ *
+ *   المشكلة السابقة: كان الـ overload ذو 9 معاملات يُحيل إلى bind() الكاملة بـ isFavorite=false،
+ *   مما يستدعي setFavoriteIndicator(false) → النجمة مخفية → ثم يستدعي الـ Adapter
+ *   setFavoriteIndicator(true) بعدها. إذا كان ItemAnimator نشطاً لحظة النداء
+ *   (قبل إبطاله في onHiddenChanged أو بعد إعادة تفعيله)، كان يلتقط الحالة الوسيطة
+ *   (نجمة مخفية) ويُشغّل cross-fade → ظهور الوميض.
+ *
+ *   الحل: bindCore() لا تلمس setFavoriteIndicator إطلاقاً — يتولاها الـ Adapter حصراً.
+ *   بذلك: لا حالة وسيطة → لا وميض.
+ *
+ * ★ إضافة updateLastOpenedHighlight(boolean) لتحديث لون اسم الخط بصمت
+ *   عبر PAYLOAD_UPDATE_LAST_OPENED دون المساس بأيقونة النجمة. ★
  */
 public class LocalFontViewHolder extends RecyclerView.ViewHolder {
     
@@ -61,91 +70,34 @@ public class LocalFontViewHolder extends RecyclerView.ViewHolder {
     }
 
     // ════════════════════════════════════════════════════════════
-    // دوال الربط (bind)
-    // ════════════════════════════════════════════════════════════
-
-    /**
-     * ربط البيانات مع العنصر (بدون وضع التحديد).
-     * يُستدعى عند الحاجة لعرض بسيط بدون اختيار متعدد.
-     */
-    public void bind(String displayName,
-                     String path,
-                     boolean isSearchActive,
-                     String searchQuery,
-                     boolean isLastOpened,
-                     FontTextHighlighter highlighter,
-                     String weightWidthLabel,
-                     boolean isFavorite) {
-        bind(displayName, path, isSearchActive, searchQuery, isLastOpened,
-             highlighter, false, false, weightWidthLabel, isFavorite);
-    }
-
-    // ════════════════════════════════════════════════════════════
-    // ★ الإصلاح: overload بـ 9 معاملات (بدون isFavorite) ★
-    // يُستدعى من LocalFontListAdapter.bindLocalFontViewHolder() التي:
-    //   1. تستدعي هذه الدالة بـ 9 معاملات (مع isSelectionMode/isSelected، بدون isFavorite)
-    //   2. ثم تستدعي setFavoriteIndicator() بشكل منفصل لتعيين حالة المفضلة
+    // ★ الإصلاح الجوهري: bindCore() — قلب منطق الربط بدون setFavoriteIndicator ★
     //
-    // بدون هذا الـ overload: خطأ تجميعي لأن Java لا يجد ما يطابق 9 معاملات.
+    // هذه الدالة الخاصة هي المرجع الوحيد لجميع خطوات الربط المشتركة.
+    // لا تستدعي setFavoriteIndicator() إطلاقاً، مما يضمن:
+    //   1. أن الـ overload ذا 9 معاملات لا يمر بحالة وسيطة (نجمة مخفية).
+    //   2. أن الـ Adapter يتولى تعيين حالة النجمة بعد الاستدعاء مباشرةً
+    //      عبر setFavoriteIndicator(isFavorited) بقيمة صحيحة من FavoriteStatusProvider.
+    //
+    // @param displayName      اسم العرض (بدون صيغة الملف)
+    // @param path             المسار الكامل للملف
+    // @param isSearchActive   هل البحث نشط
+    // @param searchQuery      نص البحث الحالي
+    // @param isLastOpened     هل آخر خط تم فتحه
+    // @param highlighter      أداة التمييز للبحث
+    // @param isSelectionMode  هل وضع التحديد مفعّل
+    // @param isSelected       هل العنصر محدد حالياً
+    // @param weightWidthLabel وصف الوزن والعرض
     // ════════════════════════════════════════════════════════════
+    private void bindCore(String displayName,
+                          String path,
+                          boolean isSearchActive,
+                          String searchQuery,
+                          boolean isLastOpened,
+                          FontTextHighlighter highlighter,
+                          boolean isSelectionMode,
+                          boolean isSelected,
+                          String weightWidthLabel) {
 
-    /**
-     * ★ دالة bind بـ 9 معاملات (بدون isFavorite) ★
-     *
-     * تُستدعى من LocalFontListAdapter.bindLocalFontViewHolder() حيث يُعيَّن
-     * ظهور أيقونة المفضلة بصمت عبر setFavoriteIndicator() بعد الاستدعاء.
-     * تُحيل داخلياً إلى الدالة الكاملة بـ isFavorite = false ريثما يُعيَّن برمجياً.
-     *
-     * @param displayName      اسم العرض (بدون صيغة الملف)
-     * @param path             المسار الكامل للملف
-     * @param isSearchActive   هل البحث نشط
-     * @param searchQuery      نص البحث الحالي
-     * @param isLastOpened     هل آخر خط تم فتحه
-     * @param highlighter      أداة التمييز للبحث
-     * @param isSelectionMode  هل وضع التحديد مفعّل
-     * @param isSelected       هل العنصر محدد حالياً
-     * @param weightWidthLabel وصف الوزن والعرض ("Bold, Condensed" أو "غير معروف" إلخ)
-     */
-    public void bind(String displayName,
-                     String path,
-                     boolean isSearchActive,
-                     String searchQuery,
-                     boolean isLastOpened,
-                     FontTextHighlighter highlighter,
-                     boolean isSelectionMode,
-                     boolean isSelected,
-                     String weightWidthLabel) {
-        // ★ تُحيل للدالة الكاملة بـ isFavorite = false ★
-        // الـ Adapter سيستدعي setFavoriteIndicator() بعد هذه الدالة لتعيين القيمة الصحيحة
-        bind(displayName, path, isSearchActive, searchQuery, isLastOpened,
-             highlighter, isSelectionMode, isSelected, weightWidthLabel, false);
-    }
-
-    /**
-     * ربط البيانات مع العنصر (مع دعم وضع التحديد وأيقونة المفضلة).
-     *
-     * @param displayName      اسم العرض (بدون صيغة الملف)
-     * @param path             المسار الكامل للملف
-     * @param isSearchActive   هل البحث نشط
-     * @param searchQuery      نص البحث الحالي
-     * @param isLastOpened     هل آخر خط تم فتحه
-     * @param highlighter      أداة التمييز للبحث
-     * @param isSelectionMode  هل وضع التحديد مفعّل
-     * @param isSelected       هل العنصر محدد حالياً
-     * @param weightWidthLabel وصف الوزن والعرض ("Bold, Condensed" أو "غير معروف" إلخ)
-     * @param isFavorite       هل الخط مضاف إلى المفضلة (يتحكم في ظهور النجمة الصفراء)
-     */
-    public void bind(String displayName,
-                     String path,
-                     boolean isSearchActive,
-                     String searchQuery,
-                     boolean isLastOpened,
-                     FontTextHighlighter highlighter,
-                     boolean isSelectionMode,
-                     boolean isSelected,
-                     String weightWidthLabel,
-                     boolean isFavorite) {
-        
         this.currentPath = path;
         itemView.setTag(path);
 
@@ -157,10 +109,6 @@ public class LocalFontViewHolder extends RecyclerView.ViewHolder {
             checkBox.setVisibility(View.GONE);
             checkBox.setChecked(false);
         }
-
-        // ★ إظهار/إخفاء أيقونة النجمة الصفراء حسب حالة المفضلة ★
-        // تظهر النجمة في قائمة الخطوط المحلية وقائمة المفضلة على حدٍّ سواء
-        setFavoriteIndicator(isFavorite);
 
         // ★ تغيير لون النص لتمييز آخر خط تم فتحه ★
         // يستخدم colorPrimary الديناميكي للتكيف مع لوحة الألوان الحالية للنظام،
@@ -199,6 +147,106 @@ public class LocalFontViewHolder extends RecyclerView.ViewHolder {
     }
 
     // ════════════════════════════════════════════════════════════
+    // دوال الربط (bind)
+    // ════════════════════════════════════════════════════════════
+
+    /**
+     * ربط البيانات مع العنصر (بدون وضع التحديد).
+     * يُستدعى عند الحاجة لعرض بسيط بدون اختيار متعدد.
+     */
+    public void bind(String displayName,
+                     String path,
+                     boolean isSearchActive,
+                     String searchQuery,
+                     boolean isLastOpened,
+                     FontTextHighlighter highlighter,
+                     String weightWidthLabel,
+                     boolean isFavorite) {
+        bindCore(displayName, path, isSearchActive, searchQuery, isLastOpened,
+                 highlighter, false, false, weightWidthLabel);
+        // ★ setFavoriteIndicator يُستدعى دائماً بعد bindCore لضمان الصحة ★
+        setFavoriteIndicator(isFavorite);
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // ★ الإصلاح: overload بـ 9 معاملات (بدون isFavorite) — مُصلَح لمنع وميض النجمة ★
+    //
+    // يُستدعى من LocalFontListAdapter.bindLocalFontViewHolder() التي:
+    //   1. تستدعي هذه الدالة بـ 9 معاملات (مع isSelectionMode/isSelected، بدون isFavorite)
+    //   2. ثم تستدعي setFavoriteIndicator() بشكل منفصل لتعيين حالة المفضلة
+    //
+    // ★ الإصلاح: يستدعي bindCore() مباشرةً بدلاً من bind() الكاملة بـ isFavorite=false.
+    //   bindCore() لا تلمس setFavoriteIndicator إطلاقاً، فيبقى favoriteIconView على
+    //   حالته الحالية حتى يُعيَّن بقيمة صحيحة من الـ Adapter فور عودة هذه الدالة.
+    //   بذلك تُزال الحالة الوسيطة (نجمة مخفية) التي كانت تُسبب وميض الأيقونة. ★
+    // ════════════════════════════════════════════════════════════
+
+    /**
+     * ★ دالة bind بـ 9 معاملات (بدون isFavorite) — مُصلَحة ★
+     *
+     * تُستدعى من LocalFontListAdapter.bindLocalFontViewHolder() حيث يُعيَّن
+     * ظهور أيقونة المفضلة بصمت عبر setFavoriteIndicator() بعد الاستدعاء.
+     *
+     * ★ التغيير عن النسخة السابقة: لا تُحيل بعد الآن إلى bind() الكاملة بـ isFavorite=false،
+     *   بل تستدعي bindCore() مباشرةً التي لا تلمس favoriteIconView إطلاقاً. ★
+     *
+     * @param displayName      اسم العرض (بدون صيغة الملف)
+     * @param path             المسار الكامل للملف
+     * @param isSearchActive   هل البحث نشط
+     * @param searchQuery      نص البحث الحالي
+     * @param isLastOpened     هل آخر خط تم فتحه
+     * @param highlighter      أداة التمييز للبحث
+     * @param isSelectionMode  هل وضع التحديد مفعّل
+     * @param isSelected       هل العنصر محدد حالياً
+     * @param weightWidthLabel وصف الوزن والعرض ("Bold, Condensed" أو "غير معروف" إلخ)
+     */
+    public void bind(String displayName,
+                     String path,
+                     boolean isSearchActive,
+                     String searchQuery,
+                     boolean isLastOpened,
+                     FontTextHighlighter highlighter,
+                     boolean isSelectionMode,
+                     boolean isSelected,
+                     String weightWidthLabel) {
+        // ★ الإصلاح: bindCore() لا تستدعي setFavoriteIndicator إطلاقاً ★
+        // الـ Adapter سيستدعي setFavoriteIndicator(isFavorited) بعد هذه الدالة
+        // بقيمة صحيحة من FavoriteStatusProvider — بدون أي حالة وسيطة — بدون وميض
+        bindCore(displayName, path, isSearchActive, searchQuery, isLastOpened,
+                 highlighter, isSelectionMode, isSelected, weightWidthLabel);
+    }
+
+    /**
+     * ربط البيانات مع العنصر (مع دعم وضع التحديد وأيقونة المفضلة).
+     *
+     * @param displayName      اسم العرض (بدون صيغة الملف)
+     * @param path             المسار الكامل للملف
+     * @param isSearchActive   هل البحث نشط
+     * @param searchQuery      نص البحث الحالي
+     * @param isLastOpened     هل آخر خط تم فتحه
+     * @param highlighter      أداة التمييز للبحث
+     * @param isSelectionMode  هل وضع التحديد مفعّل
+     * @param isSelected       هل العنصر محدد حالياً
+     * @param weightWidthLabel وصف الوزن والعرض ("Bold, Condensed" أو "غير معروف" إلخ)
+     * @param isFavorite       هل الخط مضاف إلى المفضلة (يتحكم في ظهور النجمة الصفراء)
+     */
+    public void bind(String displayName,
+                     String path,
+                     boolean isSearchActive,
+                     String searchQuery,
+                     boolean isLastOpened,
+                     FontTextHighlighter highlighter,
+                     boolean isSelectionMode,
+                     boolean isSelected,
+                     String weightWidthLabel,
+                     boolean isFavorite) {
+        bindCore(displayName, path, isSearchActive, searchQuery, isLastOpened,
+                 highlighter, isSelectionMode, isSelected, weightWidthLabel);
+        // ★ setFavoriteIndicator يُستدعى دائماً بعد bindCore لضمان الصحة ★
+        setFavoriteIndicator(isFavorite);
+    }
+
+    // ════════════════════════════════════════════════════════════
     // ★ تحديث أيقونة المفضلة بشكل مستقل ★
     // ════════════════════════════════════════════════════════════
 
@@ -216,6 +264,37 @@ public class LocalFontViewHolder extends RecyclerView.ViewHolder {
         if (favoriteIconView != null) {
             favoriteIconView.setVisibility(isFavorite ? View.VISIBLE : View.GONE);
         }
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // ★ تحديث تمييز آخر خط مفتوح بصمت (PAYLOAD_UPDATE_LAST_OPENED) ★
+    // ════════════════════════════════════════════════════════════
+
+    /**
+     * ★ تحديث لون نص اسم الخط فقط دون المساس بأي عنصر آخر ★
+     *
+     * تُستدعى من LocalFontListAdapter عند استقبال PAYLOAD_UPDATE_LAST_OPENED،
+     * أي عند عودة المستخدم من شاشة عارض الخطوط إلى القائمة أو عند حفظ آخر خط مفتوح.
+     *
+     * ★ هذه الدالة لا تلمس favoriteIconView إطلاقاً، مما يمنع أي وميض للنجمة ★
+     *
+     * @param isLastOpened true إذا كان هذا الخط هو آخر خط فتحه المستخدم
+     */
+    public void updateLastOpenedHighlight(boolean isLastOpened) {
+        Context context = itemView.getContext();
+        if (isLastOpened) {
+            int primaryColor = MaterialColors.getColor(
+                context,
+                androidx.appcompat.R.attr.colorPrimary,
+                context.getColor(android.R.color.holo_blue_light) // لون احتياطي
+            );
+            fontNameTextView.setTextColor(primaryColor);
+        } else {
+            fontNameTextView.setTextColor(
+                ContextCompat.getColor(context, dev.oneuiproject.oneui.design.R.color.oui_primary_text_color)
+            );
+        }
+        // ★ لا setFavoriteIndicator — لا وميض ★
     }
 
     // ════════════════════════════════════════════════════════════
@@ -243,4 +322,4 @@ public class LocalFontViewHolder extends RecyclerView.ViewHolder {
     public String getTag() {
         return currentPath;
     }
-}
+                 }
