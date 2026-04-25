@@ -55,7 +55,7 @@
                     android:layout_height="80dp"
                     android:layout_marginBottom="20dp"
                     android:src="@drawable/ic_favorite"
-                    android:alpha="0.6"
+                    android:alpha="0.7"
                     android:antialias="true" />
 
                 <!-- عنوان الحالة الفارغة: يُعيَّن مباشرةً من XML
