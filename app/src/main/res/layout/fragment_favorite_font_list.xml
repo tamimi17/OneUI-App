@@ -55,8 +55,7 @@
                     android:layout_height="80dp"
                     android:layout_marginBottom="20dp"
                     android:src="@drawable/ic_favorite"
-                    android:antialias="true"
-                    android:alpha="0.4" />
+                    android:antialias="true" />
 
                 <!-- عنوان الحالة الفارغة: يُعيَّن مباشرةً من XML
                      ★ للتخصيص: غيّر textSize أو textColor في هذا الملف مباشرةً ★ -->
