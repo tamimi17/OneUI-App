@@ -28,7 +28,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:padding="20dp"
+                android:padding="23dp"
                 android:gravity="center"
                 android:layout_gravity="center">
 
@@ -36,7 +36,7 @@
                     android:layout_width="80dp"
                     android:layout_height="80dp"
                     android:layout_gravity="center"
-                    android:layout_marginBottom="7dp"
+                    android:layout_marginBottom="6dp"
                     android:antialias="true"
                     android:src="@drawable/ic_android_2" />
 
