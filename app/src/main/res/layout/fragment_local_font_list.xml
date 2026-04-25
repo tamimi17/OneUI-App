@@ -47,9 +47,8 @@
                     android:layout_width="80dp"
                     android:layout_height="80dp"
                     android:layout_marginBottom="20dp"
-                    android:src="@drawable/ic_file_type_etc"
-                    android:antialias="true"
-                    android:alpha="0.4" />
+                    android:src="@drawable/ic_device"
+                    android:antialias="true"/>
 
                 <!-- عنوان الحالة الفارغة: يُعيَّن مباشرةً من XML
                      ★ للتخصيص: غيّر textSize أو textColor في هذا الملف مباشرةً ★ -->
@@ -111,8 +110,7 @@
             <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="80dp"
                 android:layout_height="80dp"
-                android:src="@drawable/ic_oui_folder"
-                android:alpha="0.4"
+                android:src="@drawable/ic_device"
                 android:antialias="true"
                 android:layout_marginBottom="20dp"/>
 
