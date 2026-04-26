@@ -45,7 +45,7 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="20dp"
+                android:padding="24dp"
                 android:minHeight="400dp"
                 android:layout_gravity="center">
 
@@ -53,6 +53,7 @@
                 <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="80dp"
                     android:layout_height="80dp"
+                    android:gravity="center"
                     android:layout_marginBottom="20dp"
                     android:src="@drawable/ic_favorite"
                     android:alpha="0.7"
