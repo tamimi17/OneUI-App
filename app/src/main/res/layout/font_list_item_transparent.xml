@@ -16,7 +16,7 @@
     android:layout_marginHorizontal="5dp"
     android:orientation="vertical"
     app:cardBackgroundColor="@android:color/transparent"
-    app:cardCornerRadius="13dp"
+    app:cardCornerRadius="12dp"
     app:cardElevation="0dp"
     app:cardPreventCornerOverlap="false">
 
