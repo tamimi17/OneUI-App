@@ -92,6 +92,11 @@ public class SystemFontListFragment extends Fragment implements AppBarLayout.OnO
     // حالة onHiddenChanged(false) تعتمد على mMainHandler.post() المباشر ولا تحتاج للعلامة.
     private boolean mNeedsScrollRestore = false;
 
+    // ★ يحفظ موضع التمرير قبل أول تصفية بحث، لاستعادته عند إغلاق البحث ★
+    // يُضبط في filterFonts() عند أول تفعيل للبحث، ويُستهلك في resetFilter()
+    // بعد اكتمال تحديث الـ Adapter، ويُمسح في onHiddenChanged(hidden=true).
+    private android.os.Parcelable mPreSearchScrollState = null;
+
     // ★ يحجب جميع أحداث اللمس على الـ RecyclerView ★
     private final RecyclerView.OnItemTouchListener mTouchBlocker =
         new RecyclerView.OnItemTouchListener() {
@@ -491,6 +496,13 @@ public class SystemFontListFragment extends Fragment implements AppBarLayout.OnO
     }
 
     public void filterFonts(String query) {
+        // ★ حفظ موضع التمرير قبل أول تصفية بحث (عند فتح البحث لأول مرة) ★
+        // يُحفظ الموضع مرة واحدة فقط (mPreSearchScrollState == null) لضمان
+        // العودة للموضع الأصلي حتى لو تغيّر نص البحث أكثر من مرة.
+        if (mPreSearchScrollState == null && mRecyclerView != null
+                && mRecyclerView.getLayoutManager() != null) {
+            mPreSearchScrollState = mRecyclerView.getLayoutManager().onSaveInstanceState();
+        }
         mSearchManager.filterFonts(query);
         if (mAdapter != null) {
             mAdapter.updateFilteredFonts(
@@ -507,6 +519,22 @@ public class SystemFontListFragment extends Fragment implements AppBarLayout.OnO
                 mSearchManager.getFilteredFonts(),
                 mSearchManager.getCurrentSearchQuery()
             );
+        }
+        // ★ استعادة موضع التمرير بعد إغلاق البحث وبعد اكتمال تحديث الـ Adapter ★
+        // يُنفَّذ عبر post() لضمان اكتمال رسم الـ layout قبل تطبيق الاستعادة.
+        // هذا الملف يُدير التصفية بشكل متزامن (بدون LiveData للبحث)، لذا الاستعادة
+        // تتم هنا مباشرةً بدلاً من انتظار مراقب SearchViewModel.
+        if (mPreSearchScrollState != null) {
+            final android.os.Parcelable stateToRestore = mPreSearchScrollState;
+            mPreSearchScrollState = null;
+            if (mRecyclerView != null) {
+                mRecyclerView.post(() -> {
+                    if (isAdded() && mRecyclerView != null
+                            && mRecyclerView.getLayoutManager() != null) {
+                        mRecyclerView.getLayoutManager().onRestoreInstanceState(stateToRestore);
+                    }
+                });
+            }
         }
     }
 
@@ -538,6 +566,12 @@ public class SystemFontListFragment extends Fragment implements AppBarLayout.OnO
         if (hidden) {
             // ★ 1. حفظ موضع التمرير فوراً قبل إخفاء الشاشة وقبل أي تحديث للـ Adapter ★
             mUIManager.saveRecyclerViewState();
+
+            // ★ مسح حالة ما قبل البحث عند إخفاء الشاشة ★
+            // عند إخفاء الشاشة، تتولى آلية mUIManager حفظ الموضع واستعادته بشكل كامل.
+            // الإبقاء على mPreSearchScrollState قد يُسبب استعادة موضع قديم خاطئ
+            // عند العودة للشاشة لاحقاً إذا فُتح البحث مرة أخرى.
+            mPreSearchScrollState = null;
 
             // ★ 2. إيقاف الأنيميشن فوراً لنزع قدرة القائمة على الحركة في الخلفية ★
             // هذا يضمن أن أي تحديثات تحدث في الخلفية (مثل إعادة الترتيب عند إغلاق البحث)
