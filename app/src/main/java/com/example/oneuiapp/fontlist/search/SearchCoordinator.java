@@ -33,6 +33,10 @@ import dev.oneuiproject.oneui.layout.DrawerLayout;
  *   - handleSearchIntent() → يقبل Intent البحث عند وجود المفضلة في المقدمة
  *   - saveState()         → يحفظ حالة البحث عند كون الفهرس 4 في المقدمة
  *   - restoreState()      → يستعيد البحث في قائمة المفضلة بعد إعادة البناء
+ *
+ * ★ الإصلاح: تعطيل عنصر القائمة (searchMenuItem) عند توسيع البحث وإعادة تفعيله
+ *   عند طيّه، لمنع منطقة اللمس الشبحية للأيقونة الأصلية من الاستجابة خلف
+ *   أزرار SearchView (الصوت وX والأيقونات الأخرى). ★
  */
 public class SearchCoordinator {
     
@@ -143,6 +147,14 @@ public class SearchCoordinator {
     
     private boolean handleSearchExpand() {
         isSearchExpanded = true;
+
+        // ★ الإصلاح: تعطيل عنصر القائمة فور توسيع البحث ★
+        // هذا يُلغي منطقة اللمس الشبحية للأيقونة الأصلية التي كانت تستجيب
+        // خلف أزرار SearchView (زر الصوت وزر X وغيرهما) رغم إخفائها بصرياً.
+        // تعطيل MenuItem لا يؤثر على SearchView لأنه action view مستقل.
+        if (searchMenuItem != null) {
+            searchMenuItem.setEnabled(false);
+        }
         
         if (drawerLayout != null) {
             drawerLayout.setTitle(activity.getString(R.string.search_font));
@@ -166,6 +178,12 @@ public class SearchCoordinator {
     private boolean handleSearchCollapse() {
         isSearchExpanded = false;
         savedSearchQuery = "";
+
+        // ★ الإصلاح: إعادة تفعيل عنصر القائمة عند طي البحث ★
+        // يُعيد منطقة اللمس للأيقونة الأصلية حتى يتمكن المستخدم من فتح البحث مجدداً.
+        if (searchMenuItem != null) {
+            searchMenuItem.setEnabled(true);
+        }
         
         if (searchView != null) {
             searchView.setQuery("", false);
