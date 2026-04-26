@@ -20,11 +20,10 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layoutDirection="locale"
         android:background="@drawable/font_list_ripple"
         android:animateLayoutChanges="true"
         android:paddingHorizontal="28dp"
-        android:paddingVertical="17dp">
+        android:paddingVertical="15dp">
 
         <!-- CheckBox للتحديد المتعدد — يظهر فقط في وضع الاختيار -->
         <CheckBox
@@ -42,7 +41,6 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layoutDirection="locale"
             android:layout_weight="1"
             android:orientation="vertical">
 
