@@ -6,5 +6,6 @@
         android:id="@+id/action_search_fonts"
         android:icon="@drawable/ic_oui_search"
         android:title="@string/search_font"
-        app:showAsAction="always" />
+        app:showAsAction="always"
+        app:actionViewClass="androidx.appcompat.widget.SearchView" />
 </menu>
