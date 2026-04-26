@@ -30,8 +30,8 @@ import com.google.android.material.appbar.CollapsingToolbarLayout;
 public class DrawerCollapsingToolbarLayout extends CollapsingToolbarLayout {
 
     // ★ أحجام الخط المخصصة لدرج التنقل — عدِّلهما حسب الحاجة ★
-    private static final float DRAWER_TITLE_TEXT_SIZE    = 37f;
-    private static final float DRAWER_SUBTITLE_TEXT_SIZE = 20f;
+    private static final float DRAWER_TITLE_TEXT_SIZE    = 34f;
+    private static final float DRAWER_SUBTITLE_TEXT_SIZE = 15f;
 
     // ★ وحدة الحجم: غيّرها إلى COMPLEX_UNIT_DIP إذا أردت dp بدلاً من sp ★
     private static final int TEXT_SIZE_UNIT = TypedValue.COMPLEX_UNIT_DIP;
