@@ -6,7 +6,6 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -109,11 +108,6 @@ public class FavoriteFontListFragment extends Fragment implements AppBarLayout.O
 
     // ★ القائمة الحالية للخطوط المفضلة — تُحدَّث من favoritesLiveData ★
     private List<LocalFontListViewModel.FontFileInfoWithMetadata> mCurrentFavoritesList = new ArrayList<>();
-
-    // ★ حالة التمرير المحفوظة قبل تفعيل البحث — لاستعادة الموضع عند إغلاق البحث ★
-    // يُحفظ في filterFonts() أول مرة فقط (قبل تفعيل البحث)، ويُستعاد في مراقب
-    // SearchQueryLiveData عندما يصبح الاستعلام فارغاً بعد انتهاء تحديث الـ Adapter.
-    private Parcelable mPreSearchScrollState;
 
     // ─────────────────────────────────────────────────────────
     // ★ حاجب اللمس — يُستدعى من NavManager عند الانتقال لعارض الخطوط ★
@@ -275,21 +269,6 @@ public class FavoriteFontListFragment extends Fragment implements AppBarLayout.O
                         mSearchManager.getFilteredFonts(),
                         mSearchManager.getCurrentSearchQuery()
                     );
-                }
-
-                // ★ الإصلاح (حفظ موضع التمرير عند البحث):
-                //   عندما يصبح نص البحث فارغاً (إغلاق البحث) واستعدنا حالة التمرير المحفوظة،
-                //   نؤخّر الاستعادة بـ post() لضمان اكتمال رسم الـ Adapter أولاً.
-                //   الاستعادة هنا (داخل مراقب LiveData) وليس في resetFilter() مباشرةً،
-                //   لأن تحديث الـ Adapter يتم بشكل غير متزامن عبر LiveData. ★
-                if (query.isEmpty() && mPreSearchScrollState != null && mRecyclerView != null) {
-                    final Parcelable stateToRestore = mPreSearchScrollState;
-                    mPreSearchScrollState = null;
-                    mRecyclerView.post(() -> {
-                        LinearLayoutManager lm =
-                            (LinearLayoutManager) mRecyclerView.getLayoutManager();
-                        if (lm != null) lm.onRestoreInstanceState(stateToRestore);
-                    });
                 }
             }
         });
@@ -573,27 +552,14 @@ public class FavoriteFontListFragment extends Fragment implements AppBarLayout.O
     // دوال البحث — تُستدعى من SearchCoordinator
     // ════════════════════════════════════════════════════════════
 
-    /**
-     * تفعيل البحث وتصفية قائمة المفضلة بنص البحث المعطى.
-     *
-     * ★ الإصلاح (حفظ موضع التمرير):
-     *   نحفظ حالة التمرير الحالية قبل أول تصفية فقط، أي عندما لا يكون البحث نشطاً بعد.
-     *   هذا يضمن حفظ الموضع الأصلي للقائمة (قبل فلترة أي شيء)، لا موضع وسط البحث.
-     *   الاستعادة تتم لاحقاً في مراقب SearchQueryLiveData عند إفراغ نص البحث. ★
-     */
+    /** تفعيل البحث وتصفية قائمة المفضلة بنص البحث المعطى */
     public void filterFonts(String query) {
-        // ★ حفظ موضع التمرير قبل أول تصفية فقط (أي قبل تفعيل البحث) ★
-        if (!mSearchManager.isSearchActive() && mRecyclerView != null) {
-            LinearLayoutManager lm = (LinearLayoutManager) mRecyclerView.getLayoutManager();
-            if (lm != null) mPreSearchScrollState = lm.onSaveInstanceState();
-        }
         mSearchViewModel.setSearchQuery(query);
         mSearchViewModel.activateSearch();
     }
 
     /** إلغاء البحث وإعادة عرض قائمة المفضلة كاملةً */
     public void resetFilter() {
-        // ★ مسح استعلام البحث يُطلق مراقب SearchQueryLiveData الذي يتولى استعادة موضع التمرير ★
         mSearchViewModel.deactivateSearch();
     }
 
@@ -778,4 +744,4 @@ public class FavoriteFontListFragment extends Fragment implements AppBarLayout.O
         if (mMainHandler != null) mMainHandler.removeCallbacksAndMessages(null);
         if (mExecutor != null)    mExecutor.shutdown();
     }
-            }
+                    }
