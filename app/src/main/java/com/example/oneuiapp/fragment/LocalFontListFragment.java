@@ -100,6 +100,11 @@ public class LocalFontListFragment extends Fragment implements AppBarLayout.OnOf
 
     private boolean mIsFirstLoad = true;
 
+    // ★ يحفظ موضع التمرير قبل أول تصفية بحث، لاستعادته عند إغلاق البحث ★
+    // يُضبط في filterFonts() عند أول تفعيل للبحث، ويُستهلك في مراقب SearchQuery
+    // عندما يصبح الاستعلام فارغاً (أي عند إغلاق البحث)، ويُمسح في onHiddenChanged.
+    private android.os.Parcelable mPreSearchScrollState = null;
+
     // ★ يحجب جميع أحداث اللمس على الـ RecyclerView ★
     private final RecyclerView.OnItemTouchListener mTouchBlocker =
         new RecyclerView.OnItemTouchListener() {
@@ -306,6 +311,23 @@ public class LocalFontListFragment extends Fragment implements AppBarLayout.OnOf
                         mSearchManager.getFilteredFonts(),
                         mSearchManager.getCurrentSearchQuery()
                     );
+                }
+
+                // ★ استعادة موضع التمرير عند إغلاق البحث (عندما يصبح الاستعلام فارغاً) ★
+                // الشرط !isHidden() يمنع الاستعادة في حالة إخفاء الشاشة بدلاً من إغلاق البحث،
+                // لأن onHiddenChanged يستدعي deactivateSearch() أيضاً مما يُفرّغ الاستعلام.
+                // في حالة الإخفاء، تتولى آلية mUIManager حفظ الموضع واستعادته بشكل مستقل.
+                if (query.isEmpty() && mPreSearchScrollState != null && !isHidden()) {
+                    final android.os.Parcelable stateToRestore = mPreSearchScrollState;
+                    mPreSearchScrollState = null;
+                    if (mRecyclerView != null) {
+                        mRecyclerView.post(() -> {
+                            if (isAdded() && !isHidden() && mRecyclerView != null
+                                    && mRecyclerView.getLayoutManager() != null) {
+                                mRecyclerView.getLayoutManager().onRestoreInstanceState(stateToRestore);
+                            }
+                        });
+                    }
                 }
             }
         });
@@ -681,6 +703,12 @@ public class LocalFontListFragment extends Fragment implements AppBarLayout.OnOf
             // ★ 1. حفظ موضع التمرير فوراً قبل إخفاء الشاشة وقبل أي تحديث للـ Adapter ★
             mUIManager.saveRecyclerViewState();
 
+            // ★ مسح حالة ما قبل البحث عند إخفاء الشاشة ★
+            // عند إخفاء الشاشة، تتولى آلية mUIManager حفظ الموضع واستعادته بشكل كامل.
+            // الإبقاء على mPreSearchScrollState قد يُسبب استعادة موضع قديم خاطئ
+            // عند العودة للشاشة لاحقاً إذا فُتح البحث مرة أخرى.
+            mPreSearchScrollState = null;
+
             // ★ 2. إيقاف الأنيميشن فوراً لنزع قدرة القائمة على الحركة في الخلفية ★
             // هذا يضمن أن أي تحديثات تحدث في الخلفية (مثل إعادة الترتيب عند إغلاق البحث)
             // تُطبَّق بصمت تام دون أن يراها المستخدم عند العودة
@@ -820,12 +848,21 @@ public class LocalFontListFragment extends Fragment implements AppBarLayout.OnOf
     }
 
     public void filterFonts(String query) {
+        // ★ حفظ موضع التمرير قبل أول تصفية بحث (عند فتح البحث لأول مرة) ★
+        // يُحفظ الموضع مرة واحدة فقط (mPreSearchScrollState == null) لضمان
+        // العودة للموضع الأصلي حتى لو تغيّر نص البحث أكثر من مرة.
+        if (mPreSearchScrollState == null && mRecyclerView != null
+                && mRecyclerView.getLayoutManager() != null) {
+            mPreSearchScrollState = mRecyclerView.getLayoutManager().onSaveInstanceState();
+        }
         mSearchViewModel.setSearchQuery(query);
         mSearchViewModel.activateSearch();
     }
 
     public void resetFilter() {
         mSearchViewModel.deactivateSearch();
+        // ★ الاستعادة تتم في مراقب getSearchQueryLiveData() عند تلقّي الاستعلام الفارغ،
+        // لضمان تزامنها مع اكتمال تحديث الـ Adapter قبل تطبيق موضع التمرير. ★
     }
 
     @Override
