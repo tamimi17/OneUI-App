@@ -37,7 +37,7 @@
             <!-- وصف الوزن والعرض للخطوط الثابتة -->
             <TextView
                 android:id="@+id/weight_label_text"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="?android:attr/textColorSecondary"
                 android:textSize="17sp"
@@ -55,7 +55,7 @@
             <!-- معاينة النص -->
             <TextView
                 android:id="@+id/preview_sentence"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:lineSpacingExtra="7dp"
                 android:clickable="true"
