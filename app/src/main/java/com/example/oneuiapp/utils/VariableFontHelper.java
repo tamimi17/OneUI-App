@@ -19,6 +19,9 @@ import java.util.List;
  * 1. إضافة دعم كامل لملفات TTC في جميع الدوال
  * 2. إصلاح createTypefaceWithWeight لتطبيق الوزن بشكل صحيح مع TTC Index
  * 3. إصلاح extractVariableInstances لقراءة المعلومات من الفهرس الصحيح
+ * 4. ★ إصلاح createTypefaceWithWeight: إزالة الاستثناء الخاص بالوزن 400
+ *    لضمان تطبيق محور wght صراحةً دائماً، حتى لا يُرسَم الخط بقيمته الافتراضية
+ *    الداخلية (في fvar) عندما تختلف عن 400 كما في بعض خطوط Samsung One VF ★
  */
 public class VariableFontHelper {
     
@@ -320,6 +323,13 @@ public class VariableFontHelper {
 
     /**
      * إنشاء Typeface مع وزن محدد و TTC Index - النسخة المحدثة
+     *
+     * ★ الإصلاح: حُذف الاستثناء الخاص بالوزن 400 (weight != 400).
+     *   سابقاً كان الكود يتخطى تعيين محور wght عندما يكون الوزن المطلوب 400،
+     *   مما يجعل Android يُرسم الخط بقيمته الافتراضية الداخلية في جدول fvar.
+     *   بعض الخطوط المتغيرة (كـ Samsung One Extra Lite VF) تُعرّف قيمة افتراضية
+     *   مختلفة عن 400، فيظهر الخط بوزن خاطئ رغم اختيار Regular في المنتقي.
+     *   الإصلاح: تطبيق محور wght صراحةً لأي وزن موجب، بما فيه 400. ★
      */
     public static Typeface createTypefaceWithWeight(File fontFile, float weight, int ttcIndex) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
@@ -339,8 +349,10 @@ public class VariableFontHelper {
                 android.util.Log.d(TAG, "Set TTC index: " + ttcIndex);
             }
             
-            // تعيين الوزن
-            if (weight > 0 && weight != 400) {
+            // ★ تطبيق الوزن صراحةً لأي قيمة موجبة دون استثناء 400 ★
+            // هذا يضمن أن الخط يُرسم بالوزن المطلوب تحديداً وليس بقيمته الافتراضية
+            // المدوّنة في جدول fvar، والتي قد تختلف عن 400 في بعض الخطوط.
+            if (weight > 0) {
                 String variationSettings = "'wght' " + weight;
                 fontBuilder.setFontVariationSettings(variationSettings);
                 android.util.Log.d(TAG, "Set variation settings: " + variationSettings);
@@ -371,4 +383,4 @@ public class VariableFontHelper {
             }
         }
     }
-                       }
+        }
